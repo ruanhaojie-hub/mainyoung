@@ -1,0 +1,79 @@
+{
+  "id": "3210208",
+  "name": "名扬",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "36611781",
+      "name": "小红书",
+      "font_class": "xiaohongshu",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "740928",
+      "name": "facebook",
+      "font_class": "facebook",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "1049939",
+      "name": "微信",
+      "font_class": "weixin",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
+      "icon_id": "1096425",
+      "name": "email",
+      "font_class": "email",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "1115029",
+      "name": "电话",
+      "font_class": "dianhua",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "18166694",
+      "name": "抖音",
+      "font_class": "douyin",
+      "unicode": "e8db",
+      "unicode_decimal": 59611
+    },
+    {
+      "icon_id": "1228",
+      "name": "首页",
+      "font_class": "shouye",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "586783",
+      "name": "bucket",
+      "font_class": "bucket",
+      "unicode": "e6c1",
+      "unicode_decimal": 59073
+    },
+    {
+      "icon_id": "15928087",
+      "name": "排水管线数据",
+      "font_class": "paishuiguanxianshuju",
+      "unicode": "e775",
+      "unicode_decimal": 59253
+    },
+    {
+      "icon_id": "20768088",
+      "name": "装饰 刷子-2",
+      "font_class": "zhuangshishuazi-2",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    }
+  ]
+}
