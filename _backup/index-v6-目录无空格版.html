@@ -1,0 +1,2267 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>名扬屋顶 MAINYOUNG · Roofing &amp; Painting</title>
+<meta name="description" content="名扬屋顶 —— 金属屋面、外墙涂装、防水修缮。从勘测、深化设计到完工验收，一支队伍走到底。">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ============================================================
+   0. TOKENS
+   ============================================================ */
+:root{
+  --black:#070708;
+  --black-2:#0B0B0D;
+  --black-3:#101014;
+  --paper:#F4EFE3;
+  --muted:rgba(244,239,227,.58);
+  --muted-2:rgba(244,239,227,.38);
+  --gold:#D9BC6B;
+  --gold-hi:#F2E2AE;
+  --gold-dim:rgba(217,188,107,.62);
+  --gold-deep:#8A6E33;
+  --line:rgba(244,239,227,.12);
+  --line-2:rgba(244,239,227,.06);
+  --gold-line:rgba(217,188,107,.26);
+  --serif:"Noto Serif SC","Songti SC",Georgia,serif;
+  --sans:"Noto Sans SC","PingFang SC",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --ease:cubic-bezier(.22,1,.36,1);
+  --spring:cubic-bezier(.2,.9,.24,1.02);
+  --nav-h:96px;
+  --hero-img:url("./picture/1.head/base.jpg");
+}
+
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--black);
+  color:var(--paper);
+  font-family:var(--sans);
+  font-weight:300;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+body.lock{overflow:hidden;}
+a{color:inherit;}
+:focus-visible{outline:1px solid var(--gold);outline-offset:4px;}
+img{border:0;}
+
+.wrap{width:100%;max-width:1440px;margin:0 auto;padding:0 56px;}
+#home,#about,#services,#contact{scroll-margin-top:84px;}
+.eyebrow{
+  display:flex;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:10px;font-weight:400;
+  letter-spacing:.28em;text-transform:uppercase;
+  color:var(--gold-dim);margin:0;
+}
+.eyebrow::before{
+  content:"";width:36px;height:1px;background:var(--gold);opacity:.7;
+}
+
+/* ============================================================
+   1. 透明导航栏
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:90;
+  height:var(--nav-h);
+  display:flex;align-items:center;
+  background-color:transparent;
+  border-bottom:1px solid transparent;
+  transition:height .55s var(--ease), background-color .55s var(--ease),
+             border-color .55s var(--ease), backdrop-filter .55s var(--ease);
+  -webkit-backdrop-filter:blur(10px) saturate(120%);
+  backdrop-filter:blur(10px) saturate(120%);
+}
+/* 顶部压暗渐变：保证透明状态下文字可读 */
+.nav::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg, rgba(5,5,6,.66) 0%, rgba(5,5,6,.22) 62%, rgba(5,5,6,0) 100%);
+  opacity:1;transition:opacity .55s var(--ease);
+}
+.nav.is-scrolled{
+  height:72px;
+  background-color:rgba(8,8,9,.82);
+  border-bottom-color:var(--gold-line);
+  -webkit-backdrop-filter:blur(18px) saturate(130%);
+  backdrop-filter:blur(18px) saturate(130%);
+}
+.nav.is-scrolled::before{opacity:.12;}
+
+/* 导航底部：整页滚动进度金线（覆盖在导航下边线上） */
+.nav-prog{
+  position:absolute;left:0;right:0;bottom:-1px;
+  height:2px;pointer-events:none;z-index:5;
+  overflow:hidden;
+}
+.nav-prog i{
+  display:block;height:100%;width:100%;
+  transform:scaleX(0);transform-origin:0 50%;
+  background:linear-gradient(90deg, rgba(217,188,107,.55) 0%, var(--gold) 45%, var(--gold-hi) 100%);
+  box-shadow:0 0 10px rgba(217,188,107,.55), 0 0 3px rgba(242,226,174,.7);
+  transition:transform .1s linear;
+}
+
+.nav-inner{
+  position:relative;
+  width:100%;max-width:1440px;margin:0 auto;
+  padding:0 56px;
+  display:flex;align-items:center;gap:32px;
+  height:100%;
+}
+
+/* 品牌 */
+.brand{
+  flex:0 0 auto;
+  display:flex;align-items:center;
+  text-decoration:none;
+}
+.brand img{
+  height:42px;width:auto;display:block;
+  transition:height .55s var(--ease), opacity .3s;
+}
+.nav.is-scrolled .brand img{height:34px;}
+.brand:hover img{opacity:.92;}
+
+/* 主导航 */
+.menu-links{
+  position:relative;
+  flex:1 1 auto;
+  display:flex;align-items:center;justify-content:center;
+  height:100%;
+}
+.menu-links a{
+  position:relative;z-index:2;
+  display:flex;align-items:center;
+  height:100%;padding:0 18px;
+  font-size:12px;font-weight:400;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(244,239,227,.64);
+  text-decoration:none;
+  white-space:nowrap;
+  transition:color .35s;
+}
+.menu-links a:hover{color:var(--paper);}
+.menu-links a.is-active{color:var(--gold);}
+.link-line{
+  position:absolute;
+  bottom:16px;left:0;width:0;height:1px;
+  background:linear-gradient(90deg, rgba(217,188,107,0), var(--gold) 18%, var(--gold) 82%, rgba(217,188,107,0));
+  box-shadow:0 0 14px rgba(217,188,107,.45);
+  transition:left .6s var(--spring), width .6s var(--spring), opacity .3s;
+  z-index:1;
+}
+
+/* 右侧：电话 / 邮箱 / 社交 / 菜单按钮 */
+.nav-right{
+  flex:0 0 auto;
+  display:flex;align-items:center;gap:26px;
+}
+.contact{
+  display:flex;flex-direction:column;align-items:flex-end;gap:5px;
+  line-height:1.25;
+  text-align:right;
+}
+.contact a{
+  display:inline-flex;align-items:center;gap:5px;
+  text-decoration:none;
+  transition:color .3s;
+}
+.contact .iconfont{
+  font-size:13px;line-height:1;
+  color:rgba(217,188,107,.55);
+  transition:color .3s;
+}
+.contact .tel:hover .iconfont,.contact .mail:hover .iconfont{color:var(--gold-hi);}
+.contact .tel{
+  font-family:var(--mono);font-size:15px;letter-spacing:.04em;
+  color:rgba(244,239,227,.85);
+}
+.contact .mail{
+  font-family:var(--mono);font-size:12px;letter-spacing:.07em;
+  color:rgba(217,188,107,.6);
+}
+.contact .tel:hover,.contact .mail:hover{color:var(--gold-hi);}
+
+.socials{display:flex;align-items:center;gap:10px;}
+/* ===== 字体图标：icon 文件夹 / iconfont.cn 项目 3210208「名扬」 =====
+   本地优先读 ./icon/iconfont.woff2，读不到时用内嵌 base64 兜底，
+   所以整个页面复制到任何地方都不会丢图标。 */
+@font-face{
+  font-family:"iconfont";
+  src:url("./icon/iconfont.woff2") format("woff2"),
+      url("./icon/iconfont.ttf") format("truetype"),
+      url("data:font/woff2;base64,d09GMgABAAAAAAj4AAsAAAAAD2gAAAirAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHFQGYACELgqPfIxwATYCJAMsCxgABCAFhGcHgSEb/wxRlFBSINlX2JThXiQmheuIG8YCXuATADAqAgoUKKCAR7TnAMHzuB+/c3e3Pfuigoh1sUQjVFEJiVJFOxES9T/Bdf+7dL+MNaNgd0nmVtPyfq9ZN/KPXNIpcQrjcAiJw2IUBMSpn2kBCmAuYMGuAT4p1glaboE3Yss7AQKAhnDT7kg11zqe1pO6Qd0DTAytTp1snmyOzhSYiQJvIjHw92OzItogZO7hjZA4ahH9itnEtFkj7dZWKiGpziSJNeL6bqGn5bhF3ZpMVDtTuKBPQUBqniMdjauHZxip0RlY0MU+K8h2Sq0lQp8UYTvUIuaetm28Wm7iYPbmGXAj+nn5s6AYDBdhX2vL4rIKX59Rva0nw0nQJ6fmOwDlDXBAwaydxeTUnblDEzQrImnTfmsvoMWYdF77osCKpGgsWoplxdNyX/UyBOg2eEfbKdHiWM9sBiKWrPQPzzFiCQ9JQVID0otLKQrgmRGh4JlhUWBmCIpATJWGg2sc5UMIB7QEMOPpDTAjRjkTAdHqbaC8gjir3AYYAuYAWhLpDpJ8u0LbrzAcZfJsPG2qn1WXdQ/0Jx1uPafqNm2vLXc1Zg2tXV3OIPS0YSC8fsSZBdv5RhPfhAdZiWOE1YoQhsMRtgyxCcezjxFous1JcS/igVcBDt9vOHs1BnFWCBkcB7gQhLzn4ZIPIjiHZ3xcdOAqRBht5O8CPI96XaW0WODe2L0qrVmyHe4btS3jogcirS3juPigN5n/OsNk4tv4JoEZocMpcLH+2LNbCOspkZUQ4ayLOKUSTQRGMznXQbhTyggtQi1wkPuKPLKDlHn6omGRFRFavz5bdTnHJgY4yCBsNkd57DGcpV/jCwJj9Q0FraLOUPsRl7wDMl6VV8ldMZ5nXcwxmr3IXOKcRsdUpuZm73WvjW6FGx1mfbFC+az2loYCH2rlirg/rVIXaVBjEybxtAag74NzcVbpcbDHPz+EIm+tF3HlF8qvZG4X2/gO0kRCB9+0gWdwdoMXqU8QJ7Kmw62iremHuNIL7swj4CT9mJ7Pejp47p265gkxqv3tQxwFDuDs482sfcI980JfFJ/LjcB85+4Ux12hJc3gErpup8h1M/d1O821V1SpUl3zpppTFVfcL1InHUqT3e1OaQEYL5P4O82xNtBBcK6LEGqH9DpDn85hTNU7ufS+Q8w0Q2yKjjs/DHMYR5uMAr2ZE0ErIzRYWP5Um/h6xkuGyp130uAccSxhh/Jk1nwQJEr8zht7PAkQBgMkCKAr7hduUBvCB/3a80eaHXwcWlz7HIBo32WXaPQQdwX0dGCTk4dJQYjowFEImWsIkb91rWaKurq0G23JCMfDrny4KzZ74v3C43m/BHaVVql1dm/Sf5esvWjB1ANN1xNAj/wdWc0Yn9jOY4u2U4IGujvYGdKRSG56e+D9AYNeWa/Bq5hgsqQK3snd8emnkoT6J20c5quLIrC27aE1tHwg3s/vq5bRvm3PsdCQGGHhmCPv7fu2MvncmoFAzjTyzsXuLqx7YlKbIlwW7vVN2aiO5qd1gJVYZsaKB8zkC+PL9sOcePmVmZXTwfalrdgjDDdhhqM+U6s+xKti8bNkbXjrBpnoVzCju7R9qn9g46j9Xr798q8PXwT4QsHmVZdXfeH9FJzOCo0PaeiftqVape5J6UrOrstpoJvGldVlJwwtqKgV8k5JwsL2Ux1dTB3ZkDS5XwSy6rP+z/r4EYlCk/rhq7GGw6vXNHTSDYl18V2z17r20J62psXuiBRNgXQEC5PXqsMM8c78KV5YX1ySJ64P/L/n2vZKArjrKt95M/ad9/01f8fOG/+/nTvXeJB3c0FAlSFZQ2lkhorFiysMsnQQkw1VAfWZdS9b6OzoD64u3Cn5pKXwu7Dx5yeCE7NdEYnqMY/gpTvCxAjXbAJ4uE/D86sfzOpsW24lsumWzLpMUHbrjcpZydQEMCKtNaWpPr0x3cHZQzva8+iEomquT6tLS5ZemiuhfierO8ma31oL/zskXz5SUz55sKryDFhza2NvGMgZ/KbXJsHtM//98f8owCx1X8fH5Ub+3+Pa8fi6biT8jx46czShrmZFXtg8SyN20RT78KF97S1hxPUbOxPibkXcDg5dfDk6TfzY93vw5G25fGBATvwWIRlfmBD5I1A1MJCglMniA7dK9aT8+MLh91ZLVydRq4hVIP6cVVSSTWp7feuPan9RXHUOom98VpW8kvg7d3Rz+aTP3wNVIOI2tWlj06bN75SqC2XjSoLfpDbk7E6D99K74t6N68x4k9xgTtzY3RdYtB7k2GjfF0/eJOI28II8ljdRJIh4qYehZHSO/9I0ol7qOSSliUHhnjo4B9bvFg4StPSQR1pPgMUfKIxd0I87jhBOao+ehPO9/z0JgGUeEM7q36PkMif0rifD7xCs6HqAMPOWZE5aHbP84mBnwRKVY/Xv+DZafYuzf6eZMsN/5Bzj0yf8mH6SmGnLCNid9O50NPtpfrMRgTmifvQvdrSXScLviHaLrpGazEPJvAGpcwKYmtEmv/OzZmo3E8eaMzAi3aBiQ0IrnQInswC82GpITbvsnGmW6iRxAoz5ICAafIJR5y6oBt9CK/0Bp80feA3+IbUryPrLjLXn3HJ0vMoqTaYDMsLlLsr1kUsfo62be+U20zDDSvlieeWaG26naJDVZNk5wYSlhF0J1+NxTCy1FPLA5ZVz6V6hIJoa5ANK4JzFIRcYVjEVTUstQAyR3RV/3yNO8mLIUgpfU1bGOTF3piSvSCG8JobqyJ3sz9RIZQ5TAvOQxeUEcyXZAcXiImHS5vkQF+iZPDViPrWn4GQTtCS/Pks+bMJnd6zdOguMqFhx4iWSWBJm6ItqyHYaSZGRmfJ9Cwx4hSjq2XLd0KZ7nqCOe2cajfLYMyPf1KZnqaJx3jPxv+Z5N5WiHjWvpUczCzLZfOjHW0pxzOas34gtvVsGAA==") format("woff2");
+  font-display:block;
+}
+.iconfont{
+  font-family:"iconfont" !important;
+  font-style:normal;
+  font-size:16px;
+  line-height:1;
+  display:inline-block;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+.icon-xiaohongshu:before{content:"\e603";}
+.icon-facebook:before{content:"\e638";}
+.icon-weixin:before{content:"\e609";}
+.icon-email:before{content:"\e602";}
+.icon-dianhua:before{content:"\e614";}
+.icon-douyin:before{content:"\e8db";}
+.icon-shouye:before{content:"\e600";}
+.icon-bucket:before{content:"\e6c1";}
+.icon-paishuiguanxianshuju:before{content:"\e775";}
+.icon-zhuangshishuazi-2:before{content:"\e611";}
+.social{
+  width:34px;height:34px;
+  display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--gold-line);
+  border-radius:50%;
+  color:rgba(244,239,227,.85);
+  text-decoration:none;
+  transition:background-color .3s, color .3s, border-color .3s, transform .3s var(--ease);
+}
+.social:hover{
+  background:var(--gold);border-color:var(--gold);
+  color:#0A0A0B;transform:translateY(-1px);
+}
+
+.burger{
+  display:none;
+  width:40px;height:40px;
+  align-items:center;justify-content:center;
+  border:1px solid var(--line);
+  border-radius:2px;
+  background:transparent;color:var(--paper);
+  cursor:pointer;transition:border-color .3s, color .3s;
+}
+.burger:hover{border-color:var(--gold-line);color:var(--gold);}
+.burger svg{width:18px;height:18px;}
+
+/* 展开菜单 */
+.drawer{
+  position:fixed;inset:0;z-index:120;
+  display:flex;flex-direction:column;
+  padding:24px 24px 36px;
+  background:linear-gradient(180deg, #0A0A0C 0%, #070708 100%);
+  opacity:0;visibility:hidden;transform:translateY(-10px);
+  transition:opacity .42s var(--ease), transform .42s var(--ease), visibility .42s;
+}
+.drawer.is-open{opacity:1;visibility:visible;transform:none;}
+.drawer-top{
+  display:flex;align-items:center;justify-content:space-between;
+  padding-bottom:18px;border-bottom:1px solid var(--line-2);
+}
+.drawer-top img{height:32px;width:auto;}
+.drawer-close{
+  height:38px;padding:0 14px;
+  border:1px solid var(--line);border-radius:2px;
+  background:transparent;color:var(--muted);
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  cursor:pointer;
+}
+.drawer-links{list-style:none;margin:8px 0 0;padding:0;flex:1 1 auto;overflow-y:auto;}
+.drawer-links li{border-bottom:1px solid var(--line-2);}
+.drawer-links a{
+  display:flex;align-items:baseline;justify-content:space-between;gap:16px;
+  padding:18px 2px;text-decoration:none;
+}
+.drawer-links .en{
+  font-family:var(--serif);font-weight:900;font-size:30px;
+  letter-spacing:.02em;color:var(--paper);
+}
+.drawer-links .cn{
+  font-family:var(--mono);font-size:10px;letter-spacing:.24em;
+  color:var(--gold-dim);
+}
+.drawer-links a:active .en{color:var(--gold);}
+.drawer-foot{
+  border-top:1px solid var(--line-2);padding-top:20px;
+  display:grid;gap:14px;
+}
+.drawer-contact{display:flex;flex-direction:column;gap:6px;}
+.drawer-contact a{
+  font-family:var(--mono);font-size:14px;letter-spacing:.04em;
+  color:var(--paper);text-decoration:none;
+}
+.drawer-contact span{
+  font-family:var(--mono);font-size:9px;letter-spacing:.24em;
+  color:var(--gold-dim);text-transform:uppercase;margin-bottom:2px;
+}
+.drawer-socials{display:flex;gap:10px;}
+.drawer-socials .social{width:36px;height:36px;}
+.drawer-socials .iconfont{font-size:18px;}
+
+/* ============================================================
+   2. HERO
+   ============================================================ */
+.hero{
+  position:relative;
+  min-height:100vh;
+  min-height:100svh;
+  display:flex;align-items:center;
+  padding:calc(var(--nav-h) + 64px) 0 120px;
+  overflow:hidden;
+  background:var(--black);
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:var(--hero-img) center 42% / cover no-repeat;
+  transform:scale(1.04);
+  animation:drift 28s ease-in-out infinite alternate;
+  will-change:transform;
+}
+@keyframes drift{
+  from{transform:scale(1.06) translate3d(-1%,0,0);}
+  to{transform:scale(1.01) translate3d(1.5%,0,0);}
+}
+.hero-veil{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg, rgba(5,5,6,.94) 0%, rgba(5,5,6,.74) 34%, rgba(5,5,6,.24) 62%, rgba(5,5,6,.52) 100%),
+    linear-gradient(180deg, rgba(5,5,6,.72) 0%, rgba(5,5,6,.12) 26%, rgba(5,5,6,.55) 72%, #070708 100%);
+}
+.hero .wrap{position:relative;z-index:2;}
+.hero-copy{max-width:660px;}
+.hero h1{
+  font-family:var(--serif);
+  font-weight:900;
+  font-size:clamp(40px, 5.6vw, 84px);
+  line-height:1.14;
+  letter-spacing:.01em;
+  margin:24px 0 0;
+  color:var(--paper);
+}
+.hero h1 em{font-style:normal;position:relative;}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+  .hero h1 em{
+    background:linear-gradient(178deg, var(--gold-hi) 0%, var(--gold) 52%, var(--gold-deep) 100%);
+    -webkit-background-clip:text;background-clip:text;
+    color:transparent;
+  }
+}
+.hero .lede{
+  max-width:30em;
+  margin:26px 0 0;
+  font-size:14px;line-height:2;
+  color:rgba(244,239,227,.72);
+  text-wrap:pretty;
+}
+.hero-actions{display:flex;flex-wrap:wrap;gap:14px;margin-top:38px;}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  height:50px;padding:0 26px;
+  font-size:13px;font-weight:400;letter-spacing:.1em;
+  text-decoration:none;cursor:pointer;
+  border-radius:2px;
+  transition:transform .35s var(--ease), background-color .3s, color .3s, border-color .3s, box-shadow .35s;
+}
+.btn-gold{
+  border:1px solid var(--gold);
+  background:linear-gradient(180deg, #E2C87E, var(--gold));
+  color:#100E08;font-weight:500;
+}
+.btn-gold:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(217,188,107,.22);}
+.btn-ghost{
+  border:1px solid rgba(244,239,227,.22);
+  background:rgba(255,255,255,.02);
+  color:rgba(244,239,227,.86);
+}
+.btn-ghost:hover{transform:translateY(-2px);border-color:var(--gold-dim);color:var(--gold-hi);}
+.btn svg{width:14px;height:14px;}
+
+.hero-meta{
+  margin-top:52px;
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  color:rgba(244,239,227,.42);text-transform:uppercase;
+}
+.hero-meta i{width:1px;height:10px;background:rgba(244,239,227,.24);display:inline-block;}
+
+/* 底部字条 */
+.marquee{
+  position:absolute;left:0;right:0;bottom:0;z-index:2;
+  border-top:1px solid var(--line-2);
+  padding:14px 0;
+  overflow:hidden;
+  background:linear-gradient(180deg, rgba(7,7,8,0), rgba(7,7,8,.6));
+  -webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track{
+  display:flex;align-items:center;gap:34px;
+  width:max-content;
+  animation:slide 62s linear infinite;
+}
+.marquee-track span{
+  font-family:var(--mono);font-size:10px;letter-spacing:.26em;
+  color:rgba(217,188,107,.5);white-space:nowrap;
+}
+/* 字条内容＝六类项目：中文主、英文小字副；英文模式下只留英文 */
+.marquee-track .mq-item{
+  display:inline-flex;align-items:baseline;gap:11px;
+  white-space:nowrap;
+}
+.marquee-track .mq-cn{
+  font-family:var(--sans);font-size:11.5px;font-weight:300;
+  letter-spacing:.16em;color:rgba(217,188,107,.66);
+}
+.marquee-track .mq-en{
+  font-family:var(--mono);font-size:9px;font-weight:400;
+  letter-spacing:.24em;color:rgba(217,188,107,.36);
+}
+html[lang="en"] .marquee-track .mq-cn{display:none;}
+.marquee-track i{
+  width:4px;height:4px;display:block;
+  background:rgba(217,188,107,.35);
+  transform:rotate(45deg);
+}
+@keyframes slide{
+  from{transform:translate3d(0,0,0);}
+  to{transform:translate3d(-50%,0,0);}
+}
+
+/* ============================================================
+   3. ABOUT
+   ============================================================ */
+.section{position:relative;padding:118px 0;border-top:1px solid var(--line-2);}
+.about-grid{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  gap:80px;align-items:start;
+}
+.about-grid h2{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(30px, 3.6vw, 52px);line-height:1.22;
+  margin:22px 0 0;
+}
+.about-grid h2 em{font-style:normal;color:var(--gold);}
+.about-body p{
+  margin:0 0 18px;font-size:14px;line-height:2.05;
+  color:rgba(244,239,227,.7);text-wrap:pretty;
+}
+.about-list{margin-top:32px;border-top:1px solid var(--line);}
+.about-row{
+  display:grid;grid-template-columns:110px 1fr;gap:20px;align-items:baseline;
+  padding:14px 0;border-bottom:1px solid var(--line-2);
+}
+.about-row dt{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.22em;
+  color:var(--gold-dim);text-transform:uppercase;margin:0;
+}
+.about-row dd{
+  margin:0;font-size:13px;color:rgba(244,239,227,.82);letter-spacing:.02em;
+}
+
+/* ---- About 左下：信任数字（滚动到视口内时逐位跳字） ---- */
+.about-stats{
+  margin-top:58px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
+  border-top:1px solid var(--gold-line);
+  border-left:1px solid var(--line-2);
+}
+.stat{
+  padding:24px 22px 20px;
+  border-right:1px solid var(--line-2);
+  border-bottom:1px solid var(--line-2);
+  transition:background-color .4s var(--ease);
+}
+.stat:hover{background:rgba(217,188,107,.035);}
+.stat-num{
+  display:flex;align-items:baseline;gap:1px;
+  font-family:var(--mono);font-weight:500;
+  font-size:clamp(30px, 3.2vw, 42px);
+  line-height:1;letter-spacing:.01em;
+  color:var(--gold);
+  font-variant-numeric:tabular-nums;
+  transition:text-shadow .6s var(--ease);
+}
+.stat-num.is-lit{
+  text-shadow:0 0 22px rgba(217,188,107,.34);
+  animation:statGlow 5.2s ease-in-out infinite;
+}
+@keyframes statGlow{
+  0%,100%{text-shadow:0 0 16px rgba(217,188,107,.22);}
+  50%{text-shadow:0 0 26px rgba(217,188,107,.42);}
+}
+.stat-num .suf{
+  font-size:.52em;line-height:1;
+  color:var(--gold-dim);letter-spacing:.04em;
+  transform:translateY(-.12em);
+}
+.stat-lab{
+  display:block;margin-top:12px;
+  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:rgba(244,239,227,.52);
+  font-family:var(--mono);
+}
+
+/* ============================================================
+   4. 能力：服务与全部项目（合并版块）
+   ============================================================ */
+.svcpj{
+  padding:118px 0;border-top:1px solid var(--line-2);
+  background:linear-gradient(180deg,#070708 0%,#0A0A0C 52%,#070708 100%);
+}
+
+/* ============================================================
+   5. 行动：联系与询价（大字联系带）
+   ============================================================ */
+.direct-big{
+  margin-top:44px;padding-top:30px;
+  border-top:1px solid var(--gold-line);
+}
+.db-l{display:grid;gap:14px;min-width:0;}
+.db-l a{
+  display:flex;align-items:baseline;gap:14px;min-width:0;
+  text-decoration:none;color:var(--paper);
+  transition:color .3s;
+}
+.db-l a:hover{color:var(--gold-hi);}
+.db-l .k{
+  font-family:var(--mono);font-size:9px;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--gold-dim);flex:0 0 auto;min-width:40px;
+}
+.db-l .v{
+  font-family:var(--serif);font-weight:600;letter-spacing:.01em;
+  font-size:clamp(21px,2.1vw,29px);line-height:1.18;
+  overflow-wrap:anywhere;
+}
+.db-l .mail .v{
+  font-family:var(--mono);font-weight:400;letter-spacing:.02em;
+  font-size:clamp(13px,1.35vw,17px);color:rgba(217,188,107,.78);
+}
+.db-r{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:26px;}
+.db-wechat{
+  display:inline-block;margin-top:16px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  color:rgba(217,188,107,.58);text-decoration:none;
+}
+.db-wechat:hover{color:var(--gold-hi);}
+
+/* ============================================================
+   6. FOOTER
+   ============================================================ */
+.foot{
+  border-top:1px solid var(--gold-line);
+  padding:44px 0 52px;
+  background:#060607;
+}
+.foot-inner{
+  display:flex;align-items:flex-start;justify-content:space-between;
+  gap:40px;flex-wrap:wrap;
+}
+.foot-left img{height:33px;width:auto;display:block;opacity:.9;}
+.foot-left p{
+  margin:16px 0 0;font-family:var(--mono);font-size:9.5px;
+  letter-spacing:.18em;color:rgba(244,239,227,.3);text-transform:uppercase;
+}
+.foot-nav{display:flex;flex-wrap:wrap;gap:26px;}
+.foot-nav a{
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;
+  text-transform:uppercase;color:rgba(244,239,227,.5);text-decoration:none;
+  transition:color .3s;
+}
+.foot-nav a:hover{color:var(--gold);}
+.foot-right{display:flex;align-items:center;gap:10px;}
+
+/* ============================================================
+   7. RESPONSIVE
+   ============================================================ */
+@media (max-width:1280px){
+  .nav-inner{padding:0 36px;gap:20px;}
+  .wrap{padding:0 40px;}
+  .menu-links a{padding:0 12px;letter-spacing:.14em;}
+  .contact .tel{font-size:13.5px;}
+  .contact .mail{font-size:10.5px;letter-spacing:.05em;}
+  .contact .iconfont{font-size:12px;}
+  .social{width:30px;height:30px;}
+  .socials{gap:8px;}
+}
+@media (max-width:1120px){
+  :root{--nav-h:84px;}
+  .contact,.socials{display:none;}
+  .burger{display:flex;}
+  .menu-links{justify-content:center;padding-right:0;}
+  .about-grid{gap:56px;}
+}
+@media (max-width:960px){
+  .menu-links{display:none;}
+  .nav-inner{justify-content:space-between;padding:0 24px;}
+  .brand img{height:36px;}
+  .nav.is-scrolled .brand img{height:32px;}
+  .wrap{padding:0 24px;}
+  .about-grid{grid-template-columns:1fr;gap:40px;}
+  .about-stats{margin-top:44px;}
+  .cards{grid-template-columns:1fr;}
+  .card{border-right:0;border-bottom:1px solid var(--line-2);padding:30px 4px 34px;}
+  .card:last-child{border-bottom:0;}
+  .hero{padding-top:calc(var(--nav-h) + 44px);}
+  .hero-meta{gap:10px;}
+  .section{padding:80px 0;}
+}
+@media (max-width:600px){
+  :root{--nav-h:72px;}
+  .nav-inner{padding:0 18px;}
+  .wrap{padding:0 18px;}
+  .brand img{height:32px;}
+  .nav.is-scrolled .brand img{height:30px;}
+  .hero h1{font-size:clamp(34px, 9.4vw, 46px);}
+  .hero .lede{font-size:13px;}
+  .btn{height:46px;padding:0 20px;font-size:12px;}
+  .hero-actions .btn{flex:1 1 auto;}
+  .marquee-track{gap:24px;}
+  .foot-inner{gap:28px;}
+  .stat{padding:18px 14px 15px;}
+  .stat-num{font-size:clamp(25px, 7.2vw, 31px);}
+  .stat-lab{font-size:9px;letter-spacing:.13em;margin-top:10px;}
+}
+
+/* ============================================================
+   8. 动效克制
+   ============================================================ */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  .hero-bg{animation:none;transform:none;}
+  .marquee-track{animation:none;}
+  .link-line,.nav,.card,.social,.btn{transition-duration:.01ms;}
+}
+
+/* ============================================================
+   5. 字体图标字号
+   导航右侧统一放大：34px 圆环 + 16px 图标（≤1280 收成 30px 圆环 + 14px）；
+   移动端抽屉 36px 圆环 + 18px。四枚图标同字号，视觉重量才齐。
+   小红书的「小红书」三字标约 0.55em 高、三字合计约 1.5em 宽，
+   圆环内径足够，因此与其它三枚用同一字号。
+   ============================================================ */
+.social .iconfont{font-size:16px;}
+.drawer-socials .social .iconfont{font-size:17px;}
+@media (max-width:1280px){
+  .social .iconfont{font-size:14px;}
+}
+
+/* ============================================================
+   9. 新增板块：案例轮播 / 全部项目 / 前后对比 / 询价表单 / 语言切换
+   沿用一套 token 与排版节奏，不改动既有骨架
+   ============================================================ */
+#work,#projects,#compare,#quote,#contact{scroll-margin-top:84px;}
+
+/* ---- 语言切换 ---- */
+.lang{
+  flex:0 0 auto;
+  display:inline-flex;align-items:center;justify-content:center;
+  height:30px;min-width:44px;padding:0 10px;
+  border:1px solid var(--gold-line);
+  background:transparent;color:var(--gold);
+  font-family:var(--mono);font-size:10px;font-weight:400;
+  letter-spacing:.16em;text-transform:uppercase;
+  border-radius:2px;cursor:pointer;
+  transition:background-color .3s, color .3s, border-color .3s;
+}
+.lang:hover{background:var(--gold);border-color:var(--gold);color:#0A0A0B;}
+
+/* ---- 通用块头 ---- */
+.sec-head{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:28px;margin-bottom:46px;
+}
+.sec-head h2{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(28px,3.4vw,46px);line-height:1.22;margin:18px 0 0;
+}
+.sec-head h2 em{font-style:normal;color:var(--gold);}
+.sec-head .side{
+  max-width:320px;margin:0;font-size:12.5px;line-height:1.9;
+  color:var(--muted);text-wrap:pretty;
+}
+
+/* ---- 1) 案例轮播 ---- */
+.work{position:relative;padding:118px 0;border-top:1px solid var(--line-2);overflow:hidden;}
+.car{position:relative;border:1px solid var(--line);background:#08080A;}
+.car-view{
+  position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;
+  touch-action:pan-y;
+}
+.car-track{display:flex;height:100%;will-change:transform;
+  transition:transform .95s var(--ease);}
+.car-slide{position:relative;flex:0 0 100%;height:100%;}
+.car-slide img{width:100%;height:100%;object-fit:cover;display:block;}
+.car-slide::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,5,6,.02) 0%,rgba(5,5,6,.16) 46%,rgba(5,5,6,.94) 100%);
+}
+.car-cap{
+  position:absolute;left:0;bottom:0;z-index:2;
+  padding:0 clamp(18px,3vw,46px) clamp(20px,2.8vw,36px);
+  max-width:660px;
+}
+.car-cap .no{
+  font-family:var(--mono);font-size:10px;letter-spacing:.24em;
+  color:var(--gold-dim);text-transform:uppercase;
+}
+.car-cap h3{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(19px,2.1vw,29px);line-height:1.28;
+  margin:10px 0 10px;color:var(--paper);
+}
+.car-cap p{
+  margin:0;font-size:12.5px;line-height:1.85;
+  color:rgba(244,239,227,.66);text-wrap:pretty;max-width:34em;
+}
+.car-ui{
+  position:relative;z-index:3;
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:14px clamp(16px,2.6vw,26px);
+  border-top:1px solid var(--line-2);background:#08080A;
+}
+.car-count{
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:var(--muted-2);
+}
+.car-count b{color:var(--gold);font-weight:500;}
+.car-dots{display:flex;align-items:center;gap:8px;}
+.car-dot{
+  width:24px;height:2px;padding:0;border:0;
+  background:rgba(244,239,227,.18);
+  cursor:pointer;
+  transition:background-color .3s, width .45s var(--ease);
+}
+.car-dot:hover{background:rgba(244,239,227,.4);}
+.car-dot.is-on{width:44px;background:var(--gold);}
+.car-nav{display:flex;gap:8px;}
+.car-arrow{
+  width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line);border-radius:50%;
+  background:transparent;color:rgba(244,239,227,.8);cursor:pointer;
+  transition:border-color .3s,color .3s,background-color .3s;
+}
+.car-arrow:hover{border-color:var(--gold);color:var(--gold);background:rgba(217,188,107,.08);}
+.car-arrow svg{width:14px;height:14px;}
+
+/* ---- 2) 全部项目 ---- */
+.pj-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line-2);border:1px solid var(--line-2);}
+.pj{
+  display:flex;flex-direction:column;
+  background:#08080A;text-decoration:none;color:inherit;
+  transition:background-color .4s;
+}
+.pj:hover{background:rgba(217,188,107,.05);}
+.pj-media{position:relative;aspect-ratio:4/3;overflow:hidden;}
+.pj-media img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  transform:scale(1.02);transition:transform .8s var(--ease), filter .6s;
+  filter:saturate(.92) brightness(.95);
+}
+.pj:hover .pj-media img{transform:scale(1.06);filter:saturate(1.04) brightness(1.02);}
+.pj-media::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(5,5,6,0) 40%,rgba(5,5,6,.72) 100%);
+}
+.pj-no{
+  position:absolute;left:14px;top:12px;z-index:2;
+  font-family:var(--mono);font-size:10px;letter-spacing:.2em;
+  color:rgba(242,226,174,.82);
+  padding:4px 8px;border:1px solid var(--gold-line);
+  background:rgba(6,6,7,.5);backdrop-filter:blur(4px);
+}
+.pj-body{display:flex;flex-direction:column;gap:10px;padding:24px 26px 28px;flex:1 1 auto;}
+.pj-body .en{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:rgba(244,239,227,.4);
+}
+.pj-body h3{
+  font-family:var(--serif);font-weight:900;font-size:23px;
+  margin:0;color:var(--paper);
+}
+.pj-body p{
+  margin:0;font-size:12.5px;line-height:1.9;
+  color:rgba(244,239,227,.62);text-wrap:pretty;
+}
+.pj-tags{
+  display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:16px;
+}
+.pj-tags span{
+  font-family:var(--mono);font-size:9px;letter-spacing:.12em;
+  color:var(--gold-dim);
+  border:1px solid var(--line);padding:4px 7px;
+}
+
+/* ---- 3) 前后对比 ---- */
+.cmp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:48px;}
+.cmp{display:flex;flex-direction:column;gap:14px;}
+.cmp-head{display:flex;align-items:baseline;justify-content:space-between;gap:14px;}
+.cmp-head h4{
+  margin:0;font-family:var(--serif);font-weight:600;font-size:18px;
+  color:var(--paper);letter-spacing:.02em;
+}
+.cmp-head span{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-dim);
+}
+.cmp-frame{
+  position:relative;aspect-ratio:4/3;overflow:hidden;
+  border:1px solid var(--line);background:#0A0A0C;
+  cursor:ew-resize;touch-action:pan-y;user-select:none;
+  --p:50%;
+}
+.cmp-frame:focus-visible{outline:1px solid var(--gold);outline-offset:3px;}
+.cmp-frame img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.cmp-frame img.is-before{filter:saturate(.7) brightness(.88);}
+.cmp-after{clip-path:inset(0 0 0 var(--p,50%));}
+.cmp-line{
+  position:absolute;top:0;bottom:0;left:var(--p,50%);
+  width:2px;margin-left:-1px;z-index:3;pointer-events:none;
+  background:linear-gradient(180deg,rgba(217,188,107,.55),var(--gold-hi) 30%,var(--gold-hi) 70%,rgba(217,188,107,.55));
+  box-shadow:0 0 0 1px rgba(6,6,7,.45), 0 0 26px rgba(217,188,107,.55);
+}
+.cmp-knob{
+  position:absolute;top:50%;left:50%;z-index:4;
+  transform:translate(-50%,-50%);
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;gap:2px;
+  border:1px solid var(--gold);
+  background:rgba(7,7,8,.72);
+  -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  color:var(--gold);
+}
+.cmp-knob svg{width:13px;height:13px;}
+.cmp-tag{
+  position:absolute;top:12px;z-index:4;pointer-events:none;
+  font-family:var(--mono);font-size:9px;letter-spacing:.18em;
+  text-transform:uppercase;padding:4px 8px;
+  background:rgba(6,6,7,.6);border:1px solid var(--line);
+  color:rgba(244,239,227,.7);
+  -webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);
+}
+.cmp-tag.l{left:12px;}
+.cmp-tag.r{right:12px;color:var(--gold-hi);border-color:var(--gold-line);}
+.cmp-cap{margin:0;font-size:12px;line-height:1.85;color:var(--muted);text-wrap:pretty;}
+.cmp-hint{
+  display:inline-flex;align-items:center;gap:8px;margin-top:2px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--muted-2);
+}
+.cmp-hint svg{width:12px;height:12px;color:var(--gold-dim);}
+
+/* ---- 前后对比：并入「工程实证」后的子块 ---- */
+.cmp-sub{margin-top:104px;padding-top:62px;border-top:1px solid var(--line-2);}
+.cmp-sub-head{
+  display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;
+  gap:28px;margin-bottom:38px;
+}
+.cmp-sub-head h3{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(24px,2.7vw,36px);line-height:1.26;margin:16px 0 0;
+}
+.cmp-sub-head h3 em{font-style:normal;color:var(--gold);}
+.cmp-sub-head p.side{
+  max-width:320px;margin:0;font-size:12.5px;line-height:1.9;
+  color:var(--muted);text-wrap:pretty;
+}
+
+
+/* ---- 4) 询价表单 ---- */
+.quote{padding:118px 0;border-top:1px solid var(--line-2);
+  background:linear-gradient(180deg,#070708 0%,#0A0A0C 58%,#070708 100%);}
+.quote-grid{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);gap:64px;align-items:start;}
+.quote-aside p.lede{
+  margin:22px 0 0;font-size:13px;line-height:2;color:rgba(244,239,227,.7);
+  max-width:27em;text-wrap:pretty;
+}
+.quote-aside .direct{display:grid;gap:12px;margin-top:34px;border-top:1px solid var(--line);padding-top:24px;}
+.quote-aside .direct a{
+  display:flex;align-items:baseline;gap:14px;text-decoration:none;
+  padding-bottom:12px;border-bottom:1px solid var(--line-2);
+  transition:color .3s,border-color .3s;
+}
+.quote-aside .direct a:hover{color:var(--gold-hi);border-color:var(--gold-line);}
+.quote-aside .direct .k{
+  font-family:var(--mono);font-size:9px;letter-spacing:.2em;
+  color:var(--gold-dim);text-transform:uppercase;min-width:44px;
+}
+.quote-aside .direct .v{
+  font-family:var(--mono);font-size:13.5px;letter-spacing:.04em;
+  color:rgba(244,239,227,.86);
+}
+.quote-aside h2{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(28px,3.4vw,44px);line-height:1.22;margin:18px 0 0;
+}
+.quote-aside h2 em{font-style:normal;color:var(--gold);}
+.form-act{display:grid;gap:10px;justify-items:end;}
+
+/* 英文模式下，避免中文块内的英文小标与标题重复 */
+html[lang="en"] .pj-body .en{display:none;}
+
+.form{
+  display:grid;gap:24px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  padding:clamp(22px,3vw,42px);
+}
+.field{position:relative;display:grid;gap:7px;}
+.field label{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--gold-dim);
+}
+.field label .req{color:var(--gold);margin-left:4px;}
+.field input,.field textarea{
+  width:100%;
+  background:transparent;border:0;border-bottom:1px solid var(--line);
+  color:var(--paper);font-family:var(--sans);font-size:14px;font-weight:300;
+  padding:10px 0;letter-spacing:.02em;
+  transition:border-color .3s;
+}
+.field input::placeholder,.field textarea::placeholder{color:rgba(244,239,227,.3);}
+.field input:focus,.field textarea:focus{outline:0;border-bottom-color:var(--gold);}
+.field textarea{resize:vertical;min-height:106px;line-height:1.75;}
+.field .err{
+  display:none;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;
+  color:#E0896C;
+}
+.field.is-bad .err{display:block;}
+.field.is-bad input,.field.is-bad textarea{border-bottom-color:#B4694F;}
+.form .two{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+
+/* 多选下拉 */
+.ms{position:relative;}
+.ms-btn{
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:transparent;border:0;border-bottom:1px solid var(--line);
+  padding:10px 0;cursor:pointer;text-align:left;
+  font-family:var(--sans);font-size:14px;font-weight:300;
+  color:rgba(244,239,227,.32);
+  transition:border-color .3s,color .3s;
+}
+.ms-btn.has{color:var(--paper);}
+.ms-btn svg{width:12px;height:12px;flex:0 0 auto;color:var(--gold-dim);
+  transition:transform .35s var(--ease);}
+.ms.is-open .ms-btn svg{transform:rotate(180deg);}
+.ms.is-open .ms-btn{border-bottom-color:var(--gold);}
+.ms-panel{
+  position:absolute;z-index:20;left:0;right:0;top:calc(100% + 10px);
+  display:grid;gap:2px;padding:8px;
+  border:1px solid var(--gold-line);background:#0C0C0F;
+  box-shadow:0 28px 70px rgba(0,0,0,.65);
+  max-height:296px;overflow-y:auto;
+  opacity:0;visibility:hidden;transform:translateY(-8px);
+  transition:opacity .32s var(--ease),transform .32s var(--ease),visibility .32s;
+}
+.ms.is-open .ms-panel{opacity:1;visibility:visible;transform:none;}
+.ms-opt{
+  position:relative;display:flex;align-items:center;gap:11px;
+  padding:9px 10px;cursor:pointer;
+  font-size:13px;color:rgba(244,239,227,.76);
+  transition:background-color .25s,color .25s;
+}
+.ms-opt:hover{background:rgba(217,188,107,.07);color:var(--paper);}
+.ms-opt input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;}
+.ms-box{
+  width:14px;height:14px;flex:0 0 auto;
+  border:1px solid rgba(244,239,227,.22);
+  display:flex;align-items:center;justify-content:center;
+  transition:background-color .25s,border-color .25s;
+}
+.ms-box::after{
+  content:"";width:6px;height:6px;background:#0A0A0B;
+  transform:scale(0);transition:transform .25s var(--spring);
+}
+.ms-opt input:checked + .ms-box{background:var(--gold);border-color:var(--gold);}
+.ms-opt input:checked + .ms-box::after{transform:scale(1);}
+.ms-opt input:focus-visible + .ms-box{outline:1px solid var(--gold);outline-offset:2px;}
+.ms-opt .en{font-family:var(--mono);font-size:9px;letter-spacing:.1em;color:rgba(244,239,227,.34);margin-left:2px;}
+
+.form-foot{display:flex;flex-wrap:wrap;align-items:center;gap:16px;justify-content:space-between;padding-top:4px;}
+.form-note{
+  margin:0;font-family:var(--mono);font-size:9.5px;line-height:1.8;
+  letter-spacing:.06em;color:var(--muted-2);max-width:26em;
+}
+.form-status{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;
+  color:var(--gold-dim);min-height:16px;
+}
+.form-status.is-ok{color:var(--gold-hi);}
+.form-status.is-bad{color:#E0896C;}
+.submit{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  height:50px;padding:0 30px;border-radius:2px;
+  border:1px solid var(--gold);
+  background:linear-gradient(180deg,#E2C87E,var(--gold));
+  color:#100E08;font-family:var(--sans);font-size:13px;font-weight:500;
+  letter-spacing:.1em;cursor:pointer;
+  transition:transform .35s var(--ease),box-shadow .35s,opacity .3s;
+}
+.submit:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(217,188,107,.22);}
+.submit:disabled{opacity:.55;cursor:progress;transform:none;box-shadow:none;}
+.submit svg{width:14px;height:14px;}
+
+/* ---- 新增板块响应式 ---- */
+@media (max-width:1280px){
+  .work,.projects,.compare,.quote{padding:104px 0;}
+  .cmp-grid{gap:32px;}
+  .quote-grid{gap:44px;}
+  .pj-body{padding:20px 22px 24px;}
+}
+@media (max-width:1120px){
+  .pj-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .sec-head h2{font-size:clamp(26px,3.2vw,38px);}
+  .lang{height:28px;min-width:40px;padding:0 8px;}
+}
+@media (max-width:960px){
+  .work,.svcpj,.quote{padding:82px 0;}
+  .cmp-sub{margin-top:72px;padding-top:46px;}
+  .direct-big{margin-top:34px;padding-top:24px;}
+  .car-view{aspect-ratio:4/3;}
+  .cmp-grid{grid-template-columns:1fr;}
+  .quote-grid{grid-template-columns:1fr;gap:40px;}
+  .car-cap{max-width:none;padding:0 18px 20px;}
+  .car-cap p{max-width:none;}
+}
+@media (max-width:600px){
+  .pj-grid{grid-template-columns:1fr;}
+  .form{padding:20px;gap:20px;}
+  .form .two{grid-template-columns:1fr;gap:20px;}
+  .form-foot{flex-direction:column;align-items:stretch;}
+  .form-note{max-width:none;}
+  .submit{width:100%;}
+  .car-ui{padding:12px 14px;}
+  .car-dot{width:18px;}
+  .car-dot.is-on{width:32px;}
+  .car-count{display:none;}
+  .cmp-knob{width:38px;height:38px;}
+}
+
+/* 动效克制：新增板块同样遵守 */
+@media (prefers-reduced-motion: reduce){
+  .car-track,.pj-media img,.ms-panel,.car-dot{transition-duration:.01ms;}
+}
+@media (max-width:600px){
+  .car-dots{margin:0 auto;}
+}
+</style>
+</head>
+<body>
+
+<!-- ======================== 字体图标 ========================
+     图标来自 icon/ 文件夹（iconfont.cn 项目 3210208「名扬」），
+     用法：<i class="iconfont icon-douyin"></i>，颜色随外层 color，
+     大小用 font-size 控制。新增图标时在 icon/ 里重新导出字体后同步
+     下方 .icon-xxx 类即可（或改用 <link href="./icon/iconfont.css">）。
+     ========================================================== -->
+<!-- ============================ 导航栏 ============================ -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a class="brand" href="#home" aria-label="名扬屋顶 · 返回首页">
+      <img src="./picture/logo/hd_logo.png" width="310" height="101"
+           alt="名扬屋顶 MAINYOUNG Roofing &amp; Painting">
+    </a>
+
+    <nav class="menu-links" id="menuLinks" aria-label="主导航">
+      <a href="#home" data-target="home" class="is-active">Home</a>
+      <a href="#about" data-target="about">About</a>
+      <a href="#services" data-target="services">Services</a>
+      <a href="#contact" data-target="contact">Contact</a>
+      <span class="link-line" id="linkLine" aria-hidden="true"></span>
+    </nav>
+
+    <div class="nav-right">
+      <div class="contact">
+        <a class="tel" href="tel:+17782391111"><i class="iconfont icon-dianhua" aria-hidden="true"></i>778-239-1111</a>
+        <a class="mail" href="mailto:main-young@hotmail.com"><i class="iconfont icon-email" aria-hidden="true"></i>main-young@hotmail.com</a>
+      </div>
+
+      <div class="socials" aria-label="社交媒体">
+        <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" title="抖音 Douyin" aria-label="抖音">
+          <i class="iconfont icon-douyin" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="#wechat" title="微信 WeChat" aria-label="微信">
+          <i class="iconfont icon-weixin" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" title="小红书 Xiaohongshu" aria-label="小红书">
+          <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook">
+          <i class="iconfont icon-facebook" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <button class="lang" id="langBtn" type="button" aria-label="Switch to English" title="中 / EN">EN</button>
+
+      <button class="burger" id="burger" type="button" aria-label="打开菜单" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M3 7.5h18M3 12h18M3 16.5h12" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <span class="nav-prog" aria-hidden="true"><i id="navProg"></i></span>
+</header>
+
+<!-- ============================ 展开菜单 ============================ -->
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="导航菜单" aria-hidden="true">
+  <div class="drawer-top">
+    <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶">
+    <button class="drawer-close" id="drawerClose" type="button">Close</button>
+  </div>
+  <ul class="drawer-links">
+    <li><a href="#home" data-target="home"><span class="en">Home</span><span class="cn">首页</span></a></li>
+    <li><a href="#about" data-target="about"><span class="en">About</span><span class="cn">关于</span></a></li>
+    <li><a href="#services" data-target="services"><span class="en">Services</span><span class="cn">服务</span></a></li>
+    <li><a href="#contact" data-target="contact"><span class="en">Contact</span><span class="cn">联系</span></a></li>
+  </ul>
+  <div class="drawer-foot">
+    <div class="drawer-contact">
+      <span>Tel / 电话</span>
+      <a href="tel:+17782391111">778-239-1111</a>
+      <span>Mail / 邮箱</span>
+      <a href="mailto:main-young@hotmail.com">main-young@hotmail.com</a>
+    </div>
+    <div class="drawer-socials">
+      <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
+        <i class="iconfont icon-douyin" aria-hidden="true"></i>
+      </a>
+      <a class="social" href="#wechat" aria-label="微信" title="微信">
+        <i class="iconfont icon-weixin" aria-hidden="true"></i>
+      </a>
+      <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
+        <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
+      </a>
+      <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+        <i class="iconfont icon-facebook" aria-hidden="true"></i>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ 首页主视觉 ============================ -->
+<main>
+<section class="hero" id="home">
+  <div class="hero-bg" aria-hidden="true"></div>
+  <div class="hero-veil" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="hero-copy">
+      <p class="eyebrow">Mainyoung · Roofing &amp; Painting</p>
+      <h1><span data-i18n="hero.h1a">屋顶之上，</span><br><span data-i18n="hero.h1b">是</span><em data-i18n="hero.h1c">名扬的手艺</em><span data-i18n="hero.h1d">。</span></h1>
+      <p class="lede" data-i18n="hero.lede">金属屋面、外墙涂装、防水修缮。从现场勘测、深化设计到完工验收，同一支队伍走到底，质保条款写进合同，不留在口头。</p>
+      <div class="hero-actions">
+        <a class="btn btn-gold" href="#contact">
+          <span data-i18n="hero.btn1">获取免费勘测</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#services"><span data-i18n="hero.btn2">查看服务范围</span></a>
+      </div>
+      <div class="hero-meta">
+        <span>Metal Roof</span><i></i><span>Painting</span><i></i><span>Waterproofing</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="mq-item"><span class="mq-cn">屋顶更换</span><span class="mq-en">ROOF REPLACEMENT</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">水槽清理</span><span class="mq-en">GUTTER CLEANING</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">油漆粉刷</span><span class="mq-en">PAINTING</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">屋顶修理</span><span class="mq-en">ROOF REPAIR</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">屋顶养护</span><span class="mq-en">ROOF MAINTENANCE</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">房屋养护</span><span class="mq-en">HOUSE MAINTENANCE</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">屋顶更换</span><span class="mq-en">ROOF REPLACEMENT</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">水槽清理</span><span class="mq-en">GUTTER CLEANING</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">油漆粉刷</span><span class="mq-en">PAINTING</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">屋顶修理</span><span class="mq-en">ROOF REPAIR</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">屋顶养护</span><span class="mq-en">ROOF MAINTENANCE</span></span><i></i>
+      <span class="mq-item"><span class="mq-cn">房屋养护</span><span class="mq-en">HOUSE MAINTENANCE</span></span><i></i>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ About ============================ -->
+<section class="section" id="about">
+  <div class="wrap">
+    <div class="about-grid">
+      <div>
+        <p class="eyebrow"><span data-i18n="eb.1">01 · 认识</span> / About</p>
+        <h2><span data-i18n="about.h2a">把一个屋顶，</span><br><span data-i18n="about.h2b">做成</span><em data-i18n="about.h2c">一件作品</em><span data-i18n="about.h2d">。</span></h2>
+
+        <div class="about-stats" id="stats" aria-label="工程数据">
+          <div class="stat">
+            <span class="stat-num" data-to="600" data-suf="+">0</span>
+            <span class="stat-lab" data-i18n="st.l1">项目完工</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num" data-to="15" data-suf="">0</span>
+            <span class="stat-lab" data-i18n="st.l2">从业年限</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num" data-to="98" data-suf="%">0</span>
+            <span class="stat-lab" data-i18n="st.l3">客户满意度</span>
+          </div>
+          <div class="stat">
+            <span class="stat-num" data-to="72" data-suf="%">0</span>
+            <span class="stat-lab" data-i18n="st.l4">老客转介绍</span>
+          </div>
+        </div>
+      </div>
+      <div class="about-body">
+        <p data-i18n="about.p1">屋面是房子里最容易被忽略、也最先被判分的一部分。我们做的事很窄：把一个屋顶做得不漏、耐风、收边干净，十年后还看得过去。</p>
+        <p data-i18n="about.p2">前期先算清风压、坡度与排水路径，再定板型与节点做法；施工时收边、泛水、密封胶这些看不见的地方，按图纸一道一道验。你看到的是一条金线，我们关心的是一百个接缝。</p>
+        <dl class="about-list">
+          <div class="about-row"><dt data-i18n="about.dt1">屋面系统</dt><dd data-i18n="about.dd1">直立锁边金属屋面 · 铝镁锰板 · 彩钢夹芯板</dd></div>
+          <div class="about-row"><dt data-i18n="about.dt2">涂装工艺</dt><dd data-i18n="about.dd2">真石漆 · 氟碳漆 · 水包水 · 基面处理与分色放线</dd></div>
+          <div class="about-row"><dt data-i18n="about.dt3">修缮范围</dt><dd data-i18n="about.dd3">渗漏排查 · 节点补强 · 旧屋面整体翻新</dd></div>
+          <div class="about-row"><dt data-i18n="about.dt4">服务区域</dt><dd data-i18n="about.dd4">河南为主，周边省份项目可谈</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ 全部项目 ============================ -->
+<section class="svcpj" id="services">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow"><span data-i18n="eb.2">02 · 能力</span> / Services — All Projects</p>
+        <h2><span data-i18n="pj.h2a">能接的</span><em data-i18n="pj.h2b">六类活</em><span data-i18n="pj.h2c">。</span></h2>
+      </div>
+      <p class="side" data-i18n="sp.lead">金属屋面、外墙涂装、防水修缮三件事，落到报价单上就是下面六类活。每一项写清包含的工序与适用场景，避免做到一半再谈范围。</p>
+    </div>
+
+    <div class="pj-grid" id="projects">
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">01</span>
+          <img src="./picture/2.services/1.jpg" width="1280" height="960" alt="屋顶更换：旧瓦拆除后重做基层" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">Roof Replacement</span>
+          <h3 data-i18n="p1.h">屋顶更换</h3>
+          <p data-i18n="p1.p">旧瓦或旧金属屋面整片拆除，检查檩条与保温，重做防水垫层、通风与泛水，再安装新屋面。适用于大面积失效、反复渗漏、或想加做保温层的老房子。</p>
+          <div class="pj-tags">
+            <span data-i18n="p1.t1">整片拆除</span>
+            <span data-i18n="p1.t2">结构检查</span>
+            <span data-i18n="p1.t3">新屋面安装</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">02</span>
+          <img src="./picture/2.services/2.png" width="350" height="350" alt="檐沟与天沟清掏作业近景" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">Gutter Cleaning</span>
+          <h3 data-i18n="p2.h">水槽清理</h3>
+          <p data-i18n="p2.p">檐沟、天沟与落水管清掏疏通，复核找坡，检查吊挂件、密封与落水口，清出的砂石落叶一并带走。外墙水痕与基础冲刷，多半从这条线开始。</p>
+          <div class="pj-tags">
+            <span data-i18n="p2.t1">清掏疏通</span>
+            <span data-i18n="p2.t2">找坡复核</span>
+            <span data-i18n="p2.t3">落水口检查</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">03</span>
+          <img src="./picture/2.services/3.png" width="350" height="350" alt="室内墙面粉刷施工" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">Painting</span>
+          <h3 data-i18n="p3.h">油漆粉刷</h3>
+          <p data-i18n="p3.p">外墙与木构件涂装：清洗、修补、抗碱底漆、面漆两遍；室内局部刷新同一标准。颜色先做样板，自然光与阴影面都过一遍再定。</p>
+          <div class="pj-tags">
+            <span data-i18n="p3.t1">基面处理</span>
+            <span data-i18n="p3.t2">底漆面漆</span>
+            <span data-i18n="p3.t3">分色放线</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">04</span>
+          <img src="./picture/2.services/4.jpg" width="1280" height="960" alt="屋顶修理：旧瓦拆除与现场清运" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">Roof Repair</span>
+          <h3 data-i18n="p4.h">屋顶修理</h3>
+          <p data-i18n="p4.p">点修不做整面：换破损瓦板、补风揭、修天窗与烟囱泛水、密封穿透件与螺栓。先用淋水试验定位漏点，再按节点逐处处理。</p>
+          <div class="pj-tags">
+            <span data-i18n="p4.t1">漏点定位</span>
+            <span data-i18n="p4.t2">节点补强</span>
+            <span data-i18n="p4.t3">局部更换</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">05</span>
+          <img src="./picture/2.services/5.jpg" width="1280" height="960" alt="完工后的整栋屋面" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">Roof Maintenance</span>
+          <h3 data-i18n="p5.h">屋顶养护</h3>
+          <p data-i18n="p5.p">年度巡检：清理落叶、查密封胶老化、复拧紧固件、疏通天沟、拍照留档，出一份巡检报告与下一年建议。多数大修都能靠这一步推迟。</p>
+          <div class="pj-tags">
+            <span data-i18n="p5.t1">年度巡检</span>
+            <span data-i18n="p5.t2">紧固复拧</span>
+            <span data-i18n="p5.t3">报告归档</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="pj">
+        <div class="pj-media">
+          <span class="pj-no">06</span>
+          <img src="./picture/2.services/6.jpg" width="1920" height="1440" alt="商业外墙翻新与檐口涂装施工" loading="lazy">
+        </div>
+        <div class="pj-body">
+          <span class="en">House Maintenance</span>
+          <h3 data-i18n="p6.h">房屋养护</h3>
+          <p data-i18n="p6.p">屋面之外的房屋维护：外墙裂缝修补、门窗与檐口密封、封檐板与装饰线修补、排水路径整理。一处一处列清单，按优先级排期做。</p>
+          <div class="pj-tags">
+            <span data-i18n="p6.t1">裂缝修补</span>
+            <span data-i18n="p6.t2">密封更换</span>
+            <span data-i18n="p6.t3">排水整理</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 工程实证：轮播 + 前后对比 ==================== -->
+<section class="work" id="work">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow"><span data-i18n="eb.3">03 · 实证</span> / Portfolio</p>
+        <h2><span data-i18n="work.h2a">历年工程，</span><br><span data-i18n="work.h2b">看得见的</span><em data-i18n="work.h2c">完工面</em><span data-i18n="work.h2d">。</span></h2>
+      </div>
+      <p class="side" data-i18n="work.lead">按工序归档：拆除、结构检查、垫层与通风、面层安装、收边验收。图上是完工后在同一机位拍的现场。</p>
+    </div>
+
+    <div class="car">
+      <div class="car-view" id="carView" aria-roledescription="carousel" aria-label="工程案例">
+        <div class="car-track" id="carTrack">
+          <article class="car-slide">
+            <img src="./picture/3.slider/1.jpg" width="1280" height="960" alt="完工后的深灰瓦屋面航拍">
+            <div class="car-cap">
+              <span class="no">01 / Roof Replacement</span>
+              <h3 data-i18n="w.s1h">屋顶更换 · 整栋完工</h3>
+              <p data-i18n="w.s1p">旧瓦连同垫层整片拆除，检查木基层与通风后重做防水垫层，再铺新瓦；完工后脊线、檐口与天沟逐段复核。</p>
+            </div>
+          </article>
+          <article class="car-slide">
+            <img src="./picture/3.slider/2.jpg" width="1280" height="960" alt="完工屋面与旧瓦清运箱" loading="lazy">
+            <div class="car-cap">
+              <span class="no">02 / Tear-off</span>
+              <h3 data-i18n="w.s2h">完工屋面 · 清运</h3>
+              <p data-i18n="w.s2p">完工后的深灰瓦屋面，旧瓦装进清运箱一并拉走；屋面与落地区当天清干净，不把碎料留给房主。</p>
+            </div>
+          </article>
+          <article class="car-slide">
+            <img src="./picture/3.slider/3.jpg" width="1280" height="960" alt="整栋换新完工：棕墙配深灰瓦" loading="lazy">
+            <div class="car-cap">
+              <span class="no">03 / Removal</span>
+              <h3 data-i18n="w.s3h">整栋换新 · 配色</h3>
+              <p data-i18n="w.s3p">棕墙配深灰瓦：瓦色、脊线与檐口颜色先出样板，再整栋确定，避免同一面墙出现两个色。</p>
+            </div>
+          </article>
+          <article class="car-slide">
+            <img src="./picture/3.slider/4.jpg" width="1920" height="1441" alt="新建住宅的外墙与檐口收边" loading="lazy">
+            <div class="car-cap">
+              <span class="no">04 / Inspection</span>
+              <h3 data-i18n="w.s4h">外墙与檐口</h3>
+              <p data-i18n="w.s4p">外墙板与檐口收边同一批次处理，色差与接缝在自然光下复核；落水管与檐沟按同一坡度走。</p>
+            </div>
+          </article>
+          <article class="car-slide">
+            <img src="./picture/3.slider/5.jpg" width="1920" height="1280" alt="老虎窗与瓦面收边细节" loading="lazy">
+            <div class="car-cap">
+              <span class="no">05 / Flat Roof</span>
+              <h3 data-i18n="w.s5h">老虎窗 · 瓦面细节</h3>
+              <p data-i18n="w.s5p">老虎窗、山墙与瓦面的交界最考手工：先做泛水再铺瓦，收边压条与密封逐条检查。</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <div class="car-ui">
+        <span class="car-count"><b id="carNo">01</b> / 05</span>
+        <div class="car-dots" id="carDots"></div>
+        <div class="car-nav">
+          <button class="car-arrow" id="carPrev" type="button" aria-label="上一张">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          </button>
+          <button class="car-arrow" id="carNext" type="button" aria-label="下一张">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="cmp-sub" id="compare">
+      <div class="cmp-sub-head">
+        <div>
+          <p class="eyebrow">Before &amp; After</p>
+          <h3><span data-i18n="cmp.h2a">同一处房子，</span><span data-i18n="cmp.h2b">两个</span><em data-i18n="cmp.h2c">样子</em><span data-i18n="cmp.h2d">。</span></h3>
+        </div>
+        <p class="side" data-i18n="cmp.lead">拖动中间的金线：左边是改造前，右边是完工后。</p>
+      </div>
+
+<div class="cmp-grid">
+            <article class="cmp">
+              <div class="cmp-head"><h4 data-i18n="c1.h">坡屋面翻新</h4><span>Pitched Roof</span></div>
+              <div class="cmp-frame" id="cmp1" tabindex="0" role="slider" aria-label="改造前后对比：坡屋面翻新" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                <img class="is-before" src="./picture/before-after/case1/1.jpg" width="1280" height="960" alt="改造前：旧瓦拆到垫层、多处渗水">
+                <img class="cmp-after" src="./picture/before-after/case1/2.jpg" width="1280" height="960" alt="改造后：新瓦完工、脊线与檐口重做" loading="lazy">
+                <span class="cmp-tag l" data-i18n="cmp.before">改造前</span>
+                <span class="cmp-tag r" data-i18n="cmp.after">改造后</span>
+                <div class="cmp-line">
+                  <span class="cmp-knob" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M15 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                  </span>
+                </div>
+              </div>
+              <p class="cmp-cap" data-i18n="c1.p">同一栋房子、同一个机位：左边旧瓦已经拆到垫层，右边是完工后的深灰瓦屋面。</p>
+            </article>
+
+            <article class="cmp">
+              <div class="cmp-head"><h4 data-i18n="c2.h">檐沟清理</h4><span>Gutter</span></div>
+              <div class="cmp-frame" id="cmp2" tabindex="0" role="slider" aria-label="改造前后对比：整栋换新" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+                <img class="is-before" src="./picture/before-after/case2/1.jpg" width="1920" height="2880" alt="改造前：檐沟堆满落叶">
+                <img class="cmp-after" src="./picture/before-after/case2/2.png" width="350" height="350" alt="改造后：檐沟清掏后的通畅落水" loading="lazy">
+                <span class="cmp-tag l" data-i18n="cmp.before">改造前</span>
+                <span class="cmp-tag r" data-i18n="cmp.after">改造后</span>
+                <div class="cmp-line">
+                  <span class="cmp-knob" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M9 7L4 12l5 5M15 7l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+                  </span>
+                </div>
+              </div>
+              <p class="cmp-cap" data-i18n="c2.p">左边是落叶堵满的檐沟，右边是清掏后的通畅落水；落叶季前后各做一次，能省掉大半外墙水痕。</p>
+            </article>
+          </div>
+      
+          <p class="cmp-hint">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
+            <span data-i18n="cmp.hint">按住拖动，或用左右方向键</span>
+          </p>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- ============================ 询价表单 ============================ -->
+<section class="quote" id="contact">
+  <div class="wrap">
+    <div class="quote-grid" id="quote">
+      <div class="quote-aside">
+        <p class="eyebrow"><span data-i18n="eb.4">04 · 行动</span> / Contact &amp; Enquiry</p>
+        <h2><span data-i18n="q.h2a">把面积和问题</span><br><em data-i18n="q.h2b">写给我们</em><span data-i18n="q.h2c">。</span></h2>
+        <p class="lede" data-i18n="q.lead">填完点提交，邮件直接到 main-young@hotmail.com，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。</p>
+
+        <div class="direct-big">
+          <div class="db-l">
+            <a href="tel:+17782391111"><span class="k">Tel</span><span class="v">778-239-1111</span></a>
+            <a class="mail" href="mailto:main-young@hotmail.com"><span class="k">Mail</span><span class="v">main-young@hotmail.com</span></a>
+          </div>
+          <div class="db-r">
+            <a class="btn btn-gold" href="tel:+17782391111">
+              <span data-i18n="ct.btn1">直接打电话</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </a>
+            <a class="btn btn-ghost" href="mailto:main-young@hotmail.com"><span data-i18n="ct.btn2">发一封邮件</span></a>
+          </div>
+          <a class="db-wechat" href="#wechat"><span data-i18n="ct.wechat">微信：MAINYOUNG</span></a>
+        </div>
+      </div>
+
+      <form class="form" id="quoteForm" novalidate>
+        <div class="two">
+          <div class="field" id="fName">
+            <label for="qName"><span data-i18n="f.name">姓名</span><span class="req">*</span></label>
+            <input id="qName" name="name" type="text" autocomplete="name" data-i18n-ph="f.nameph" placeholder="您的姓名">
+            <span class="err" data-i18n="f.errName">请填写姓名</span>
+          </div>
+          <div class="field" id="fPhone">
+            <label for="qPhone"><span data-i18n="f.phone">电话</span><span class="req">*</span></label>
+            <input id="qPhone" name="phone" type="tel" autocomplete="tel" data-i18n-ph="f.phoneph" placeholder="您的电话">
+            <span class="err" data-i18n="f.errPhone">请填写可回拨的电话</span>
+          </div>
+        </div>
+
+        <div class="field" id="fEmail">
+          <label for="qEmail"><span data-i18n="f.email">邮箱</span></label>
+          <input id="qEmail" name="email" type="email" autocomplete="email" data-i18n-ph="f.emailph" placeholder="you@example.com">
+          <span class="err" data-i18n="f.errEmail">邮箱格式不对</span>
+        </div>
+
+        <div class="field" id="fSvc">
+          <label><span data-i18n="f.svc">服务种类</span><span class="req">*</span></label>
+          <div class="ms" id="ms">
+            <button class="ms-btn" id="msBtn" type="button" aria-expanded="false" aria-controls="msPanel">
+              <span class="ms-label" id="msLabel" data-i18n="f.svcph">选择服务（可多选）</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </button>
+            <div class="ms-panel" id="msPanel" role="group" aria-label="服务种类">
+              <label class="ms-opt"><input type="checkbox" name="services" value="屋顶更换 Roof Replacement"><span class="ms-box"></span><span>屋顶更换</span><span class="en">Roof Replacement</span></label>
+              <label class="ms-opt"><input type="checkbox" name="services" value="水槽清理 Gutter Cleaning"><span class="ms-box"></span><span>水槽清理</span><span class="en">Gutter Cleaning</span></label>
+              <label class="ms-opt"><input type="checkbox" name="services" value="油漆粉刷 Painting"><span class="ms-box"></span><span>油漆粉刷</span><span class="en">Painting</span></label>
+              <label class="ms-opt"><input type="checkbox" name="services" value="屋顶修理 Roof Repair"><span class="ms-box"></span><span>屋顶修理</span><span class="en">Roof Repair</span></label>
+              <label class="ms-opt"><input type="checkbox" name="services" value="屋顶养护 Roof Maintenance"><span class="ms-box"></span><span>屋顶养护</span><span class="en">Roof Maintenance</span></label>
+              <label class="ms-opt"><input type="checkbox" name="services" value="房屋养护 House Maintenance"><span class="ms-box"></span><span>房屋养护</span><span class="en">House Maintenance</span></label>
+            </div>
+          </div>
+          <span class="err" data-i18n="f.errSvc">至少选择一项服务</span>
+        </div>
+
+        <div class="field">
+          <label for="qMsg"><span data-i18n="f.msg">留言</span></label>
+          <textarea id="qMsg" name="message" data-i18n-ph="f.msgph" placeholder="面积、屋型、现在最在意的问题…"></textarea>
+        </div>
+
+        <div class="form-foot">
+          <p class="form-note" data-i18n="f.note">提交后邮件直达 main-young@hotmail.com，工作时间内当天回；需要上门勘测的，写上大致地址。</p>
+          <div class="form-act">
+            <span class="form-status" id="formStatus" aria-live="polite"></span>
+            <button class="submit" id="submitBtn" type="submit">
+              <span data-i18n="f.submit">提交询价</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-inner">
+      <div class="foot-left">
+        <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶">
+        <p>Roofing &amp; Painting · Since Now</p>
+      </div>
+      <nav class="foot-nav" aria-label="页脚导航">
+        <a href="#home">Home</a>
+        <a href="#about">About</a>
+        <a href="#services">Services</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div class="foot-right">
+        <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
+          <i class="iconfont icon-douyin" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="#wechat" aria-label="微信" title="微信">
+          <i class="iconfont icon-weixin" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
+          <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
+        </a>
+        <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
+          <i class="iconfont icon-facebook" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+    <p style="margin:34px 0 0;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;color:rgba(244,239,227,.26);text-transform:uppercase;">
+      © 2026 Mainyoung Roofing &amp; Painting — 名扬屋顶
+    </p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+
+  var nav = document.getElementById("nav");
+  var menuLinks = document.getElementById("menuLinks");
+  var line = document.getElementById("linkLine");
+  var anchors = Array.prototype.slice.call(menuLinks.querySelectorAll("a[data-target]"));
+  var drawer = document.getElementById("drawer");
+  var burger = document.getElementById("burger");
+  var drawerClose = document.getElementById("drawerClose");
+  var activeAnchor = anchors[0] || null;
+
+  /* ---- 金色指示线：测量链接真实位置 ---- */
+  function placeLine(el) {
+    if (!el) { return; }
+    line.style.left = el.offsetLeft + "px";
+    line.style.width = el.offsetWidth + "px";
+    line.style.opacity = "1";
+  }
+
+  function setActive(id) {
+    var target = null;
+    anchors.forEach(function (a) {
+      if (a.getAttribute("data-target") === id) { target = a; }
+    });
+    if (!target) { return; }
+    activeAnchor = target;
+    anchors.forEach(function (a) { a.classList.toggle("is-active", a === target); });
+    placeLine(target);
+  }
+
+  anchors.forEach(function (a) {
+    a.addEventListener("pointerenter", function () { placeLine(a); });
+    a.addEventListener("pointerleave", function () { placeLine(activeAnchor); });
+    a.addEventListener("focus", function () { placeLine(a); });
+    a.addEventListener("blur", function () { placeLine(activeAnchor); });
+  });
+
+  /* ---- 滚动：透明 → 实心 + 导航底部整页进度线 ---- */
+  var progEl = document.getElementById("navProg");
+  function paintProgress() {
+    if (!progEl) { return; }
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var p = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+    progEl.style.transform = "scaleX(" + p.toFixed(4) + ")";
+  }
+  function onScroll() {
+    var y = window.pageYOffset || document.documentElement.scrollTop;
+    nav.classList.toggle("is-scrolled", y > 24);
+    paintProgress();
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+
+  /* ---- 章节高亮 ---- */
+  var sections = Array.prototype.slice.call(document.querySelectorAll("main section[id]"));
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { setActive(entry.target.id); }
+      });
+    }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+    sections.forEach(function (s) { io.observe(s); });
+  }
+
+  /* ---- 展开菜单 ---- */
+  function openDrawer() {
+    drawer.classList.add("is-open");
+    drawer.setAttribute("aria-hidden", "false");
+    burger.setAttribute("aria-expanded", "true");
+    document.body.classList.add("lock");
+  }
+  function closeDrawer() {
+    drawer.classList.remove("is-open");
+    drawer.setAttribute("aria-hidden", "true");
+    burger.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("lock");
+  }
+  burger.addEventListener("click", openDrawer);
+  drawerClose.addEventListener("click", closeDrawer);
+  drawer.addEventListener("click", function (e) {
+    if (e.target.closest("a")) { closeDrawer(); }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && drawer.classList.contains("is-open")) { closeDrawer(); }
+  });
+
+  /* ---- 尺寸变化后重新测量 ---- */
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(function () { placeLine(activeAnchor); paintProgress(); }, 120);
+  });
+
+  /* ---- 初始化 ---- */
+  onScroll();
+  placeLine(anchors[0]);
+  window.addEventListener("load", function () { placeLine(activeAnchor); paintProgress(); });
+  window.setTimeout(function () { placeLine(activeAnchor); paintProgress(); }, 320);
+  document.fonts && document.fonts.ready && document.fonts.ready.then(function () {
+    placeLine(activeAnchor);
+    paintProgress();
+  });
+})();
+</script>
+<script>
+/* ============================================================
+   新增板块交互：案例轮播 / 前后对比 / 多选下拉 / 表单投递 / 中英切换
+   ============================================================ */
+(function () {
+  "use strict";
+
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* -------------------- 1. 案例轮播 -------------------- */
+  (function () {
+    var view = document.getElementById("carView");
+    var track = document.getElementById("carTrack");
+    if (!view || !track) { return; }
+
+    var slides = Array.prototype.slice.call(track.querySelectorAll(".car-slide"));
+    var dotsWrap = document.getElementById("carDots");
+    var noEl = document.getElementById("carNo");
+    var prev = document.getElementById("carPrev");
+    var next = document.getElementById("carNext");
+    var n = slides.length;
+    var i = 0;
+    var timer = null;
+    var paused = false;
+
+    slides.forEach(function (s, k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "car-dot" + (k === 0 ? " is-on" : "");
+      b.setAttribute("aria-label", "第 " + (k + 1) + " 张");
+      b.addEventListener("click", function () { go(k); restart(); });
+      dotsWrap.appendChild(b);
+    });
+    var dots = Array.prototype.slice.call(dotsWrap.querySelectorAll(".car-dot"));
+
+    function go(k) {
+      i = (k + n) % n;
+      track.style.transform = "translate3d(" + (-i * 100) + "%,0,0)";
+      dots.forEach(function (d, idx) { d.classList.toggle("is-on", idx === i); });
+      if (noEl) { noEl.textContent = ("0" + (i + 1)).slice(-2); }
+      slides.forEach(function (s, idx) { s.setAttribute("aria-hidden", idx === i ? "false" : "true"); });
+    }
+    function start() {
+      if (reduce) { return; }
+      stop();
+      timer = window.setInterval(function () {
+        if (!paused && !document.hidden) { go(i + 1); }
+      }, 5600);
+    }
+    function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+    function restart() { start(); }
+
+    if (prev) { prev.addEventListener("click", function () { go(i - 1); restart(); }); }
+    if (next) { next.addEventListener("click", function () { go(i + 1); restart(); }); }
+
+    view.addEventListener("pointerenter", function () { paused = true; });
+    view.addEventListener("pointerleave", function () { paused = false; });
+    view.addEventListener("focusin", function () { paused = true; });
+    view.addEventListener("focusout", function () { paused = false; });
+
+    /* 触摸滑动 */
+    var sx = 0, sy = 0, dragging = false;
+    view.addEventListener("pointerdown", function (e) {
+      dragging = true; sx = e.clientX; sy = e.clientY;
+    });
+    view.addEventListener("pointerup", function (e) {
+      if (!dragging) { return; }
+      dragging = false;
+      var dx = e.clientX - sx;
+      var dy = e.clientY - sy;
+      if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+        go(dx < 0 ? i + 1 : i - 1);
+        restart();
+      }
+    });
+    view.addEventListener("pointercancel", function () { dragging = false; });
+
+    /* 键盘 / 可见性 */
+    view.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowLeft") { go(i - 1); restart(); e.preventDefault(); }
+      if (e.key === "ArrowRight") { go(i + 1); restart(); e.preventDefault(); }
+    });
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) { stop(); } else { start(); }
+    });
+
+    go(0);
+    start();
+  })();
+
+  /* -------------------- 2. 前后对比滑块 -------------------- */
+  (function () {
+    var frames = Array.prototype.slice.call(document.querySelectorAll(".cmp-frame"));
+    frames.forEach(function (f) {
+      function set(p) {
+        p = Math.max(1, Math.min(99, p));
+        f.style.setProperty("--p", p + "%");
+        f.setAttribute("aria-valuenow", String(Math.round(p)));
+      }
+      set(50);
+
+      var drag = false;
+      function at(clientX) {
+        var r = f.getBoundingClientRect();
+        set(((clientX - r.left) / r.width) * 100);
+      }
+      f.addEventListener("pointerdown", function (e) {
+        drag = true;
+        if (f.setPointerCapture) { try { f.setPointerCapture(e.pointerId); } catch (err) {} }
+        at(e.clientX);
+        e.preventDefault();
+      });
+      f.addEventListener("pointermove", function (e) { if (drag) { at(e.clientX); } });
+      f.addEventListener("pointerup", function () { drag = false; });
+      f.addEventListener("pointercancel", function () { drag = false; });
+      f.addEventListener("keydown", function (e) {
+        var cur = parseFloat(f.style.getPropertyValue("--p")) || 50;
+        if (e.key === "ArrowLeft") { set(cur - 5); e.preventDefault(); }
+        if (e.key === "ArrowRight") { set(cur + 5); e.preventDefault(); }
+      });
+    });
+  })();
+
+  /* -------------------- 3. 语言切换 -------------------- */
+  var I18N = {
+    "hero.h1a": { zh: "屋顶之上，", en: "Above the roof," },
+    "hero.h1b": { zh: "是", en: "lies " },
+    "hero.h1c": { zh: "名扬的手艺", en: "the craft of Mainyoung" },
+    "hero.h1d": { zh: "。", en: "." },
+    "hero.lede": {
+      zh: "金属屋面、外墙涂装、防水修缮。从现场勘测、深化设计到完工验收，同一支队伍走到底，质保条款写进合同，不留在口头。",
+      en: "Metal roofing, exterior painting, waterproofing. From site survey and detailing to sign-off, one crew sees it through — the warranty goes into the contract, not into a promise."
+    },
+    "hero.btn1": { zh: "获取免费勘测", en: "Book a Free Survey" },
+    "hero.btn2": { zh: "查看服务范围", en: "See Our Services" },
+
+    "about.h2a": { zh: "把一个屋顶，", en: "A roof," },
+    "about.h2b": { zh: "做成", en: "built as " },
+    "about.h2c": { zh: "一件作品", en: "a piece of work" },
+    "about.h2d": { zh: "。", en: "." },
+    "about.p1": {
+      zh: "屋面是房子里最容易被忽略、也最先被判分的一部分。我们做的事很窄：把一个屋顶做得不漏、耐风、收边干净，十年后还看得过去。",
+      en: "The roof is the part of a house everyone ignores — and the first part everyone judges. Our work is narrow: make a roof watertight, wind-resistant and clean at every edge, still presentable ten years on."
+    },
+    "about.p2": {
+      zh: "前期先算清风压、坡度与排水路径，再定板型与节点做法；施工时收边、泛水、密封胶这些看不见的地方，按图纸一道一道验。你看到的是一条金线，我们关心的是一百个接缝。",
+      en: "We work out wind load, pitch and drainage path first, then fix the panel profile and node details. On site the parts nobody will ever see — trims, flashings, sealant — are checked against the drawings one by one. You see a gold line; we care about a hundred seams."
+    },
+    "about.dt1": { zh: "屋面系统", en: "Roofing" },
+    "about.dd1": { zh: "直立锁边金属屋面 · 铝镁锰板 · 彩钢夹芯板", en: "Standing seam metal · aluminium-magnesium panels · insulated sandwich panels" },
+    "about.dt2": { zh: "涂装工艺", en: "Painting" },
+    "about.dd2": { zh: "真石漆 · 氟碳漆 · 水包水 · 基面处理与分色放线", en: "Textured stone paint · fluorocarbon · multi-colour systems · substrate prep and colour setting-out" },
+    "about.dt3": { zh: "修缮范围", en: "Repairs" },
+    "about.dd3": { zh: "渗漏排查 · 节点补强 · 旧屋面整体翻新", en: "Leak detection · node reinforcement · full roof refurbishment" },
+    "about.dt4": { zh: "服务区域", en: "Coverage" },
+    "about.dd4": { zh: "河南为主，周边省份项目可谈", en: "Mainly Henan; neighbouring provinces by arrangement" },
+    "st.l1": { zh: "项目完工", en: "Projects Delivered" },
+    "st.l2": { zh: "从业年限", en: "Years in Trade" },
+    "st.l3": { zh: "客户满意度", en: "Client Satisfaction" },
+    "st.l4": { zh: "老客转介绍", en: "From Referrals" },
+
+    "eb.1": { zh: "01 · 认识", en: "01 · Who we are" },
+    "eb.2": { zh: "02 · 能力", en: "02 · Capability" },
+    "eb.3": { zh: "03 · 实证", en: "03 · Proof" },
+    "eb.4": { zh: "04 · 行动", en: "04 · Reach out" },
+    "sp.lead": {
+      zh: "金属屋面、外墙涂装、防水修缮三件事，落到报价单上就是下面六类活。每一项写清包含的工序与适用场景，避免做到一半再谈范围。",
+      en: "Metal roofing, exterior painting and waterproofing are the three lines we work on; on a quote they become the six jobs below. Each one lists what it includes and when it applies, so scope is never renegotiated halfway."
+    },
+
+    "work.h2a": { zh: "历年工程，", en: "Past projects," },
+    "work.h2b": { zh: "看得见的", en: "the finished " },
+    "work.h2c": { zh: "完工面", en: "surfaces" },
+    "work.h2d": { zh: "。", en: "." },
+    "work.lead": {
+      zh: "按工序归档：拆除、结构检查、垫层与通风、面层安装、收边验收。图上是完工后在同一机位拍的现场。",
+      en: "Filed by stage: strip-out, structure check, underlay and ventilation, panel installation, edge sign-off. Photographed on site, same position, after handover."
+    },    "w.s1h": { zh: "屋顶更换 · 整栋完工", en: "Roof Replacement · Completed" },    "w.s1p": { zh: "旧瓦连同垫层整片拆除，检查木基层与通风后重做防水垫层，再铺新瓦；完工后脊线、檐口与天沟逐段复核。", en: "Full tear-off down to the deck, fresh underlayment, then new shingles; ridge, eaves and gutters checked section by section at handover." },    "w.s2h": { zh: "完工屋面 · 清运", en: "Finished Roof & Haul-away" },    "w.s2p": { zh: "完工后的深灰瓦屋面，旧瓦装进清运箱一并拉走；屋面与落地区当天清干净，不把碎料留给房主。", en: "The finished shingle roof with the old shingles already loaded out - roof and drop zone cleaned the same day, nothing left behind for the homeowner." },    "w.s3h": { zh: "整栋换新 · 配色", en: "Full Re-roof & Colour" },    "w.s3p": { zh: "棕墙配深灰瓦：瓦色、脊线与檐口颜色先出样板，再整栋确定，避免同一面墙出现两个色。", en: "Brown siding with charcoal shingles: shingle colour, ridge and eave trim are sampled first, then fixed for the whole house so no elevation shows two shades." },    "w.s4h": { zh: "外墙与檐口", en: "Siding & Eaves" },    "w.s4p": { zh: "外墙板与檐口收边同一批次处理，色差与接缝在自然光下复核；落水管与檐沟按同一坡度走。", en: "Siding and eave trims handled in one batch, with colour and joints checked in daylight; downspouts and gutters run on one consistent slope." },    "w.s5h": { zh: "老虎窗 · 瓦面细节", en: "Dormers & Details" },    "w.s5p": { zh: "老虎窗、山墙与瓦面的交界最考手工：先做泛水再铺瓦，收边压条与密封逐条检查。", en: "Where dormers, gables and shingles meet is where the craft shows: flashing first, then shingles, with every edge strip and seal checked." },
+
+    "pj.h2a": { zh: "能接的", en: "The six " },
+    "pj.h2b": { zh: "六类活", en: "jobs we take" },
+    "pj.h2c": { zh: "。", en: "." },
+    "pj.lead": {
+      zh: "报价按项目名说就行。每一项都写清包含的工序与适用场景，避免做到一半再谈范围。",
+      en: "Quote us by name. Each job lists what it includes and when it applies, so scope doesn't get renegotiated halfway."
+    },
+    "p1.h": { zh: "屋顶更换", en: "Roof Replacement" },
+    "p1.p": {
+      zh: "旧瓦或旧金属屋面整片拆除，检查檩条与保温，重做防水垫层、通风与泛水，再安装新屋面。适用于大面积失效、反复渗漏、或想加做保温层的老房子。",
+      en: "Full strip of failed tile or metal, joist and insulation check, new underlay, ventilation and flashings, then the new roof. For roofs that have failed across the board, leak repeatedly, or need insulation added."
+    },
+    "p1.t1": { zh: "整片拆除", en: "Full strip-out" },
+    "p1.t2": { zh: "结构检查", en: "Structure check" },
+    "p1.t3": { zh: "新屋面安装", en: "New roof install" },
+    "p2.h": { zh: "水槽清理", en: "Gutter Cleaning" },
+    "p2.p": {
+      zh: "檐沟、天沟与落水管清掏疏通，复核找坡，检查吊挂件、密封与落水口，清出的砂石落叶一并带走。外墙水痕与基础冲刷，多半从这条线开始。",
+      en: "Clear and flush eaves, box gutters and downpipes, re-check the slope, inspect hangers, seals and outlets, and take the leaves and grit away. Wall stains and foundation scour usually start along this line."
+    },
+    "p2.t1": { zh: "清掏疏通", en: "Clear & flush" },
+    "p2.t2": { zh: "找坡复核", en: "Slope check" },
+    "p2.t3": { zh: "落水口检查", en: "Outlet check" },
+    "p3.h": { zh: "油漆粉刷", en: "Painting" },
+    "p3.p": {
+      zh: "外墙与木构件涂装：清洗、修补、抗碱底漆、面漆两遍；室内局部刷新同一标准。颜色先做样板，自然光与阴影面都过一遍再定。",
+      en: "Exterior and timber coating: wash, patch, alkali-resistant primer, two finish coats; interior touch-ups to the same standard. Colour goes on a sample board first, checked in daylight and shade."
+    },
+    "p3.t1": { zh: "基面处理", en: "Substrate prep" },
+    "p3.t2": { zh: "底漆面漆", en: "Primer & finish" },
+    "p3.t3": { zh: "分色放线", en: "Colour setting-out" },
+    "p4.h": { zh: "屋顶修理", en: "Roof Repair" },
+    "p4.p": {
+      zh: "点修不做整面：换破损瓦板、补风揭、修天窗与烟囱泛水、密封穿透件与螺栓。先用淋水试验定位漏点，再按节点逐处处理。",
+      en: "Spot repairs, not a new roof: replace broken tiles and panels, patch wind uplift, fix skylight and chimney flashings, seal penetrations and bolts. Flood test to find the leak first, then work node by node."
+    },
+    "p4.t1": { zh: "漏点定位", en: "Leak locating" },
+    "p4.t2": { zh: "节点补强", en: "Node repair" },
+    "p4.t3": { zh: "局部更换", en: "Local replacement" },
+    "p5.h": { zh: "屋顶养护", en: "Roof Maintenance" },
+    "p5.p": {
+      zh: "年度巡检：清理落叶、查密封胶老化、复拧紧固件、疏通天沟、拍照留档，出一份巡检报告与下一年建议。多数大修都能靠这一步推迟。",
+      en: "Annual inspection: clear leaves, check sealant ageing, re-torque fasteners, flush the gutters, document with photos, and issue a report with next year's recommendations. Most major repairs can be postponed by this step."
+    },
+    "p5.t1": { zh: "年度巡检", en: "Annual visit" },
+    "p5.t2": { zh: "紧固复拧", en: "Fastener re-torque" },
+    "p5.t3": { zh: "报告归档", en: "Report on file" },
+    "p6.h": { zh: "房屋养护", en: "House Maintenance" },
+    "p6.p": {
+      zh: "屋面之外的房屋维护：外墙裂缝修补、门窗与檐口密封、封檐板与装饰线修补、排水路径整理。一处一处列清单，按优先级排期做。",
+      en: "Everything around the roof: wall crack repair, window and eave sealing, fascia and trim patching, drainage tidying. Listed item by item, scheduled by priority."
+    },
+    "p6.t1": { zh: "裂缝修补", en: "Crack repair" },
+    "p6.t2": { zh: "密封更换", en: "Seal renewal" },
+    "p6.t3": { zh: "排水整理", en: "Drainage tidy" },
+
+    "cmp.h2a": { zh: "同一处房子，", en: "Same house," },
+    "cmp.h2b": { zh: "两个", en: "two " },
+    "cmp.h2c": { zh: "样子", en: "states" },
+    "cmp.h2d": { zh: "。", en: "." },    "cmp.lead": { zh: "拖动中间的金线：左边是改造前，右边是完工后。", en: "Drag the gold line: before on the left, after on the right." },    "c1.h": { zh: "坡屋面翻新", en: "Pitched Roof" },    "c1.p": { zh: "同一栋房子、同一个机位：左边旧瓦已经拆到垫层，右边是完工后的深灰瓦屋面。", en: "Same house, same camera angle: old tiles torn to the underlayment on the left, the finished dark shingle roof on the right." },    "c2.h": { zh: "檐沟清理", en: "Gutter Cleaning" },    "c2.p": { zh: "左边是落叶堵满的檐沟，右边是清掏后的通畅落水；落叶季前后各做一次，能省掉大半外墙水痕。", en: "Leaves packed in the gutter on the left, clear flow after the clean-out on the right. Once before leaf season and once after saves most of the staining on the walls." },
+    "cmp.before": { zh: "改造前", en: "Before" },
+    "cmp.after": { zh: "改造后", en: "After" },
+    "cmp.hint": { zh: "按住拖动，或用左右方向键", en: "Drag, or use the arrow keys" },
+
+    "q.h2a": { zh: "把面积和问题", en: "Send us the area" },
+    "q.h2b": { zh: "写给我们", en: "and the problem" },
+    "q.h2c": { zh: "。", en: "." },
+    "q.lead": {
+      zh: "填完点提交，邮件直接到 main-young@hotmail.com，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。",
+      en: "Submit and the mail goes straight to main-young@hotmail.com — usually answered the same working day. For a site survey, add the rough address and roof type so we can plan a route."
+    },
+
+    "f.name": { zh: "姓名", en: "Name" },
+    "f.phone": { zh: "电话", en: "Phone" },
+    "f.email": { zh: "邮箱", en: "Email" },
+    "f.svc": { zh: "服务种类", en: "Service" },
+    "f.msg": { zh: "留言", en: "Message" },
+    "f.nameph": { zh: "您的姓名", en: "Your name" },
+    "f.phoneph": { zh: "您的电话", en: "Your phone number" },
+    "f.emailph": { zh: "you@example.com", en: "you@example.com" },
+    "f.msgph": { zh: "面积、屋型、现在最在意的问题…", en: "Area, roof type, what worries you most…" },
+    "f.svcph": { zh: "选择服务（可多选）", en: "Select services (multi-select)" },
+    "f.errName": { zh: "请填写姓名", en: "Please add your name" },
+    "f.errPhone": { zh: "请填写可回拨的电话", en: "Please add a reachable number" },
+    "f.errEmail": { zh: "邮箱格式不对", en: "That email looks off" },
+    "f.errSvc": { zh: "至少选择一项服务", en: "Select at least one service" },
+    "f.note": {
+      zh: "提交后邮件直达 main-young@hotmail.com，工作时间内当天回；需要上门勘测的，写上大致地址。",
+      en: "Your enquiry goes straight to main-young@hotmail.com, usually answered the same working day. Add the rough address if you want a site visit."
+    },
+    "f.submit": { zh: "提交询价", en: "Send Enquiry" },
+    "f.sending": { zh: "发送中…", en: "Sending…" },
+    "f.ok": { zh: "已发送，我们会尽快联系你。", en: "Sent. We will be in touch shortly." },
+    "f.fail": { zh: "网络没通，已为你打开邮件客户端，点发送即可。", en: "No connection — we opened your mail app instead. Press send there." },
+
+    "ct.btn1": { zh: "直接打电话", en: "Call us now" },
+    "ct.btn2": { zh: "发一封邮件", en: "Send an email" },
+    "ct.wechat": { zh: "微信：MAINYOUNG", en: "WeChat: MAINYOUNG" }
+  };
+
+  var LANG_KEY = "my-lang";
+  var curLang = "zh";
+  var langBtn = document.getElementById("langBtn");
+  var statusEl = document.getElementById("formStatus");
+
+  function t(key) {
+    var e = I18N[key];
+    return e ? (e[curLang] || e.zh) : "";
+  }
+
+  function paint(lang) {
+    curLang = lang === "en" ? "en" : "zh";
+    var root = document.documentElement;
+    root.setAttribute("lang", curLang === "en" ? "en" : "zh-CN");
+    root.setAttribute("data-lang", curLang);
+
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) {
+      var v = t(el.getAttribute("data-i18n"));
+      if (v) { el.textContent = v; }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-ph]"), function (el) {
+      var v = t(el.getAttribute("data-i18n-ph"));
+      if (v) { el.setAttribute("placeholder", v); }
+    });
+
+    if (langBtn) {
+      langBtn.textContent = curLang === "en" ? "中文" : "EN";
+      langBtn.setAttribute("aria-label", curLang === "en" ? "切换到中文" : "Switch to English");
+    }
+    try { window.localStorage.setItem(LANG_KEY, curLang); } catch (err) {}
+
+    if (statusEl && statusEl.getAttribute("data-k")) {
+      statusEl.textContent = t(statusEl.getAttribute("data-k"));
+    }
+    updateMsLabel();
+  }
+
+  if (langBtn) {
+    langBtn.addEventListener("click", function () {
+      paint(curLang === "en" ? "zh" : "en");
+    });
+  }
+
+  /* -------------------- 4. 服务种类多选 -------------------- */
+  var ms = document.getElementById("ms");
+  var msBtn = document.getElementById("msBtn");
+  var msPanel = document.getElementById("msPanel");
+  var msLabel = document.getElementById("msLabel");
+  var svcField = document.getElementById("fSvc");
+
+  function checkedBoxes() {
+    return msPanel ? Array.prototype.slice.call(msPanel.querySelectorAll("input:checked")) : [];
+  }
+  function optZh(box) {
+    var l = box.parentNode;
+    return l.children[2] ? l.children[2].textContent.trim() : "";
+  }
+  function optEn(box) {
+    var l = box.parentNode;
+    return l.children[3] ? l.children[3].textContent.trim() : "";
+  }
+  function updateMsLabel() {
+    if (!msBtn || !msLabel) { return; }
+    var boxes = checkedBoxes();
+    if (!boxes.length) {
+      msBtn.classList.remove("has");
+      msLabel.textContent = t("f.svcph");
+      return;
+    }
+    msBtn.classList.add("has");
+    var names = boxes.map(function (b) { return curLang === "en" ? optEn(b) : optZh(b); });
+    msLabel.textContent = curLang === "en"
+      ? (boxes.length + " selected · " + names.join(", "))
+      : ("已选 " + boxes.length + " 项 · " + names.join("、"));
+  }
+
+  if (msBtn && msPanel) {
+    msBtn.addEventListener("click", function () {
+      var open = ms.classList.toggle("is-open");
+      msBtn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    msPanel.addEventListener("change", function () {
+      updateMsLabel();
+      if (svgFieldCheck()) { svcField.classList.remove("is-bad"); }
+    });
+    document.addEventListener("click", function (e) {
+      if (ms && !ms.contains(e.target)) {
+        ms.classList.remove("is-open");
+        msBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && ms.classList.contains("is-open")) {
+        ms.classList.remove("is-open");
+        msBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+  }
+  function svgFieldCheck() { return checkedBoxes().length > 0; }
+  function updateMsLabelSafe() { updateMsLabel(); }
+  updateMsLabelSafe();
+
+  /* -------------------- 5. 表单校验与投递 -------------------- */
+  var form = document.getElementById("quoteForm");
+  var nameEl = document.getElementById("qName");
+  var phoneEl = document.getElementById("qPhone");
+  var mailEl = document.getElementById("qEmail");
+  var msgEl = document.getElementById("qMsg");
+  var submitBtn = document.getElementById("submitBtn");
+  var fName = document.getElementById("fName");
+  var fPhone = document.getElementById("fPhone");
+  var fEmail = document.getElementById("fEmail");
+
+  var ENDPOINT = "https://formsubmit.co/ajax/main-young@hotmail.com";
+  var TO_MAIL = "main-young@hotmail.com";
+
+  function setStatus(key, tone) {
+    if (!statusEl) { return; }
+    statusEl.setAttribute("data-k", key || "");
+    statusEl.className = "form-status" + (tone ? " " + tone : "");
+    statusEl.textContent = key ? t(key) : "";
+  }
+  function bad(field, isBad) {
+    if (field) { field.classList.toggle("is-bad", isBad); }
+  }
+
+  function payloadOf(services) {
+    return {
+      "姓名 Name": (nameEl.value || "").trim(),
+      "电话 Phone": (phoneEl.value || "").trim(),
+      "邮箱 Email": (mailEl.value || "").trim(),
+      "服务 Services": services.join(" / "),
+      "留言 Message": (msgEl.value || "").trim(),
+      _subject: "名扬屋顶官网询价 · " + (nameEl.value || "").trim(),
+      _template: "table",
+      _captcha: "false"
+    };
+  }
+
+  function mailtoHref(services) {
+    var body = [
+      "姓名 / Name: " + (nameEl.value || "").trim(),
+      "电话 / Phone: " + (phoneEl.value || "").trim(),
+      "邮箱 / Email: " + (mailEl.value || "").trim(),
+      "服务 / Services: " + services.join(" / "),
+      "",
+      "留言 / Message:",
+      (msgEl.value || "").trim()
+    ].join("\n");
+    return "mailto:" + TO_MAIL +
+      "?subject=" + encodeURIComponent("名扬屋顶官网询价 · " + (nameEl.value || "").trim()) +
+      "&body=" + encodeURIComponent(body);
+  }
+
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      var name = (nameEl.value || "").trim();
+      var phone = (phoneEl.value || "").trim();
+      var mail = (mailEl.value || "").trim();
+      var ok = true;
+
+      bad(fName, !name); if (!name) { ok = false; }
+      bad(fPhone, !phone); if (!phone) { ok = false; }
+      var mailBad = !!mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail);
+      bad(fEmail, mailBad); if (mailBad) { ok = false; }
+
+      var services = checkedBoxes().map(function (b) { return b.value; });
+      if (svcField) { svcField.classList.toggle("is-bad", !services.length); }
+      if (!services.length) { ok = false; }
+
+      if (!ok) {
+        var firstBad = form.querySelector(".field.is-bad");
+        if (firstBad && firstBad.querySelector("input, textarea")) { firstBad.querySelector("input, textarea").focus(); }
+        setStatus("", "");
+        return;
+      }
+
+      setStatus("f.sending", "");
+      submitBtn.disabled = true;
+
+      var done = false;
+      function finishSuccess() {
+        if (done) { return; }
+        done = true;
+        submitBtn.disabled = false;
+        setStatus("f.ok", "is-ok");
+        form.reset();
+        updateMsLabel();
+        Array.prototype.forEach.call(form.querySelectorAll(".field"), function (f) { f.classList.remove("is-bad"); });
+      }
+      function finishFallback() {
+        if (done) { return; }
+        done = true;
+        submitBtn.disabled = false;
+        setStatus("f.fail", "is-bad");
+        window.location.href = mailtoHref(services);
+      }
+
+      try {
+        var ctrl = ("AbortController" in window) ? new AbortController() : null;
+        var to = window.setTimeout(function () { if (ctrl) { ctrl.abort(); } finishFallback(); }, 12000);
+        window.fetch(ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify(payloadOf(services)),
+          signal: ctrl ? ctrl.signal : undefined
+        }).then(function (r) {
+          if (!r.ok) { throw new Error("http " + r.status); }
+          return r.json();
+        }).then(function (d) {
+          window.clearTimeout(to);
+          if (d && (d.success === "true" || d.success === true)) { finishSuccess(); }
+          else { finishFallback(); }
+        }).catch(function () {
+          window.clearTimeout(to);
+          finishFallback();
+        });
+      } catch (err) {
+        finishFallback();
+      }
+    });
+
+    [nameEl, phoneEl, mailEl].forEach(function (el) {
+      if (!el) { return; }
+      el.addEventListener("input", function () {
+        var f = el.closest(".field");
+        if (f && f.classList.contains("is-bad")) { f.classList.remove("is-bad"); }
+      });
+    });
+  }
+
+  /* -------------------- 5b. 信任数字：滚入视口时逐位跳字 -------------------- */
+  (function () {
+    var nums = Array.prototype.slice.call(document.querySelectorAll(".stat-num"));
+    if (!nums.length) { return; }
+
+    nums.forEach(function (el) {
+      var suf = el.getAttribute("data-suf") || "";
+      el.textContent = "0";
+      if (suf) {
+        var s = document.createElement("span");
+        s.className = "suf";
+        s.textContent = suf;
+        el.appendChild(s);
+      }
+    });
+
+    function fmt(el, v) {
+      var quote = el.getAttribute("data-to") || "";
+      return quote.indexOf(".") > -1 ? v.toFixed(1) : String(Math.round(v));
+    }
+    function settle(el) {
+      el.firstChild.nodeValue = fmt(el, parseFloat(el.getAttribute("data-to")) || 0);
+      el.classList.add("is-lit");
+    }
+    function start(el) {
+      var to = parseFloat(el.getAttribute("data-to")) || 0;
+      if (reduce || !window.requestAnimationFrame) { settle(el); return; }
+      var t0 = 0;
+      function tick(ts) {
+        if (!t0) { t0 = ts; }
+        var p = Math.min(1, (ts - t0) / 1600);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.firstChild.nodeValue = fmt(el, to * eased);
+        if (p < 1) { window.requestAnimationFrame(tick); }
+        else { settle(el); }
+      }
+      window.requestAnimationFrame(tick);
+      /* 兜底：动画回调被系统节流时，2.2 秒后直接落到终值，绝不显示半截数字 */
+      window.setTimeout(function () {
+        if (!el.classList.contains("is-lit")) { settle(el); }
+      }, 2200);
+    }
+
+    if ("IntersectionObserver" in window) {
+      var ioStat = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) { start(entry.target); ioStat.unobserve(entry.target); }
+        });
+      }, { threshold: 0.35 });
+      nums.forEach(function (el) { ioStat.observe(el); });
+    } else {
+      nums.forEach(start);
+    }
+  })();
+
+  /* -------------------- 6. 启动语言 -------------------- */
+  var saved = "zh";
+  try { saved = window.localStorage.getItem(LANG_KEY) || "zh"; } catch (err) {}
+  paint(saved === "en" ? "en" : "zh");
+})();
+</script>
+</body>
+</html>
+
