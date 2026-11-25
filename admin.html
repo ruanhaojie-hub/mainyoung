@@ -1,0 +1,1659 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>名扬后台 · 客户台账 / 回访 / 发票</title>
+<style>
+/* ================= 设计令牌 ================= */
+:root{
+  --gold:#D9BC6B; --gold-hi:#F2E2AE; --gold-dim:rgba(217,188,107,.55);
+  --black:#070708; --black-2:#0B0B0D; --black-3:#101014; --black-4:#15151A;
+  --paper:#F4EFE3; --muted:rgba(244,239,227,.56); --line:rgba(244,239,227,.12);
+  --line-2:rgba(244,239,227,.06);
+  --red:#C9584A; --green:#7FA86B; --amber:#D9A24B;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --r:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--black);color:var(--paper);font-family:var(--sans);
+  font-size:14px;line-height:1.6;-webkit-text-size-adjust:100%;
+}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+
+/* ================= 顶栏 ================= */
+.bar{
+  position:sticky;top:0;z-index:30;
+  display:flex;align-items:center;gap:18px;
+  padding:14px 20px;background:rgba(7,7,8,.94);
+  border-bottom:1px solid var(--line);backdrop-filter:blur(14px);
+}
+.brand{display:flex;align-items:baseline;gap:8px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.brand .b1{color:var(--gold);font-size:15px}
+.brand .b2{font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:var(--muted);text-transform:uppercase}
+.tabs{display:flex;gap:2px;margin-left:auto;flex-wrap:wrap}
+.tabs button{
+  background:none;border:1px solid transparent;color:var(--muted);
+  padding:8px 14px;border-radius:999px;cursor:pointer;font-size:13px;white-space:nowrap;
+}
+.tabs button.on{color:var(--black);background:var(--gold);border-color:var(--gold);font-weight:700}
+.tabs button:hover{color:var(--gold-hi)}
+.tabs button.on:hover{color:var(--black)}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:10px;padding:2px 6px;border-radius:999px;
+  background:rgba(201,88,74,.18);color:#E89A8E;border:1px solid rgba(201,88,74,.35);
+  margin-left:6px;vertical-align:2px;
+}
+.badge.amber{background:rgba(217,162,75,.16);color:#E8C88E;border-color:rgba(217,162,75,.35)}
+/* 选中（金色）标签上把角标改成深底，保证看得清 */
+.tabs button.on .badge{background:rgba(10,10,11,.16);color:#6E2A22;border-color:rgba(10,10,11,.28)}
+.tabs button.on .badge.amber{background:rgba(10,10,11,.12);color:#5E4514;border-color:rgba(10,10,11,.22)}
+
+/* ================= 布局 ================= */
+main{max-width:1360px;margin:0 auto;padding:26px 20px 80px}
+.sec-head{display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.sec-head h1{margin:0;font-size:24px;letter-spacing:.02em}
+.sec-head .sub{color:var(--muted);font-size:12.5px;line-height:1.5;max-width:520px}
+.spacer{flex:1}
+
+/* 按钮 */
+.btn{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:9px 16px;border-radius:8px;border:1px solid var(--line);
+  background:var(--black-3);cursor:pointer;font-size:13px;transition:.15s;
+  white-space:nowrap;
+}
+.btn:hover{border-color:var(--gold-dim);color:var(--gold-hi)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#0A0A0B;font-weight:700}
+.btn.gold:hover{background:var(--gold-hi);color:#0A0A0B}
+.btn.sm{padding:5px 10px;font-size:12px;border-radius:6px}
+.btn.danger:hover{border-color:rgba(201,88,74,.6);color:#E89A8E}
+
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.kpi{
+  border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;
+  background:linear-gradient(180deg,var(--black-3),var(--black-2));
+}
+.kpi .k{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+.kpi .v{font-size:26px;font-weight:700;margin-top:6px;letter-spacing:-.01em}
+.kpi .v small{font-size:12px;font-weight:400;color:var(--muted);margin-left:4px}
+.kpi.warn .v{color:#E8C88E}
+.kpi.bad .v{color:#E89A8E}
+
+/* 表格 */
+.table-wrap{border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--black-2)}
+table{width:100%;border-collapse:collapse}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line-2);vertical-align:top}
+th{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--muted);background:var(--black-3);font-weight:400;white-space:nowrap;
+}
+tbody tr:hover{background:rgba(217,188,107,.04)}
+tbody tr:last-child td{border-bottom:none}
+td.name{font-weight:600}
+.tel{font-family:var(--mono);font-size:12.5px}
+.addr{color:var(--muted);font-size:12px;line-height:1.45}
+.chip{
+  display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;
+  border:1px solid var(--line);color:var(--muted);margin:0 4px 4px 0;white-space:nowrap;
+}
+.st{display:inline-block;font-size:11px;padding:2px 9px;border-radius:999px;white-space:nowrap;border:1px solid}
+.st.新询价{color:#E8C88E;border-color:rgba(217,162,75,.45);background:rgba(217,162,75,.12)}
+.st.已联系{color:#9EC1E0;border-color:rgba(120,160,200,.4);background:rgba(120,160,200,.1)}
+.st.已报价{color:var(--gold-hi);border-color:var(--gold-dim);background:rgba(217,188,107,.12)}
+.st.已成交{color:#A8CB92;border-color:rgba(127,168,107,.5);background:rgba(127,168,107,.14)}
+.st.已流失{color:var(--muted);border-color:var(--line);background:transparent}
+.st.paid{color:#A8CB92;border-color:rgba(127,168,107,.5);background:rgba(127,168,107,.14)}
+.st.unpaid{color:#E8C88E;border-color:rgba(217,162,75,.4);background:rgba(217,162,75,.1)}
+.st.over{color:#E89A8E;border-color:rgba(201,88,74,.45);background:rgba(201,88,74,.12)}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty{padding:36px 20px;text-align:center;color:var(--muted);font-size:13px;line-height:2}
+
+/* 工具栏 */
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.field-inline{
+  display:flex;align-items:center;gap:8px;border:1px solid var(--line);
+  border-radius:8px;padding:0 12px;background:var(--black-3);height:38px;
+}
+.field-inline input{border:none;background:none;outline:none;width:200px}
+.field-inline input::placeholder{color:rgba(244,239,227,.34)}
+select.sel{
+  height:38px;background:var(--black-3);border:1px solid var(--line);border-radius:8px;
+  padding:0 12px;outline:none;cursor:pointer;
+}
+
+/* ================= 概览：待办带 ================= */
+.todo-band{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.todo{
+  display:flex;align-items:center;gap:14px;padding:14px 16px;border:1px solid var(--line);
+  border-radius:var(--r);background:var(--black-2);cursor:pointer;transition:.15s;
+}
+.todo:hover{border-color:var(--gold-dim);background:rgba(217,188,107,.05)}
+.todo .num{font-family:var(--mono);font-size:26px;font-weight:700;line-height:1}
+.todo .num.gold{color:var(--gold)} .todo .num.red{color:#E89A8E} .todo .num.amber{color:#E8C88E}
+.todo .txt b{display:block;font-size:13px}
+.todo .txt span{color:var(--muted);font-size:11.5px}
+
+.kpis.six{grid-template-columns:repeat(6,1fr)}
+.kpis.six .kpi{padding:13px 14px}
+.kpis.six .kpi .v{font-size:22px}
+
+/* ================= 概览：图表 ================= */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.ch-monthly{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;align-items:end;height:168px;padding-top:8px}
+.mo{display:flex;flex-direction:column;align-items:center;gap:6px;height:100%}
+.mo .bars{flex:1;display:flex;align-items:flex-end;gap:3px;width:100%;justify-content:center}
+.mo .b{width:11px;border-radius:2px 2px 0 0;min-height:2px;transition:.3s}
+.mo .b.q{background:var(--gold)}
+.mo .b.i{background:rgba(217,188,107,.34)}
+.mo .lb{font-family:var(--mono);font-size:9.5px;color:var(--muted);letter-spacing:.05em}
+.mo .vl{font-family:var(--mono);font-size:9.5px;color:rgba(244,239,227,.4);height:12px}
+
+.ch-bars{display:flex;flex-direction:column;gap:10px}
+.bar-row{display:grid;grid-template-columns:84px 1fr 34px;gap:10px;align-items:center}
+.bar-row .n{font-size:12px;color:rgba(244,239,227,.78);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bar-row .track{height:8px;background:rgba(244,239,227,.08);border-radius:999px;overflow:hidden}
+.bar-row .fill{height:100%;background:linear-gradient(90deg,var(--gold-dim),var(--gold));border-radius:999px}
+.bar-row .v{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+
+.ch-funnel{display:flex;flex-direction:column;gap:8px}
+.fn{display:grid;grid-template-columns:70px 1fr 62px;gap:10px;align-items:center}
+.fn .n{font-size:12px;color:rgba(244,239,227,.78)}
+.fn .track{height:22px;background:rgba(244,239,227,.06);border-radius:3px;overflow:hidden}
+.fn .fill{height:100%;background:rgba(217,188,107,.5)}
+.fn .fill.hot{background:var(--gold)}
+.fn .v{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+
+/* ================= 客户详情抽屉 ================= */
+.drawer{
+  position:fixed;top:0;right:0;bottom:0;z-index:70;width:min(480px,100%);
+  background:var(--black-2);border-left:1px solid var(--line);
+  transform:translateX(100%);transition:transform .28s cubic-bezier(.22,1,.36,1);
+  display:flex;flex-direction:column;
+}
+.drawer.on{transform:translateX(0)}
+.drawer .hd{padding:18px 20px 14px;border-bottom:1px solid var(--line)}
+.drawer .hd .nm{font-size:19px;font-weight:700;display:flex;align-items:center;gap:10px}
+.drawer .hd .meta{color:var(--muted);font-size:12px;margin-top:6px;line-height:1.7}
+.drawer .bd{flex:1;overflow:auto;padding:16px 20px 30px}
+.drawer .bd h4{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--muted);
+  text-transform:uppercase;margin:18px 0 10px}
+.tl{border-left:1px solid var(--line);margin-left:6px;padding-left:16px}
+.tl .ev{position:relative;padding-bottom:14px}
+.tl .ev::before{content:"";position:absolute;left:-21px;top:4px;width:7px;height:7px;
+  border-radius:50%;background:var(--gold-dim);border:1px solid var(--black-2)}
+.tl .ev.inv::before{background:var(--gold)}
+.tl .ev .d{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.tl .ev .t{font-size:12.5px;margin-top:2px;line-height:1.6}
+.logform{display:grid;grid-template-columns:110px 96px 1fr auto;gap:8px;align-items:center}
+.logform input,.logform select{background:var(--black-3);border:1px solid var(--line);
+  border-radius:6px;padding:7px 9px;outline:none;font-size:12px}
+.mask.open{display:block}
+
+.group{margin-bottom:26px}
+.group h2{font-size:15px;margin:0 0 10px;display:flex;align-items:center;gap:10px}
+.group h2 .cnt{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.item{
+  display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;
+  padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);
+  background:var(--black-2);margin-bottom:8px;
+}
+.item.over{border-color:rgba(201,88,74,.4);background:rgba(201,88,74,.06)}
+.item.today{border-color:rgba(217,188,107,.45);background:rgba(217,188,107,.06)}
+.item .l1{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.item .nm{font-weight:600}
+.item .when{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.item .when.over{color:#E89A8E}
+.item .when.today{color:#E8C88E}
+.item .meta{color:var(--muted);font-size:12px;margin-top:4px}
+
+/* 表单 / 弹层 */
+.mask{position:fixed;inset:0;z-index:60;background:rgba(4,4,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:5vh 16px}
+.sheet{
+  width:100%;max-width:620px;background:var(--black-2);border:1px solid var(--line);
+  border-radius:14px;padding:22px 22px 18px;
+}
+.sheet h3{margin:0 0 4px;font-size:17px}
+.sheet .hint{color:var(--muted);font-size:12px;margin:0 0 16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.f label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.f input,.f textarea,.f select{
+  background:var(--black-3);border:1px solid var(--line);border-radius:8px;
+  padding:10px 12px;outline:none;width:100%;
+}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--gold-dim)}
+.f textarea{resize:vertical;min-height:64px}
+.svc-pick{display:flex;flex-wrap:wrap;gap:8px}
+.svc-pick label{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--paper);
+  border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer;text-transform:none;letter-spacing:0;
+  font-family:var(--sans);
+}
+.svc-pick input{width:auto;margin:0}
+.sheet-foot{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;padding-top:14px;border-top:1px solid var(--line)}
+
+/* 发票编辑 */
+.inv-edit{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.items{width:100%;border-collapse:collapse;margin-bottom:12px}
+.items th{background:var(--black-3)}
+.items td{padding:6px 8px}
+.items input{
+  width:100%;background:var(--black-3);border:1px solid var(--line);border-radius:6px;padding:7px 9px;outline:none;
+}
+.items td.n input{text-align:right;font-family:var(--mono)}
+.totals{display:grid;grid-template-columns:1fr 260px;gap:16px;align-items:start}
+.tot-box{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;background:var(--black-3)}
+.tot-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px}
+.tot-row .v{font-family:var(--mono)}
+.tot-row.big{border-top:1px solid var(--line);margin-top:6px;padding-top:9px;font-size:16px;font-weight:700;color:var(--gold-hi)}
+
+/* ================= 发票纸（A4） ================= */
+.paper{
+  width:210mm;min-height:270mm;background:#fff;color:#111;
+  margin:0 auto;padding:16mm 15mm;font-family:var(--sans);
+  box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.paper .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.paper h1{margin:0;font-size:30px;letter-spacing:.06em;font-weight:800}
+.paper .no{font-size:11.5px;color:#333;margin-top:8px;line-height:1.7}
+.paper .logo{text-align:right;line-height:1.2}
+.paper .logo .c1{font-size:20px;font-weight:800;color:#B8912F;letter-spacing:.04em}
+.paper .logo .c2{font-size:9px;letter-spacing:.18em;color:#8A6E33;text-transform:uppercase}
+.paper .parties{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin:18mm 0 8mm}
+.paper .parties b{display:block;font-size:11px;margin-bottom:4px}
+.paper .parties div{font-size:11.5px;line-height:1.65;color:#222}
+.paper table{width:100%;border-collapse:collapse;font-size:11.5px}
+.paper .it th{
+  background:#D8D8D8;color:#111;font-family:var(--sans);font-size:11.5px;letter-spacing:0;
+  text-transform:none;padding:7px 9px;border:1px solid #BFBFBF;
+}
+.paper .it th.r,.paper .it td.r{text-align:right}
+.paper .it td{padding:8px 9px;border-bottom:1px solid #DDD;vertical-align:top}
+.paper .sum{width:55%;margin-left:auto;margin-top:6px;font-size:11.5px}
+.paper .sum .row{display:flex;justify-content:space-between;padding:5px 9px}
+.paper .sum .row.total{border-top:2px solid #111;margin-top:4px;padding-top:7px;font-size:15px;font-weight:800}
+.paper .foot{margin-top:26mm;font-size:11px;color:#222;line-height:1.8;border-top:1px solid #111;padding-top:10px}
+.paper-mask{background:rgba(4,4,5,.86)}
+.toolbar-print{
+  position:sticky;top:0;z-index:5;display:flex;gap:10px;justify-content:center;
+  padding:12px;margin:-5vh -16px 16px;background:rgba(7,7,8,.9);
+}
+
+/* 设置 */
+.panel{border:1px solid var(--line);border-radius:var(--r);padding:18px;background:var(--black-2);margin-bottom:16px}
+.panel h2{margin:0 0 4px;font-size:15px}
+.panel p.tip{margin:0 0 14px;color:var(--muted);font-size:12px;line-height:1.6}
+
+/* 提示条 */
+.toast{
+  position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);
+  background:var(--gold);color:#0A0A0B;font-weight:600;font-size:13px;
+  padding:10px 18px;border-radius:999px;z-index:80;opacity:0;pointer-events:none;
+  transition:.25s;
+}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ================= 响应式 ================= */
+@media (max-width:900px){
+  .kpis{grid-template-columns:1fr 1fr}
+  .inv-edit{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .paper{width:100%;padding:10mm 8mm;min-height:auto}
+}
+@media (max-width:640px){
+  .bar{padding:10px 12px;gap:10px}
+  .brand .b2{display:none}
+  .tabs button{padding:7px 10px;font-size:12px}
+  main{padding:18px 12px 60px}
+  th,td{padding:9px 10px}
+  table.cardify thead{display:none}
+  table.cardify, table.cardify tbody, table.cardify tr, table.cardify td{display:block;width:100%}
+  table.cardify tr{border-bottom:1px solid var(--line);padding:12px 4px}
+  table.cardify td{border:none;padding:3px 12px}
+  table.cardify td::before{content:attr(data-l) " ";color:var(--muted);font-size:11px;font-family:var(--mono)}
+  .item{grid-template-columns:1fr;gap:10px}
+  .toolbar .field-inline input{width:120px}
+}
+
+/* ================= 概览响应式 ================= */
+@media (max-width:900px){
+  .kpis.six{grid-template-columns:repeat(3,1fr)}
+  .charts{grid-template-columns:1fr}
+  .todo-band{grid-template-columns:1fr}
+  .todo{padding:12px 14px}
+}
+@media (max-width:600px){
+  .kpis.six{grid-template-columns:1fr 1fr}
+  .ch-monthly{height:140px}
+  .bar-row{grid-template-columns:74px 1fr 28px}
+  .fn{grid-template-columns:58px 1fr 54px}
+  .logform{grid-template-columns:1fr 1fr;gap:6px}
+  .logform input[type=date]{grid-column:1}
+  .drawer{width:100%}
+}
+
+/* ================= 详细化补充 ================= */
+.row-inline{display:flex;gap:8px;align-items:center}
+.row-inline input{flex:1 1 auto;min-width:0}
+.row-inline .btn{flex:0 0 auto;padding:0 10px;height:34px}
+.spec{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin:0 0 20px}
+.spec .it{padding:8px 0;border-bottom:1px solid var(--line)}
+.spec .it .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.spec .it .v{font-size:12.5px;line-height:1.6;margin-top:3px;overflow-wrap:anywhere}
+@media (max-width:600px){ .spec{grid-template-columns:1fr} }
+
+/* ================= 打印 ================= */
+@media print{
+  @page{size:A4;margin:0}
+  body{background:#fff}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block!important;position:static!important;background:#fff!important;
+    inset:auto!important;padding:0!important;overflow:visible!important}
+  #printArea .toolbar-print{display:none!important}
+  .paper{box-shadow:none;margin:0;width:auto;min-height:auto;padding:14mm 13mm}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 顶栏 ================= -->
+<header class="bar">
+  <div class="brand"><span class="b1">名扬</span><span class="b2">Mainyoung · Admin</span></div>
+  <nav class="tabs" id="tabs">
+    <button data-view="overview" class="on">概览</button>
+    <button data-view="customers">客户台账</button>
+    <button data-view="visits">回访计划<span class="badge amber hidden" id="bToday"></span><span class="badge hidden" id="bOver"></span></button>
+    <button data-view="invoices">发票<span class="badge amber hidden" id="bUnpaid"></span></button>
+    <button data-view="settings">设置</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ================= 视图：概览 ================= -->
+  <section id="v-overview">
+    <div class="sec-head">
+      <div>
+        <h1>概览</h1>
+        <p class="sub">一眼看清这周该干什么、钱收回来没有、生意在往哪走。所有数字都从客户台账和发票里实时算出来，不手填。</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="csvCust">导出客户 CSV</button>
+      <button class="btn" id="csvInv">导出发票 CSV</button>
+    </div>
+
+    <div id="todoBand" class="todo-band"></div>
+    <div class="kpis six" id="ovKpis"></div>
+
+    <div class="charts">
+      <div class="panel">
+        <h2>近 6 个月：询价 / 开票</h2>
+        <p class="tip">柱高按当月条数，金色=新询价，暗金=已开票。</p>
+        <div id="chMonthly" class="ch-monthly"></div>
+      </div>
+      <div class="panel">
+        <h2>服务类型分布</h2>
+        <p class="tip">客户身上标的服务，按出现次数排。</p>
+        <div id="chSvc" class="ch-bars"></div>
+      </div>
+      <div class="panel">
+        <h2>客户从哪来</h2>
+        <p class="tip">哪条渠道给你带单，明年就往那投。</p>
+        <div id="chSrc" class="ch-bars"></div>
+      </div>
+      <div class="panel">
+        <h2>客户画像：屋型 / 紧急度</h2>
+        <p class="tip">在接什么房子、客户多急，直接决定排期和备料。</p>
+        <div id="chHouse" class="ch-bars"></div>
+        <p class="tip" style="margin:14px 0 8px">紧急程度</p>
+        <div id="chUrg" class="ch-bars"></div>
+      </div>
+      <div class="panel">
+        <h2>转化漏斗</h2>
+        <p class="tip">询价 → 联系上 → 报过价 → 成交，每一步掉多少一目了然。</p>
+        <div id="chFunnel" class="ch-funnel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 视图：客户台账 ================= -->
+  <section id="v-customers">
+    <div class="sec-head">
+      <div>
+        <h1>客户台账</h1>
+        <p class="sub">官网询价、电话、转介绍都记在这里。服务种类和回访日期决定"该给谁打电话"，状态决定"还欠谁一个报价"。</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn gold" id="addCustomer">+ 新增客户</button>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="toolbar">
+      <div class="field-inline"><input id="q" placeholder="搜姓名 / 电话 / 地址"></div>
+      <select class="sel" id="fStatus">
+        <option value="">全部状态</option>
+        <option>新询价</option><option>已联系</option><option>已报价</option>
+        <option>已成交</option><option>已流失</option>
+      </select>
+      <select class="sel" id="fSvc">
+        <option value="">全部服务</option>
+        <option>屋顶更换</option><option>水槽清理</option><option>油漆粉刷</option>
+        <option>屋顶修理</option><option>屋顶养护</option><option>房屋养护</option>
+      </select>
+      <select class="sel" id="fHouse">
+        <option value="">全部屋型</option>
+        <option>独立屋</option><option>半独立 / Duplex</option><option>联排</option>
+        <option>公寓</option><option>商铺</option><option>工业 / 其他</option>
+      </select>
+      <select class="sel" id="fUrg">
+        <option value="">全部紧急度</option>
+        <option>尽快（2 周内）</option><option>本季内</option><option>不急（3 个月后）</option>
+      </select>
+      <div class="spacer"></div>
+      <span class="addr" id="custCount"></span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="cardify">
+        <thead><tr>
+          <th>客户</th><th>联系方式</th><th>服务 / 来源</th><th>状态</th><th>下次回访</th><th>操作</th>
+        </tr></thead>
+        <tbody id="custRows"></tbody>
+      </table>
+      <div class="empty hidden" id="custEmpty">还没有客户。<br>点右上「+ 新增客户」，或到「设置」里载入示例数据先玩一遍。</div>
+    </div>
+  </section>
+
+  <!-- ================= 视图：回访计划 ================= -->
+  <section id="v-visits" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h1>回访计划</h1>
+        <p class="sub">按日期自动分组。点「完成回访」自动顺延到下一次（默认 30 天，可在设置里改），不用你手算日期。</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn" id="icsBtn">导出 .ics 到手机日历</button>
+    </div>
+    <div id="visitGroups"></div>
+  </section>
+
+  <!-- ================= 视图：发票 ================= -->
+  <section id="v-invoices" class="hidden">
+    <div class="sec-head">
+      <div>
+        <h1>发票</h1>
+        <p class="sub">选客户自动带地址，明细行现填；金额、GST 5%、PST 7% 全部自动算。生成后直接打印或"存为 PDF"发客户。</p>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn gold" id="newInvoice">+ 新建发票</button>
+    </div>
+
+    <div class="panel hidden" id="invEditor">
+      <h2>新建 / 编辑发票</h2>
+      <p class="tip">客户下拉只填 Billed to；明细写清楚做了什么（如 "Roof Repair - 5038 Maitland St"）。数量默认 1。</p>
+      <div class="inv-edit">
+        <div class="f"><label>客户</label><select id="invCustomer"></select></div>
+        <div class="f"><label>Billed to（可手改）</label><input id="invBilled" placeholder="5038 Maitland St, Burnaby"></div>
+        <div class="f"><label>Invoice No.</label><input id="invNo" class="tel"></div>
+        <div class="f"><label>Invoice Date</label><input id="invDate" type="date"></div>
+      </div>
+
+      <table class="items" id="itemRows">
+        <thead><tr><th style="width:52%">Description</th><th style="width:12%">Qty</th><th style="width:18%">Price</th><th style="width:18%">Amount</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="toolbar">
+        <button class="btn sm" id="addItem">+ 加一行</button>
+        <button class="btn sm" data-quick="Roof Replacement">屋顶更换</button>
+        <button class="btn sm" data-quick="Gutter Cleaning">水槽清理</button>
+        <button class="btn sm" data-quick="Painting">油漆粉刷</button>
+        <button class="btn sm" data-quick="Roof Repair">屋顶修理</button>
+        <button class="btn sm" data-quick="Roof Maintenance">屋顶养护</button>
+        <button class="btn sm" data-quick="House Maintenance">房屋养护</button>
+      </div>
+
+      <div class="totals">
+        <div class="f"><label>备注（会印在发票底部上方）</label><textarea id="invNote" placeholder="如需注明工期、材料品牌、付款方式，写在这里。"></textarea></div>
+        <div class="tot-box">
+          <div class="tot-row"><span>Sub Total</span><span class="v" id="tSub">$0.00</span></div>
+          <div class="tot-row"><span>GST <input id="gstRate" class="tel" style="width:44px;background:none;border:none;border-bottom:1px dotted var(--muted);text-align:right;color:var(--gold-hi)">%</span><span class="v" id="tGst">$0.00</span></div>
+          <div class="tot-row"><span>PST <input id="pstRate" class="tel" style="width:44px;background:none;border:none;border-bottom:1px dotted var(--muted);text-align:right;color:var(--gold-hi)">%</span><span class="v" id="tPst">$0.00</span></div>
+          <div class="tot-row big"><span>Total</span><span class="v" id="tTotal">$0.00</span></div>
+        </div>
+      </div>
+
+      <div class="sheet-foot">
+        <button class="btn" id="cancelInv">取消</button>
+        <button class="btn gold" id="saveInv">生成发票</button>
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table class="cardify">
+        <thead><tr><th>Invoice No.</th><th>客户 / Billed to</th><th>日期</th><th>合计</th><th>收款</th><th>操作</th></tr></thead>
+        <tbody id="invRows"></tbody>
+      </table>
+      <div class="empty hidden" id="invEmpty">还没有发票。点「+ 新建发票」开始。</div>
+    </div>
+  </section>
+
+  <!-- ================= 视图：设置 ================= -->
+  <section id="v-settings" class="hidden">
+    <div class="sec-head"><div><h1>设置</h1><p class="sub">公司抬头会原样印在发票上；改这里，发票跟着变。</p></div></div>
+
+    <div class="panel">
+      <h2>公司与开票信息</h2>
+      <p class="tip">与你现有发票保持一致：Mainyoung Roofing &amp; Painting LTD. / 17363 103A Ave, Surrey, BC V4N 5R3 / GST NO. 773949003RTO001</p>
+      <div class="grid2">
+        <div class="f"><label>公司名</label><input id="sBizName"></div>
+        <div class="f"><label>GST NO.</label><input id="sGstNo" class="tel"></div>
+        <div class="f"><label>地址</label><input id="sAddr1"></div>
+        <div class="f"><label>城市 / 邮编</label><input id="sAddr2"></div>
+        <div class="f"><label>汇款邮箱</label><input id="sMail" class="tel"></div>
+        <div class="f"><label>付款条款</label><input id="sTerms"></div>
+        <div class="f"><label>下一个发票号</label><input id="sNextNo" class="tel"></div>
+        <div class="f"><label>回访默认间隔（天）</label><input id="sVisitDays" type="number" min="1" step="1"></div>
+      </div>
+      <div class="f"><label>公司 Logo（可选，透明底 PNG，会印在发票右上角）</label>
+        <div class="toolbar" style="margin:0">
+          <button class="btn sm" id="pickLogo">选择图片</button>
+          <input type="file" id="logoFile" accept="image/png,image/jpeg" class="hidden">
+          <button class="btn sm danger" id="clearLogo">清除 Logo</button>
+          <span class="addr" id="logoState">未设置，发票上用文字 logo</span>
+        </div>
+      </div>
+      <div class="sheet-foot" style="border:none;padding:0;margin-top:6px">
+        <button class="btn gold" id="saveSettings">保存设置</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>按服务排回访间隔</h2>
+      <p class="tip">把服务勾好后点「按服务排期」，下次回访按这里的天数算；一客户多个服务时取最小值。改完记得点上面的保存。</p>
+      <div class="grid2" id="sSvcDays"></div>
+    </div>
+
+    <div class="panel">
+      <h2>数据备份</h2>
+      <p class="tip">数据存在这台电脑这个浏览器里（localStorage），换电脑、清缓存会丢。养成每周导出一次的习惯；导出的 JSON 换设备后导入即可无缝继续。</p>
+      <div class="toolbar">
+        <button class="btn" id="exportJson">导出备份（.json）</button>
+        <button class="btn" id="importJson">导入备份</button>
+        <input type="file" id="importFile" accept="application/json" class="hidden">
+        <div class="spacer"></div>
+        <button class="btn danger" id="clearAll">清空全部数据</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>示例数据</h2>
+      <p class="tip">想先看效果，可以载入 3 条示例（含一条今天的回访、一张示例发票），用熟了再删。</p>
+      <button class="btn" id="seed">载入示例数据</button>
+    </div>
+  </section>
+</main>
+
+<!-- ================= 客户编辑弹层 ================= -->
+<div class="mask hidden" id="custMask">
+  <div class="sheet">
+    <h3 id="custTitle">新增客户</h3>
+    <p class="hint">只有姓名必填。回访日期留空就不进提醒列表。</p>
+    <div class="grid2">
+      <div class="f"><label>姓名 *</label><input id="cName" placeholder="张先生"></div>
+      <div class="f"><label>电话</label><input id="cPhone" class="tel" placeholder="778-239-1111"></div>
+      <div class="f"><label>邮箱</label><input id="cEmail" class="tel" placeholder="name@example.com"></div>
+      <div class="f"><label>来源</label><select id="cSource">
+        <option>官网表单</option><option>电话</option><option>转介绍</option>
+        <option>Google / 地图 / 点评</option><option>Facebook / Instagram</option>
+        <option>小红书 / 抖音</option><option>邻居 / 路过</option><option>其他</option>
+      </select></div>
+    </div>
+    <div class="f"><label>地址</label><input id="cAddr" placeholder="5038 Maitland St, Burnaby"></div>
+    <div class="f"><label>服务种类（可多选）</label>
+      <div class="svc-pick" id="cSvc"></div>
+    </div>
+    <div class="grid2">
+      <div class="f"><label>状态</label><select id="cStatus">
+        <option>新询价</option><option>已联系</option><option>已报价</option>
+        <option>已成交</option><option>已流失</option>
+      </select></div>
+      <div class="f"><label>首次询价</label><input id="cFirst" type="date"></div>
+      <div class="f"><label>下次回访</label>
+        <div class="row-inline"><input id="cVisit" type="date"><button class="btn sm" id="cAutoVisit" type="button">按服务排期</button></div>
+      </div>
+      <div class="f"><label>紧急程度</label><select id="cUrgency"></select></div>
+      <div class="f"><label>房屋类型</label><select id="cHouse"></select></div>
+      <div class="f"><label>屋顶面积（sqft）</label><input id="cArea" class="tel" placeholder="1800"></div>
+      <div class="f"><label>预估金额（可选）</label><input id="cBudget" class="tel" placeholder="1000"></div>
+    </div>
+    <div class="f"><label>备注</label><textarea id="cNote" placeholder="屋顶面积、几层、渗水位置、客户在意的点…"></textarea></div>
+    <div class="sheet-foot">
+      <button class="btn" id="cancelCust">取消</button>
+      <button class="btn gold" id="saveCust">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 发票预览 ================= -->
+<div class="mask paper-mask hidden" id="printArea">
+  <div style="width:100%">
+    <div class="toolbar-print">
+      <button class="btn gold" onclick="window.print()">打印 / 存为 PDF</button>
+      <button class="btn" id="closePaper">关闭</button>
+      <button class="btn" id="mailPaper">复制发票文本</button>
+    </div>
+    <div class="paper" id="paper"></div>
+  </div>
+</div>
+
+<!-- ================= 客户详情抽屉 ================= -->
+<div class="drawer" id="drawer">
+  <div class="hd">
+    <div class="nm" id="dName">—</div>
+    <div class="meta" id="dMeta"></div>
+    <div class="actions" style="margin-top:12px">
+      <button class="btn sm gold" id="dDone">完成回访</button>
+      <button class="btn sm" id="dInv">开票</button>
+      <button class="btn sm" id="dEdit">编辑</button>
+      <button class="btn sm" id="dClose">关闭</button>
+    </div>
+  </div>
+  <div class="bd" id="dBody"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========================================================
+   名扬后台 · 单文件应用
+   数据：localStorage 一个键；视图：hash 路由；无任何外部依赖
+   ========================================================= */
+(function () {
+  "use strict";
+
+  var KEY = "my_admin_v1";
+  var SERVICES = ["屋顶更换", "水槽清理", "油漆粉刷", "屋顶修理", "屋顶养护", "房屋养护"];
+  var STATUS = ["新询价", "已联系", "已报价", "已成交", "已流失"];
+  var HOUSE = ["独立屋", "半独立 / Duplex", "联排", "公寓", "商铺", "工业 / 其他"];
+  var URG = ["不急（3 个月后）", "本季内", "尽快（2 周内）"];
+  var SVC_DAYS = { "屋顶更换": 45, "水槽清理": 180, "油漆粉刷": 365, "屋顶修理": 30, "屋顶养护": 365, "房屋养护": 180 };
+
+  var DEFAULTS = {
+    settings: {
+      bizName: "Mainyoung Roofing & Painting LTD.",
+      gstNo: "773949003RTO001",
+      addr1: "17363 103A Ave",
+      addr2: "Surrey, BC V4N 5R3",
+      mail: "main-young@hotmail.com",
+      terms: "Payment is required within 7 business days of invoice date.",
+      nextNo: "20260001",
+      visitDays: 30,
+      gstRate: 5,
+      pstRate: 7,
+      svcDays: { "屋顶更换": 45, "水槽清理": 180, "油漆粉刷": 365, "屋顶修理": 30, "屋顶养护": 365, "房屋养护": 180 }
+    },
+    customers: [],
+    invoices: []
+  };
+
+  var S = load();
+  var ui = { view: "customers", editId: null, inv: null, invEditId: null };
+
+  /* ---------- 存取 ---------- */
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) { return clone(DEFAULTS); }
+      var d = JSON.parse(raw);
+      d.settings = Object.assign(clone(DEFAULTS.settings), d.settings || {});
+      d.settings.svcDays = Object.assign(clone(DEFAULTS.settings.svcDays), d.settings.svcDays || {});
+      d.customers = d.customers || [];
+      d.invoices = d.invoices || [];
+      d.invoices.forEach(function (v) { if (!v.status) { v.status = "unpaid"; } });
+      return d;
+    } catch (e) { return clone(DEFAULTS); }
+  }
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); }
+    catch (e) { toast("保存失败：浏览器存储不可用"); }
+  }
+  function clone(o) { return JSON.parse(JSON.stringify(o)); }
+
+  /* ---------- 小工具 ---------- */
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(v) { return String(v == null ? "" : v).replace(/[&<>"]/g, function (c) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+  function money(n) { return "$" + (Number(n) || 0).toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function today() { var d = new Date(); return iso(d); }
+  function iso(d) {
+    var m = d.getMonth() + 1, day = d.getDate();
+    return d.getFullYear() + "-" + (m < 10 ? "0" : "") + m + "-" + (day < 10 ? "0" : "") + day;
+  }
+  function dateOf(s) { var p = String(s || "").split("-"); return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null; }
+  function daysTo(s) {
+    var d = dateOf(s); if (!d) { return null; }
+    var t = new Date(); t.setHours(0, 0, 0, 0); d.setHours(0, 0, 0, 0);
+    return Math.round((d - t) / 86400000);
+  }
+  function addDays(n) { var d = new Date(); d.setDate(d.getDate() + n); return iso(d); }
+  function uid() { return Math.random().toString(36).slice(2, 9); }
+  function autoDaysFor(svcs) {
+    var sd = (S.settings && S.settings.svcDays) || {};
+    var picked = (svcs || []).filter(function (s) { return sd[s]; }).map(function (s) { return +sd[s]; });
+    return picked.length ? Math.min.apply(null, picked) : (+S.settings.visitDays || 30);
+  }
+  function toast(msg) {
+    var t = $("#toast"); t.textContent = msg; t.classList.add("on");
+    clearTimeout(t._tm); t._tm = setTimeout(function () { t.classList.remove("on"); }, 2000);
+  }
+
+  /* ---------- 路由 ---------- */
+  function go(view) {
+    ui.view = view;
+    $$("#tabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.view === view); });
+    ["overview", "customers", "visits", "invoices", "settings"].forEach(function (v) {
+      $("#v-" + v).classList.toggle("hidden", v !== view);
+    });
+    render();
+  }
+  $("#tabs").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-view]"); if (!b) { return; }
+    location.hash = b.dataset.view; go(b.dataset.view);
+  });
+
+  /* ---------- 全局渲染 ---------- */
+  function render() {
+    renderBadges();
+    if (ui.view === "overview") { renderOverview(); }
+    if (ui.view === "customers") { renderCustomers(); }
+    if (ui.view === "visits") { renderVisits(); }
+    if (ui.view === "invoices") { renderInvoices(); }
+    if (ui.view === "settings") { renderSettings(); }
+  }
+
+  function renderBadges() {
+    var over = 0, td = 0;
+    S.customers.forEach(function (c) {
+      var d = daysTo(c.nextVisit); if (d === null) { return; }
+      if (d < 0) { over++; } else if (d === 0) { td++; }
+    });
+    var bo = $("#bOver"), bt = $("#bToday");
+    bo.textContent = over; bo.classList.toggle("hidden", !over);
+    bt.textContent = "今日 " + td; bt.classList.toggle("hidden", !td);
+    var up = S.invoices.filter(function (v) { return v.status !== "paid"; }).length;
+    var bu = $("#bUnpaid");
+    bu.textContent = up; bu.classList.toggle("hidden", !up);
+  }
+
+  /* ===================== 客户台账 ===================== */
+  function customerStats() {
+    var total = S.customers.length;
+    var newQ = S.customers.filter(function (c) { return c.status === "新询价"; }).length;
+    var won = S.customers.filter(function (c) { return c.status === "已成交"; }).length;
+    var over = S.customers.filter(function (c) { var d = daysTo(c.nextVisit); return d !== null && d <= 0; }).length;
+    return { total: total, newQ: newQ, won: won, over: over };
+  }
+
+  function renderCustomers() {
+    var st = customerStats();
+    $("#kpis").innerHTML = [
+      kpi("客户总数", st.total, ""),
+      kpi("待跟进（新询价）", st.newQ, st.newQ ? "warn" : ""),
+      kpi("今日 / 逾期回访", st.over, st.over ? "bad" : ""),
+      kpi("已成交", st.won, "")
+    ].join("");
+
+    var q = ($("#q").value || "").trim().toLowerCase();
+    var fs = $("#fStatus").value, fv = $("#fSvc").value;
+    var fh = $("#fHouse").value, fu = $("#fUrg").value;
+    var rows = S.customers.filter(function (c) {
+      if (fs && c.status !== fs) { return false; }
+      if (fv && (c.services || []).indexOf(fv) < 0) { return false; }
+      if (fh && (c.house || "") !== fh) { return false; }
+      if (fu && (c.urgency || "") !== fu) { return false; }
+      if (!q) { return true; }
+      return [c.name, c.phone, c.addr, c.note, c.house, c.area, c.urgency, (c.services || []).join(" ")]
+        .join(" ").toLowerCase().indexOf(q) > -1;
+    });
+    rows.sort(function (a, b) {
+      var da = daysTo(a.nextVisit), db = daysTo(b.nextVisit);
+      if (da !== null && db !== null) { return da - db; }
+      if (da !== null) { return -1; }
+      if (db !== null) { return 1; }
+      return String(b.createdAt || "").localeCompare(String(a.createdAt || ""));
+    });
+
+    $("#custCount").textContent = rows.length + " / " + S.customers.length + " 条";
+    $("#custEmpty").classList.toggle("hidden", rows.length > 0);
+
+    $("#custRows").innerHTML = rows.map(function (c) {
+      var d = daysTo(c.nextVisit);
+      var when = c.nextVisit
+        ? ('<span class="tel">' + c.nextVisit + '</span><br><span class="addr" style="color:' +
+          (d < 0 ? "#E89A8E" : d === 0 ? "#E8C88E" : "rgba(244,239,227,.5)") + '">' +
+          (d < 0 ? ("逾期 " + Math.abs(d) + " 天") : d === 0 ? "今天" : (d + " 天后")) + "</span>")
+        : '<span class="addr">未设置</span>';
+      return '<tr>' +
+        '<td data-l="客户"><div class="name">' + esc(c.name) + '</div><div class="addr">' + esc(c.addr || "—") + '</div>' +
+        '<div class="addr">' + [c.house, c.area ? (c.area + " sqft") : "", c.urgency].filter(Boolean).map(esc).join(" · ") + '</div></td>' +
+        '<td data-l="联系方式"><div class="tel">' + (c.phone ? '<a href="tel:' + esc(c.phone.replace(/[^\d+]/g, "")) + '">' + esc(c.phone) + '</a>' : "—") + '</div>' +
+        '<div class="addr">' + esc(c.email || "—") + '</div></td>' +
+        '<td data-l="服务/来源">' + ((c.services || []).map(function (s) { return '<span class="chip">' + esc(s) + '</span>'; }).join("") || '<span class="addr">未标注</span>') +
+        '<div class="addr">来源：' + esc(c.source || "—") + '</div></td>' +
+        '<td data-l="状态"><span class="st ' + esc(c.status) + '">' + esc(c.status) + '</span></td>' +
+        '<td data-l="下次回访">' + when + '</td>' +
+        '<td data-l="操作"><div class="actions">' +
+        '<button class="btn sm" data-act="open" data-id="' + c.id + '">详情</button>' +
+        '<button class="btn sm" data-act="done" data-id="' + c.id + '">完成回访</button>' +
+        '<button class="btn sm" data-act="edit" data-id="' + c.id + '">编辑</button>' +
+        '<button class="btn sm" data-act="inv" data-id="' + c.id + '">开票</button>' +
+        '<button class="btn sm danger" data-act="del" data-id="' + c.id + '">删除</button>' +
+        '</div></td></tr>';
+    }).join("");
+  }
+  function kpi(k, v, tone) {
+    return '<div class="kpi ' + (tone || "") + '"><div class="k">' + k + '</div><div class="v">' + v + '</div></div>';
+  }
+
+  $("#q").addEventListener("input", renderCustomers);
+  $("#fStatus").addEventListener("change", renderCustomers);
+  $("#fSvc").addEventListener("change", renderCustomers);
+  $("#fHouse").addEventListener("change", renderCustomers);
+  $("#fUrg").addEventListener("change", renderCustomers);
+
+  $("#custRows").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-act]"); if (!b) { return; }
+    var id = b.dataset.id, act = b.dataset.act;
+    var c = S.customers.find(function (x) { return x.id === id; });
+    if (!c) { return; }
+    if (act === "open") { openDrawer(id); }
+    if (act === "edit") { openCustomer(c); }
+    if (act === "del") {
+      if (!confirm("删除「" + c.name + "」？记录会一起删掉，不能恢复。")) { return; }
+      S.customers = S.customers.filter(function (x) { return x.id !== id; });
+      save(); render(); toast("已删除");
+    }
+    if (act === "done") {
+      c.nextVisit = addDays(autoDaysFor(c.services));
+      if (c.status === "新询价") { c.status = "已联系"; }
+      c.lastVisit = today();
+      save(); render(); toast(c.name + "：已回访，下次 " + c.nextVisit);
+    }
+    if (act === "inv") {
+      go("invoices");
+      openInvoice(null, c);
+    }
+  });
+
+  /* ---------- 客户弹层 ---------- */
+  function openCustomer(c) {
+    ui.editId = c ? c.id : null;
+    $("#custTitle").textContent = c ? "编辑客户 · " + c.name : "新增客户";
+    $("#cSvc").innerHTML = SERVICES.map(function (s) {
+      var on = c && (c.services || []).indexOf(s) > -1;
+      return '<label><input type="checkbox" value="' + s + '"' + (on ? " checked" : "") + '>' + s + "</label>";
+    }).join("");
+    $("#cName").value = c ? c.name : "";
+    $("#cPhone").value = c ? (c.phone || "") : "";
+    $("#cEmail").value = c ? (c.email || "") : "";
+    $("#cAddr").value = c ? (c.addr || "") : "";
+    $("#cHouse").innerHTML = HOUSE.map(function (h) { return '<option>' + h + '</option>'; }).join("");
+    $("#cUrgency").innerHTML = URG.map(function (u) { return '<option>' + u + '</option>'; }).join("");
+    $("#cHouse").value = (c && c.house) || "独立屋";
+    $("#cUrgency").value = (c && c.urgency) || "本季内";
+    $("#cArea").value = c ? (c.area || "") : "";
+    $("#cSource").value = (c && c.source) || "官网表单";
+    $("#cStatus").value = (c && c.status) || "新询价";
+    $("#cVisit").value = c ? (c.nextVisit || "") : addDays(3);
+    $("#cFirst").value = c ? (c.firstDate || "") : today();
+    $("#cBudget").value = c ? (c.budget || "") : "";
+    $("#cNote").value = c ? (c.note || "") : "";
+    $("#custMask").classList.remove("hidden");
+    setTimeout(function () { $("#cName").focus(); }, 80);
+  }
+  $("#addCustomer").addEventListener("click", function () { openCustomer(null); });
+  document.addEventListener("click", function (e) {
+    if (e.target.id !== "cAutoVisit") { return; }
+    var svcs = $$("#cSvc input:checked").map(function (i) { return i.value; });
+    var days = autoDaysFor(svcs);
+    $("#cVisit").value = addDays(days);
+    toast(svcs.length ? ("按 " + svcs.join("/") + " 排到 " + days + " 天后") : ("没勾服务，用默认 " + days + " 天"));
+  });
+  $("#cancelCust").addEventListener("click", function () { $("#custMask").classList.add("hidden"); });
+  $("#custMask").addEventListener("click", function (e) { if (e.target === this) { this.classList.add("hidden"); } });
+
+  $("#saveCust").addEventListener("click", function () {
+    var name = $("#cName").value.trim();
+    if (!name) { toast("姓名必填"); $("#cName").focus(); return; }
+    var data = {
+      name: name,
+      phone: $("#cPhone").value.trim(),
+      email: $("#cEmail").value.trim(),
+      addr: $("#cAddr").value.trim(),
+      source: $("#cSource").value,
+      status: $("#cStatus").value,
+      nextVisit: $("#cVisit").value,
+      firstDate: $("#cFirst").value || today(),
+      budget: $("#cBudget").value.trim(),
+      house: $("#cHouse").value,
+      area: $("#cArea").value.trim(),
+      urgency: $("#cUrgency").value,
+      note: $("#cNote").value.trim(),
+      services: $$("#cSvc input:checked").map(function (i) { return i.value; })
+    };
+    if (!data.nextVisit) { data.nextVisit = addDays(autoDaysFor(data.services)); }
+    if (ui.editId) {
+      var c = S.customers.find(function (x) { return x.id === ui.editId; });
+      Object.assign(c, data);
+    } else {
+      data.id = uid(); data.createdAt = today();
+      S.customers.unshift(data);
+    }
+    save(); $("#custMask").classList.add("hidden"); render();
+    if ($("#drawer").classList.contains("on") && ui.editId) {
+      dCur = S.customers.find(function (x) { return x.id === ui.editId; });
+      renderDrawer();
+    }
+    toast("已保存");
+  });
+
+  /* ===================== 回访计划 ===================== */
+  function renderVisits() {
+    var list = S.customers.filter(function (c) { return !!c.nextVisit; });
+    var buckets = [
+      { key: "over", t: "逾期未联系", test: function (d) { return d < 0; }, cls: "over" },
+      { key: "today", t: "今天", test: function (d) { return d === 0; }, cls: "today" },
+      { key: "week", t: "未来 7 天", test: function (d) { return d > 0 && d <= 7; }, cls: "" },
+      { key: "later", t: "更远", test: function (d) { return d > 7; }, cls: "" },
+      { key: "none", t: "没设日期的客户", test: function (d) { return d === null; }, cls: "" }
+    ];
+    var html = buckets.map(function (b) {
+      var rows = list.filter(function (c) { return b.test(daysTo(c.nextVisit)); });
+      if (b.key === "none") {
+        rows = S.customers.filter(function (c) { return !c.nextVisit; });
+      }
+      if (!rows.length) { return ""; }
+      rows.sort(function (x, y) { return (daysTo(x.nextVisit) || 0) - (daysTo(y.nextVisit) || 0); });
+      return '<div class="group"><h2>' + b.t + ' <span class="cnt">' + rows.length + ' 位</span></h2>' +
+        rows.map(function (c) {
+          var d = daysTo(c.nextVisit);
+          var when = c.nextVisit ? (d < 0 ? "逾期 " + Math.abs(d) + " 天" : d === 0 ? "今天" : d + " 天后") : "未设置";
+          return '<div class="item ' + b.cls + '">' +
+            '<div><div class="l1"><span class="nm">' + esc(c.name) + '</span>' +
+            '<span class="st ' + esc(c.status) + '">' + esc(c.status) + '</span>' +
+            '<span class="when ' + b.cls + '">' + when + (c.nextVisit ? " · " + c.nextVisit : "") + '</span></div>' +
+            '<div class="meta">' + ((c.services || []).join(" / ") || "服务未标注") +
+            (c.phone ? ' · <a href="tel:' + esc(c.phone.replace(/[^\d+]/g, "")) + '">' + esc(c.phone) + "</a>" : "") +
+            (c.note ? " · " + esc(c.note) : "") + '</div></div>' +
+            '<div class="actions">' +
+            '<button class="btn sm gold" data-vact="done" data-id="' + c.id + '">完成 +' + (S.settings.visitDays || 30) + '天</button>' +
+            '<button class="btn sm" data-vact="edit" data-id="' + c.id + '">改日期</button>' +
+            '</div></div>';
+        }).join("") + "</div>";
+    }).join("");
+    $("#visitGroups").innerHTML = html || '<div class="empty">没有待回访的客户。给客户填上「下次回访」日期，这里就会自动排出来。</div>';
+  }
+
+  $("#visitGroups").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-vact]"); if (!b) { return; }
+    var id = b.dataset.id;
+    var c = S.customers.find(function (x) { return x.id === id; });
+    if (!c) { return; }
+    if (b.dataset.vact === "done") {
+      c.nextVisit = addDays(autoDaysFor(c.services));
+      c.lastVisit = today();
+      if (c.status === "新询价") { c.status = "已联系"; }
+      save(); render(); toast(c.name + "：已回访，下次 " + c.nextVisit);
+    } else {
+      openCustomer(c);
+    }
+  });
+
+  $("#icsBtn").addEventListener("click", function () {
+    var evs = S.customers.filter(function (c) { return c.nextVisit; });
+    if (!evs.length) { toast("没有设置回访日期的客户"); return; }
+    var lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Mainyoung//Admin//CN", "CALSCALE:GREGORIAN"];
+    evs.forEach(function (c) {
+      var d = c.nextVisit.replace(/-/g, "");
+      lines.push("BEGIN:VEVENT");
+      lines.push("UID:" + c.id + "@mainyoung");
+      lines.push("DTSTAMP:" + d + "T000000Z");
+      lines.push("DTSTART;VALUE=DATE:" + d);
+      lines.push("SUMMARY:回访 " + c.name + " (" + ((c.services || []).join("/") || "客户") + ")");
+      lines.push("DESCRIPTION:电话 " + (c.phone || "-") + " 地址 " + (c.addr || "-"));
+      lines.push("BEGIN:VALARM", "TRIGGER:-PT9H", "ACTION:DISPLAY", "DESCRIPTION:回访提醒", "END:VALARM");
+      lines.push("END:VEVENT");
+    });
+    lines.push("END:VCALENDAR");
+    download("名扬回访日程.ics", lines.join("\r\n"), "text/calendar");
+  });
+
+  /* ===================== 发票 ===================== */
+  function nextNo() {
+    var n = String(S.settings.nextNo || "20260001");
+    if (/^\d+$/.test(n)) { return n; }
+    return n;
+  }
+  function bumpNo(no) {
+    if (!/^\d+$/.test(no)) { return no; }
+    var pad = no.length;
+    return String(+no + 1).padStart(pad, "0");
+  }
+
+  function renderInvoices() {
+    var rows = S.invoices.slice().sort(function (a, b) { return String(b.date).localeCompare(String(a.date)); });
+    $("#invEmpty").classList.toggle("hidden", rows.length > 0);
+    $("#invRows").innerHTML = rows.map(function (v) {
+      return '<tr>' +
+        '<td data-l="Invoice" class="tel">' + esc(v.no) + '</td>' +
+        '<td data-l="客户">' + esc(v.billed || "—") + '</td>' +
+        '<td data-l="日期" class="tel">' + esc(v.date) + '</td>' +
+        '<td data-l="合计"><b>' + money(v.total) + '</b></td>' +
+        '<td data-l="收款"><span class="st ' + payState(v).k + '">' + payState(v).t + '</span>' +
+        (v.status === "paid" && v.paidDate ? '<div class="addr">' + esc(v.paidDate) + '</div>' : '') + '</td>' +
+        '<td data-l="操作"><div class="actions">' +
+        '<button class="btn sm" data-iact="paid" data-id="' + v.id + '">' + (v.status === "paid" ? "撤销收款" : "标记已收款") + '</button>' +
+        '<button class="btn sm" data-iact="open" data-id="' + v.id + '">查看 / 打印</button>' +
+        '<button class="btn sm" data-iact="copy" data-id="' + v.id + '">复制重复开</button>' +
+        '<button class="btn sm danger" data-iact="del" data-id="' + v.id + '">删除</button>' +
+        '</div></td></tr>';
+    }).join("");
+  }
+
+  $("#invRows").addEventListener("click", function (e) {
+    var b = e.target.closest("button[data-iact]"); if (!b) { return; }
+    var v = S.invoices.find(function (x) { return x.id === b.dataset.id; });
+    if (!v) { return; }
+    if (b.dataset.iact === "paid") {
+      if (v.status === "paid") { v.status = "unpaid"; delete v.paidDate; }
+      else { v.status = "paid"; v.paidDate = today(); }
+      save(); renderInvoices(); renderBadges(); toast(v.status === "paid" ? "已标记收款" : "已撤销收款");
+      return;
+    }
+    if (b.dataset.iact === "open") { showPaper(v); }
+    if (b.dataset.iact === "copy") {
+      var c = S.customers.find(function (x) { return x.id === v.customerId; });
+      openInvoice(null, c || { name: v.billed, addr: v.billed });
+      $("#invBilled").value = v.billed;
+      renderItemRows(v.items);
+      if (c) { $("#invCustomer").value = c.id; }
+      toast("已带出上一张的明细，改完客户名即可");
+    }
+    if (b.dataset.iact === "del") {
+      if (!confirm("删除发票 " + v.no + "？")) { return; }
+      S.invoices = S.invoices.filter(function (x) { return x.id !== v.id; });
+      save(); renderInvoices();
+    }
+  });
+
+  $("#newInvoice").addEventListener("click", function () { openInvoice(null, null); });
+  $("#cancelInv").addEventListener("click", function () { $("#invEditor").classList.add("hidden"); });
+
+  function openInvoice(id, presetCustomer) {
+    ui.invEditId = id || null;
+    ui.inv = {
+      customerId: presetCustomer ? presetCustomer.id : "",
+      billed: presetCustomer ? (presetCustomer.addr || presetCustomer.name || "") : "",
+      no: nextNo(),
+      date: today(),
+      items: [{ desc: (presetCustomer && (presetCustomer.services || [])[0]) ? mapSvc(presetCustomer.services[0]) : "", qty: 1, price: 0 }],
+      note: ""
+    };
+    $("#invCustomer").innerHTML = '<option value="">（不选，手填 Billed to）</option>' +
+      S.customers.map(function (c) {
+        return '<option value="' + c.id + '">' + esc(c.name) + (c.addr ? " · " + esc(c.addr) : "") + "</option>";
+      }).join("");
+    $("#invCustomer").value = ui.inv.customerId;
+    $("#invBilled").value = ui.inv.billed;
+    $("#invNo").value = ui.inv.no;
+    $("#invDate").value = ui.inv.date;
+    $("#gstRate").value = S.settings.gstRate;
+    $("#pstRate").value = S.settings.pstRate;
+    $("#invNote").value = "";
+    renderItemRows(ui.inv.items);
+    $("#invEditor").classList.remove("hidden");
+    $("#invEditor").scrollIntoView({ block: "start", behavior: "smooth" });
+  }
+
+  function mapSvc(cn) {
+    var m = { "屋顶更换": "Roof Replacement", "水槽清理": "Gutter Cleaning", "油漆粉刷": "Painting", "屋顶修理": "Roof Repair", "屋顶养护": "Roof Maintenance", "房屋养护": "House Maintenance" };
+    return m[cn] || cn;
+  }
+
+  $("#invCustomer").addEventListener("change", function () {
+    var c = S.customers.find(function (x) { return x.id === this.value; }, this);
+    if (c) { $("#invBilled").value = c.addr || c.name; }
+  });
+
+  function renderItemRows(items) {
+    $("#itemRows tbody").innerHTML = (items || []).map(function (it, i) {
+      return '<tr>' +
+        '<td><input data-i="' + i + '" data-k="desc" value="' + esc(it.desc) + '" placeholder="Roof Repair"></td>' +
+        '<td class="n"><input data-i="' + i + '" data-k="qty" class="tel" value="' + (it.qty || 1) + '"></td>' +
+        '<td class="n"><input data-i="' + i + '" data-k="price" class="tel" value="' + (it.price || 0) + '"></td>' +
+        '<td class="n amt" data-amt="' + i + '">$0.00</td></tr>';
+    }).join("");
+    recalc();
+  }
+
+  $("#itemRows").addEventListener("input", function (e) {
+    var t = e.target; if (!t.dataset.k) { return; }
+    var i = +t.dataset.i, k = t.dataset.k;
+    ui.inv.items[i][k] = (k === "desc") ? t.value : (parseFloat(t.value) || 0);
+    recalc();
+  });
+  $("#addItem").addEventListener("click", function () {
+    ui.inv.items.push({ desc: "", qty: 1, price: 0 });
+    renderItemRows(ui.inv.items);
+  });
+  $$("[data-quick]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var last = ui.inv.items[ui.inv.items.length - 1];
+      if (last && !last.desc) { last.desc = b.dataset.quick; }
+      else { ui.inv.items.push({ desc: b.dataset.quick, qty: 1, price: 0 }); }
+      renderItemRows(ui.inv.items);
+    });
+  });
+  $("#gstRate").addEventListener("input", recalc);
+  $("#pstRate").addEventListener("input", recalc);
+
+  function recalc() {
+    if (!ui.inv) { return; }
+    var sub = 0;
+    ui.inv.items.forEach(function (it, i) {
+      var amt = (Number(it.qty) || 0) * (Number(it.price) || 0);
+      sub += amt;
+      var cell = $('#itemRows [data-amt="' + i + '"]'); if (cell) { cell.textContent = money(amt); }
+    });
+    var gst = sub * (parseFloat($("#gstRate").value) || 0) / 100;
+    var pst = sub * (parseFloat($("#pstRate").value) || 0) / 100;
+    var total = sub + gst + pst;
+    $("#tSub").textContent = money(sub);
+    $("#tGst").textContent = money(gst);
+    $("#tPst").textContent = money(pst);
+    $("#tTotal").textContent = money(total);
+    ui.inv.sub = sub; ui.inv.gst = gst; ui.inv.pst = pst; ui.inv.total = total;
+  }
+
+  $("#saveInv").addEventListener("click", function () {
+    var items = ui.inv.items.filter(function (it) { return (it.desc || "").trim() || (Number(it.price) > 0); });
+    if (!items.length) { toast("至少写一行明细"); return; }
+    var inv = {
+      id: uuidCheck(),
+      no: ($("#invNo").value || nextNo()).trim(),
+      date: $("#invDate").value || today(),
+      customerId: $("#invCustomer").value || "",
+      billed: $("#invBilled").value.trim() || "—",
+      items: items.map(function (it) { return { desc: String(it.desc).trim(), qty: Number(it.qty) || 1, price: Number(it.price) || 0 }; }),
+      gstRate: parseFloat($("#gstRate").value) || 0,
+      pstRate: parseFloat($("#pstRate").value) || 0,
+      note: $("#invNote").value.trim(),
+      status: "unpaid"
+    };
+    recalc();
+    inv.sub = ui.inv.sub; inv.gst = ui.inv.gst; inv.pst = ui.inv.pst; inv.total = ui.inv.total;
+    S.invoices.unshift(inv);
+    S.settings.nextNo = bumpNo(inv.no);
+    /* 客户状态顺手推进 */
+    var c = S.customers.find(function (x) { return x.id === inv.customerId; });
+    if (c && (c.status === "新询价" || c.status === "已联系")) { c.status = "已报价"; }
+    save(); $("#invEditor").classList.add("hidden"); render(); showPaper(inv); toast("发票已生成");
+  });
+  function uuidCheck() { return "inv_" + uid(); }
+
+  /* ---------- 发票纸 ---------- */
+  function showPaper(inv) {
+    $("#paper").innerHTML = paperHTML(inv);
+    $("#printArea").classList.remove("hidden");
+    $("#printArea")._inv = inv;
+  }
+  $("#closePaper").addEventListener("click", function () { $("#printArea").classList.add("hidden"); });
+  $("#printArea").addEventListener("click", function (e) { if (e.target === this) { this.classList.add("hidden"); } });
+  $("#mailPaper").addEventListener("click", function () {
+    var inv = $("#printArea")._inv; if (!inv) { return; }
+    var txt = "Invoice " + inv.no + " · " + inv.date + "\nBilled to: " + inv.billed + "\n\n" +
+      inv.items.map(function (it) { return it.qty + " x " + money(it.price) + "  " + it.desc + "  = " + money(it.qty * it.price); }).join("\n") +
+      "\n\nSub Total: " + money(inv.sub) + "\nGST " + inv.gstRate + "%: " + money(inv.gst) +
+      "\nPST " + inv.pstRate + "%: " + money(inv.pst) + "\nTotal: " + money(inv.total);
+    copy(txt);
+  });
+
+  function paperHTML(inv) {
+    var st = S.settings;
+    var post = String(inv.date || "").split("-");
+    return '' +
+      '<div class="top"><div><h1>INVOICE</h1>' +
+      '<div class="no">INVOICE NO. ' + esc(inv.no) + '<br>INVOICE DATE: ' + esc(inv.date) + '</div></div>' +
+      '<div class="logo">' + (st.logo
+        ? '<img src="' + st.logo + '" alt="logo" style="height:46px;display:block">'
+        : '<div class="c1">名扬屋顶</div><div class="c2">Mainyoung Roofing &amp; Painting</div>') +
+      '</div></div>' +
+      '<div class="parties"><div><b>Billed to:</b><div>' + esc(inv.billed) + '</div></div>' +
+      '<div><b>From :</b><div>' + esc(st.bizName) + '<br>' + esc(st.addr1) + '<br>' + esc(st.addr2) +
+      '<br>GST NO. ' + esc(st.gstNo) + '</div></div></div>' +
+      '<table class="it"><thead><tr><th style="width:58%">Description</th><th style="width:10%" class="r">Qty</th>' +
+      '<th style="width:16%" class="r">Price</th><th style="width:16%" class="r">Amount</th></tr></thead><tbody>' +
+      inv.items.map(function (it) {
+        return '<tr><td>' + esc(it.desc) + '</td><td class="r">' + esc(it.qty) + '</td>' +
+          '<td class="r">' + money(it.price) + '</td><td class="r">' + money(it.qty * it.price) + '</td></tr>';
+      }).join("") +
+      '</tbody></table>' +
+      '<div class="sum">' +
+      '<div class="row"><span>Sub Total:</span><span>' + money(inv.sub) + '</span></div>' +
+      '<div class="row"><span>GST(' + inv.gstRate + '%):</span><span>' + money(inv.gst) + '</span></div>' +
+      '<div class="row"><span>PST(' + inv.pstRate + '%):</span><span>' + money(inv.pst) + '</span></div>' +
+      '<div class="row total"><span>Total:</span><span>' + money(inv.total) + '</span></div></div>' +
+      '<div class="foot">' +
+      (inv.note ? esc(inv.note) + '<br><br>' : "") +
+      esc(st.terms) + '<br>Please send remittance to ' + esc(st.mail) + '.' +
+      '<div style="margin-top:10px">Thank you for your business.</div></div>';
+  }
+
+  function copy(txt) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(function () { toast("已复制到剪贴板"); }, function () { fallbackCopy(txt); });
+    } else { fallbackCopy(txt); }
+  }
+  function fallbackCopy(txt) {
+    var ta = document.createElement("textarea");
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); toast("已复制到剪贴板"); } catch (e) { toast("复制失败，请手动选中"); }
+    ta.remove();
+  }
+
+/* ===================== 概览 ===================== */
+function ym(d) { return String(d || "").slice(0, 7); }
+function pad2(n) { return n < 10 ? "0" + n : "" + n; }
+function monthList(n) {
+  var out = [], base = new Date(); base.setDate(1);
+  for (var i = n - 1; i >= 0; i--) {
+    var t = new Date(base.getFullYear(), base.getMonth() - i, 1);
+    out.push({ key: t.getFullYear() + "-" + pad2(t.getMonth() + 1), lb: (t.getMonth() + 1) + "月" });
+  }
+  return out;
+}
+function sumBy(arr, f) { return arr.reduce(function (a, x) { return a + (Number(f(x)) || 0); }, 0); }
+function unpaidInv() { return S.invoices.filter(function (v) { return v.status !== "paid"; }); }
+function payState(v) {
+  if (v.status === "paid") { return { k: "paid", t: "已收款" }; }
+  var d = daysTo(v.date);
+  if (d !== null && d < -14) { return { k: "over", t: "逾期未收" }; }
+  return { k: "unpaid", t: "未收款" };
+}
+
+function renderOverview() {
+  var months = monthList(6);
+  var qN = months.map(function (m) {
+    return S.customers.filter(function (c) { return ym(c.firstDate || c.createdAt) === m.key; }).length;
+  });
+  var iN = months.map(function (m) {
+    return S.invoices.filter(function (v) { return ym(v.date) === m.key; }).length;
+  });
+  var thisM = months[months.length - 1].key;
+  var monthAmt = sumBy(S.invoices.filter(function (v) { return ym(v.date) === thisM; }), function (v) { return v.total; });
+  var unpaid = sumBy(unpaidInv(), function (v) { return v.total; });
+  var won = S.customers.filter(function (c) { return c.status === "已成交"; }).length;
+  var rate = S.customers.length ? Math.round(won / S.customers.length * 100) : 0;
+  var avg = S.invoices.length ? sumBy(S.invoices, function (v) { return v.total; }) / S.invoices.length : 0;
+
+  $("#ovKpis").innerHTML = [
+    kpi("客户总数", S.customers.length, ""),
+    kpi("本月新询价", qN[qN.length - 1], qN[qN.length - 1] ? "warn" : ""),
+    kpi("本月开票", money(monthAmt), ""),
+    kpi("待收款", money(unpaid), unpaid ? "bad" : ""),
+    kpi("成交率", rate + "<small>%</small>", ""),
+    kpi("平均客单", money(avg), "")
+  ].join("");
+
+  /* 待办三条 */
+  var over = 0, todayN = 0;
+  S.customers.forEach(function (c) {
+    var d = daysTo(c.nextVisit); if (d === null) { return; }
+    if (d < 0) { over++; } else if (d === 0) { todayN++; }
+  });
+  var fresh = S.customers.filter(function (c) { return c.status === "新询价"; }).length;
+  var dueInv = unpaidInv().length;
+  $("#todoBand").innerHTML = [
+    '<div class="todo" data-go="visits"><div class="num ' + (over ? "red" : "gold") + '">' + (over + todayN) + '</div>' +
+      '<div class="txt"><b>今天 / 逾期要回访</b><span>逾期 ' + over + ' 位，今天 ' + todayN + ' 位</span></div></div>',
+    '<div class="todo" data-go="customers" data-filter="新询价"><div class="num gold">' + fresh + '</div>' +
+      '<div class="txt"><b>新询价还没联系</b><span>先打个电话，别让线索凉掉</span></div></div>',
+    '<div class="todo" data-go="invoices"><div class="num ' + (dueInv ? "amber" : "gold") + '">' + dueInv + '</div>' +
+      '<div class="txt"><b>发票还没收钱</b><span>合计 ' + money(unpaid) + '</span></div></div>'
+  ].join("");
+
+  /* 月度柱状 */
+  var maxV = Math.max(1, Math.max.apply(null, qN), Math.max.apply(null, iN));
+  $("#chMonthly").innerHTML = months.map(function (m, i) {
+    var hq = Math.round(qN[i] / maxV * 118), hi = Math.round(iN[i] / maxV * 118);
+    return '<div class="mo"><div class="vl">' + (qN[i] || "") + '</div>' +
+      '<div class="bars"><div class="b q" style="height:' + Math.max(hq, qN[i] ? 4 : 1) + 'px"></div>' +
+      '<div class="b i" style="height:' + Math.max(hi, iN[i] ? 4 : 1) + 'px"></div></div>' +
+      '<div class="lb">' + m.lb + '</div></div>';
+  }).join("");
+
+  /* 服务分布 */
+  var svcN = {};
+  S.customers.forEach(function (c) { (c.services || []).forEach(function (s) { svcN[s] = (svcN[s] || 0) + 1; }); });
+  var svcArr = Object.keys(svcN).map(function (k) { return { k: k, v: svcN[k] }; })
+    .sort(function (a, b) { return b.v - a.v; });
+  $("#chSvc").innerHTML = barsHTML(svcArr, "还没有客户标了服务");
+
+  /* 来源分布 */
+  var srcN = {};
+  S.customers.forEach(function (c) { var k = c.source || "未标注"; srcN[k] = (srcN[k] || 0) + 1; });
+  var srcArr = Object.keys(srcN).map(function (k) { return { k: k, v: srcN[k] }; })
+    .sort(function (a, b) { return b.v - a.v; });
+  $("#chSrc").innerHTML = barsHTML(srcArr, "还没有客户");
+
+  /* 客户画像 */
+  var houseN = {}, urgN = {};
+  S.customers.forEach(function (c) {
+    var h = c.house || "未填屋型"; houseN[h] = (houseN[h] || 0) + 1;
+    var u = c.urgency || "未填紧急度"; urgN[u] = (urgN[u] || 0) + 1;
+  });
+  $("#chHouse").innerHTML = barsHTML(Object.keys(houseN).map(function (k) { return { k: k, v: houseN[k] }; })
+    .sort(function (a, b) { return b.v - a.v; }), "还没有客户");
+  $("#chUrg").innerHTML = barsHTML(Object.keys(urgN).map(function (k) { return { k: k, v: urgN[k] }; })
+    .sort(function (a, b) { return b.v - a.v; }), "还没有客户");
+
+  /* 漏斗 */
+  var total = S.customers.length;
+  var step = [
+    { k: "询价", v: total },
+    { k: "联系上", v: S.customers.filter(function (c) { return c.status !== "新询价"; }).length },
+    { k: "报过价", v: S.customers.filter(function (c) { return c.status === "已报价" || c.status === "已成交"; }).length },
+    { k: "成交", v: won }
+  ];
+  $("#chFunnel").innerHTML = step.map(function (s, i) {
+    var w = total ? Math.max(6, Math.round(s.v / total * 100)) : 6;
+    return '<div class="fn"><div class="n">' + s.k + '</div><div class="track">' +
+      '<div class="fill' + (i === step.length - 1 ? " hot" : "") + '" style="width:' + w + '%"></div></div>' +
+      '<div class="v">' + s.v + " 位</div></div>";
+  }).join("");
+}
+function shortLab(k) {
+  return String(k).replace(/（[^）]*）/g, "").replace(/\s*\/\s*Duplex/i, "").trim();
+}
+function barsHTML(arr, emptyText) {
+  if (!arr.length) { return '<div class="addr">' + emptyText + '</div>'; }
+  var max = Math.max.apply(null, arr.map(function (a) { return a.v; }));
+  return arr.map(function (a) {
+    return '<div class="bar-row"><div class="n" title="' + esc(a.k) + '">' + esc(shortLab(a.k)) + '</div>' +
+      '<div class="track"><div class="fill" style="width:' + Math.round(a.v / max * 100) + '%"></div></div>' +
+      '<div class="v">' + a.v + '</div></div>';
+  }).join("");
+}
+$("#todoBand").addEventListener("click", function (e) {
+  var t = e.target.closest("[data-go]"); if (!t) { return; }
+  var v = t.dataset.go;
+  location.hash = v; go(v);
+  if (t.dataset.filter) { $("#fStatus").value = t.dataset.filter; renderCustomers(); }
+});
+
+/* ---------- CSV ---------- */
+function csvOut(name, rows) {
+  var txt = rows.map(function (r) {
+    return r.map(function (c) {
+      var s = String(c == null ? "" : c);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(",");
+  }).join("\r\n");
+  download(name, "\ufeff" + txt, "text/csv");
+}
+$("#csvCust").addEventListener("click", function () {
+  if (!S.customers.length) { toast("还没有客户"); return; }
+  var rows = [["姓名", "电话", "邮箱", "地址", "房屋类型", "屋顶面积sqft", "紧急程度", "服务", "来源", "状态",
+    "首次询价", "下次回访", "预估金额", "累计开票", "已收金额", "未收金额", "备注"]];
+  S.customers.forEach(function (c) {
+    var invs = S.invoices.filter(function (v) { return v.customerId === c.id; });
+    rows.push([c.name, c.phone, c.email, c.addr, c.house || "", c.area || "", c.urgency || "",
+      (c.services || []).join(" / "), c.source, c.status, c.firstDate, c.nextVisit, c.budget,
+      invs.length, sumBy(invs.filter(function (v) { return v.status === "paid"; }), function (v) { return v.total; }).toFixed(2),
+      sumBy(invs.filter(function (v) { return v.status !== "paid"; }), function (v) { return v.total; }).toFixed(2),
+      c.note]);
+  });
+  csvOut("名扬客户台账-" + today() + ".csv", rows);
+  toast("已导出客户 CSV");
+});
+$("#csvInv").addEventListener("click", function () {
+  if (!S.invoices.length) { toast("还没有发票"); return; }
+  var rows = [["发票号", "日期", "Billed to", "明细", "小计", "GST", "PST", "合计", "收款状态"]];
+  S.invoices.forEach(function (v) {
+    rows.push([v.no, v.date, v.billed,
+      v.items.map(function (i) { return i.desc + " x" + i.qty + " @" + i.price; }).join("; "),
+      (+v.sub).toFixed(2), (+v.gst).toFixed(2), (+v.pst).toFixed(2), (+v.total).toFixed(2),
+      payState(v).t]);
+  });
+  csvOut("名扬发票台账-" + today() + ".csv", rows);
+  toast("已导出发票 CSV");
+});
+
+/* ===================== 客户详情抽屉 ===================== */
+var dCur = null;
+function openDrawer(id) {
+  dCur = S.customers.find(function (c) { return c.id === id; });
+  if (!dCur) { return; }
+  $("#drawer").classList.add("on");
+  renderDrawer();
+}
+function closeDrawer() { $("#drawer").classList.remove("on"); dCur = null; }
+function renderDrawer() {
+  if (!dCur) { return; }
+  var c = dCur;
+  $("#dName").innerHTML = esc(c.name) + '<span class="st ' + esc(c.status) + '">' + esc(c.status) + '</span>';
+  $("#dMeta").innerHTML = [
+    c.phone ? '<a href="tel:' + esc(c.phone.replace(/[^\d+]/g, "")) + '">' + esc(c.phone) + '</a>' : "",
+    c.email ? esc(c.email) : "",
+    c.addr ? esc(c.addr) : ""
+  ].filter(Boolean).join(" · ");
+
+  var invs = S.invoices.filter(function (v) { return v.customerId === c.id; });
+  var paidAmt = sumBy(invs.filter(function (v) { return v.status === "paid"; }), function (v) { return v.total; });
+  var openAmt = sumBy(invs.filter(function (v) { return v.status !== "paid"; }), function (v) { return v.total; });
+  var dv = daysTo(c.nextVisit);
+  var specs = [
+    ["房屋类型", esc(c.house || "")],
+    ["屋顶面积", c.area ? esc(c.area) + " sqft" : ""],
+    ["紧急程度", esc(c.urgency || "")],
+    ["服务需求", (c.services || []).join(" / ")],
+    ["来源", esc(c.source || "")],
+    ["状态", esc(c.status || "")],
+    ["首次询价", esc(c.firstDate || c.createdAt || "")],
+    ["下次回访", c.nextVisit ? (esc(c.nextVisit) + (dv === null ? "" : (dv < 0 ? "（逾期 " + Math.abs(dv) + " 天）" : dv === 0 ? "（今天）" : "（" + dv + " 天后）"))) : ""],
+    ["预估金额", c.budget ? money(c.budget) : ""],
+    ["累计开票", invs.length ? (invs.length + " 张 · " + money(sumBy(invs, function (v) { return v.total; }))) : ""],
+    ["已收 / 未收", invs.length ? (money(paidAmt) + " / " + money(openAmt)) : ""],
+    ["备注", esc(c.note || "")]
+  ];
+
+  var evs = [];
+  if (c.firstDate || c.createdAt) {
+    evs.push({ d: c.firstDate || c.createdAt, t: "建档 · 首次询价" + (c.source ? "（" + esc(c.source) + "）" : "") });
+  }
+  (c.logs || []).forEach(function (l) { evs.push({ d: l.d, t: "<b>" + esc(l.ch) + "</b> · " + esc(l.txt) }); });
+  S.invoices.filter(function (v) { return v.customerId === c.id; }).forEach(function (v) {
+    evs.push({ d: v.date, t: "开票 " + esc(v.no) + " · " + money(v.total) + " · " + payState(v).t, inv: true });
+  });
+  if (c.budget) { evs.push({ d: c.firstDate || c.createdAt, t: "预估 " + money(c.budget) }); }
+  evs.sort(function (a, b) { return String(b.d).localeCompare(String(a.d)); });
+
+  $("#dBody").innerHTML =
+    '<div class="spec">' + specs.map(function (sp) {
+      return '<div class="it"><div class="k">' + sp[0] + '</div><div class="v">' + (sp[1] || "—") + '</div></div>';
+    }).join("") + '</div>' +
+    '<h4>跟进记录</h4>' +
+    '<div class="logform">' +
+    '<input type="date" id="logDate" value="' + today() + '">' +
+    '<select id="logCh"><option>电话</option><option>短信</option><option>邮件</option><option>上门</option><option>微信</option></select>' +
+    '<input id="logTxt" placeholder="聊了什么、客户在意的点">' +
+    '<button class="btn sm gold" id="logAdd">加一条</button></div>' +
+    '<h4>时间线</h4>' +
+    '<div class="tl">' + (evs.map(function (e) {
+      return '<div class="ev' + (e.inv ? " inv" : "") + '"><div class="d">' + esc(e.d) + '</div>' +
+        '<div class="t">' + e.t + '</div></div>';
+    }).join("") || '<div class="addr">还没有记录</div>') + '</div>' +
+    '';
+}
+$("#drawer").addEventListener("click", function (e) {
+  if (e.target.id === "logAdd") {
+    var txt = $("#logTxt").value.trim();
+    if (!txt) { $("#logTxt").focus(); return; }
+    dCur.logs = dCur.logs || [];
+    dCur.logs.unshift({ d: $("#logDate").value || today(), ch: $("#logCh").value, txt: txt });
+    save(); renderDrawer(); toast("已记一条跟进");
+  }
+});
+$("#dClose").addEventListener("click", closeDrawer);
+$("#dEdit").addEventListener("click", function () { openCustomer(dCur); });
+$("#dDone").addEventListener("click", function () {
+  if (!dCur) { return; }
+  dCur.nextVisit = addDays(autoDaysFor(dCur.services));
+  dCur.lastVisit = today();
+  dCur.logs = dCur.logs || [];
+  dCur.logs.unshift({ d: today(), ch: "电话", txt: "回访完成，下次 " + dCur.nextVisit });
+  if (dCur.status === "新询价") { dCur.status = "已联系"; }
+  save(); renderDrawer(); render(); toast("已回访，下次 " + dCur.nextVisit);
+});
+$("#dInv").addEventListener("click", function () {
+  if (!dCur) { return; }
+  var c = dCur;
+  closeDrawer();
+  go("invoices");
+  openInvoice(null, c);
+});
+
+  /* ===================== 设置 ===================== */
+  function renderSettings() {
+    var st = S.settings;
+    $("#sBizName").value = st.bizName;
+    $("#sGstNo").value = st.gstNo;
+    $("#sAddr1").value = st.addr1;
+    $("#sAddr2").value = st.addr2;
+    $("#sMail").value = st.mail;
+    $("#sTerms").value = st.terms;
+    $("#sNextNo").value = st.nextNo;
+    $("#sVisitDays").value = st.visitDays;
+    var sd = st.svcDays || {};
+    $("#sSvcDays").innerHTML = SERVICES.map(function (s) {
+      return '<div class="f"><label>' + s + '（天）</label><input class="tel" data-svc="' + s + '" type="number" min="1" step="1" value="' + (+sd[s] || 30) + '"></div>';
+    }).join("");
+    $("#logoState").textContent = st.logo ? "已设置（发票右上角会印这张图）" : "未设置，发票上用文字 logo";
+  }
+  $("#pickLogo").addEventListener("click", function () { $("#logoFile").click(); });
+  $("#logoFile").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) { return; }
+    if (f.size > 1200 * 1024) { toast("图片太大，建议先压到 1MB 以内"); this.value = ""; return; }
+    var r = new FileReader();
+    r.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        /* 缩到宽 620px 内，控制 localStorage 体积 */
+        var w = img.width, h = img.height, maxW = 620;
+        if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+        var cv = document.createElement("canvas"); cv.width = w; cv.height = h;
+        cv.getContext("2d").drawImage(img, 0, 0, w, h);
+        S.settings.logo = cv.toDataURL("image/png");
+        save(); renderSettings(); toast("Logo 已保存");
+      };
+      img.onerror = function () { toast("这张图读不出来，换一张试试"); };
+      img.src = String(r.result);
+    };
+    r.readAsDataURL(f);
+    this.value = "";
+  });
+  $("#clearLogo").addEventListener("click", function () {
+    delete S.settings.logo; save(); renderSettings(); toast("Logo 已清除");
+  });
+  $("#saveSettings").addEventListener("click", function () {
+    var st = S.settings;
+    st.bizName = $("#sBizName").value.trim();
+    st.gstNo = $("#sGstNo").value.trim();
+    st.addr1 = $("#sAddr1").value.trim();
+    st.addr2 = $("#sAddr2").value.trim();
+    st.mail = $("#sMail").value.trim();
+    st.terms = $("#sTerms").value.trim();
+    st.nextNo = $("#sNextNo").value.trim();
+    st.visitDays = Math.max(1, +$("#sVisitDays").value || 30);
+    $$("#sSvcDays input[data-svc]").forEach(function (i) {
+      st.svcDays[i.getAttribute("data-svc")] = Math.max(1, +i.value || 30);
+    });
+    save(); renderBadges(); toast("设置已保存");
+  });
+
+  /* ===================== 备份 ===================== */
+  function download(name, text, mime) {
+    var blob = new Blob([text], { type: mime || "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
+  }
+  $("#exportJson").addEventListener("click", function () {
+    download("名扬后台备份-" + today() + ".json", JSON.stringify(S, null, 2));
+    toast("已导出备份");
+  });
+  $("#importJson").addEventListener("click", function () { $("#importFile").click(); });
+  $("#importFile").addEventListener("change", function () {
+    var f = this.files && this.files[0]; if (!f) { return; }
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var d = JSON.parse(String(r.result));
+        if (!d || !Array.isArray(d.customers)) { throw new Error("bad"); }
+        S = d; S.settings = Object.assign(clone(DEFAULTS.settings), S.settings || {});
+        save(); render(); toast("导入成功：" + S.customers.length + " 位客户 / " + S.invoices.length + " 张发票");
+      } catch (e) { toast("文件不是有效的备份"); }
+    };
+    r.readAsText(f);
+    this.value = "";
+  });
+  $("#clearAll").addEventListener("click", function () {
+    if (!confirm("清空全部客户与发票数据？建议先导出备份。")) { return; }
+    if (!confirm("再确认一次：这一步不可恢复。")) { return; }
+    S = clone(DEFAULTS); save(); render(); toast("已清空");
+  });
+
+  /* 示例数据 */
+  $("#seed").addEventListener("click", function () {
+    var t = today();
+    var c1 = { id: uid(), name: "David Chen", phone: "778-555-0132", email: "david@example.com",
+      addr: "5038 Maitland St, Burnaby", house: "独立屋", area: "1600", urgency: "本季内",
+      source: "官网表单", status: "已报价", services: ["屋顶修理"],
+      firstDate: t, nextVisit: addDays(0), note: "旧瓦起翘，约 1 天工期", budget: "1000", createdAt: t };
+    var c2 = { id: uid(), name: "Mrs. Alvarez", phone: "604-555-0198", email: "", addr: "4120 Hastings St, Burnaby",
+      house: "独立屋", area: "2100", urgency: "不急（3 个月后）",
+      source: "转介绍", status: "新询价", services: ["水槽清理", "屋顶养护"],
+      firstDate: t, nextVisit: addDays(-3), note: "落叶季前想做一次清掏", createdAt: t };
+    var c3 = { id: uid(), name: "Jason Wu", phone: "778-555-0177", email: "jason@example.com", addr: "7321 Kingsway, Burnaby",
+      house: "独立屋", area: "2600", urgency: "尽快（2 周内）",
+      source: "电话", status: "已成交", services: ["屋顶更换"], firstDate: t, nextVisit: addDays(20),
+      note: "整栋深灰瓦，2 天完工", budget: "9800", createdAt: t };
+    S.customers = [c1, c2, c3].concat(S.customers);
+    save(); render(); toast("已载入 3 条示例");
+  });
+
+  /* ===================== 键盘 ===================== */
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") { return; }
+    ["#custMask", "#printArea"].forEach(function (sel) {
+      var el = $(sel); if (el && !el.classList.contains("hidden")) { el.classList.add("hidden"); }
+    });
+  });
+
+  /* ===================== 启动 ===================== */
+  var h = (location.hash || "").replace("#", "");
+  go(["overview", "customers", "visits", "invoices", "settings"].indexOf(h) > -1 ? h : "overview");
+  if (!S.customers.length && !S.invoices.length) { /* 空库时直接进客户页 */ }
+})();
+</script>
+</body>
+</html>

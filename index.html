@@ -1035,6 +1035,94 @@ html[lang="en"] .pj-body .en{display:none;}
   .cmp-knob{width:38px;height:38px;}
 }
 
+/* ============================================================
+   6. 团队：合影 + 人员构成
+   ============================================================ */
+.team{
+  position:relative;padding:118px 0;border-top:1px solid var(--line-2);
+  background:linear-gradient(180deg,#070708 0%,#0A0A0C 50%,#070708 100%);
+}
+.team-grid{
+  display:grid;grid-template-columns:1.12fr .88fr;
+  gap:clamp(30px,4vw,68px);align-items:start;
+}
+
+/* ---- 左：合影 ---- */
+.team-shot{
+  position:relative;aspect-ratio:16/10;overflow:hidden;
+  border:1px solid var(--line);background:#08080A;
+}
+.team-shot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;}
+.team-shot::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(5,5,6,0) 42%,rgba(5,5,6,.74) 100%);
+}
+.team-ph{
+  position:absolute;inset:12px;z-index:1;display:none;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:10px;padding:24px;text-align:center;
+  border:1px dashed var(--gold-line);background:#08080A;
+}
+.team-ph b{
+  font-family:var(--mono);font-weight:400;font-size:10px;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--gold-dim);
+}
+.team-ph span{
+  display:block;max-width:320px;
+  font-size:12.5px;line-height:1.95;color:var(--muted);
+}
+.team-ph code{font-family:var(--mono);font-size:11px;color:var(--gold);}
+.team-cap{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px 18px;margin:13px 0 0;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--gold-dim);
+}
+
+/* ---- 右：人员构成 ---- */
+.team-list{margin:0;border-top:1px solid var(--line);}
+.team-row{
+  display:grid;grid-template-columns:34px 1fr auto;gap:18px;align-items:start;
+  padding:22px 0;border-bottom:1px solid var(--line);
+  transition:background-color .3s;
+}
+.team-row:hover{background:rgba(244,239,227,.02);}
+.team-no{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;
+  color:var(--gold-dim);padding-top:5px;
+}
+.team-row h4{
+  margin:0 0 7px;font-family:var(--serif);font-weight:700;
+  font-size:17px;letter-spacing:.02em;line-height:1.4;
+}
+.team-row p{margin:0;font-size:12.5px;line-height:1.95;color:var(--muted);text-wrap:pretty;}
+.team-num{
+  align-self:start;margin-top:2px;padding:5px 11px;border-radius:999px;
+  border:1px solid var(--gold-line);white-space:nowrap;
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--gold);
+}
+.team-note{
+  margin:20px 0 0;font-size:12px;line-height:1.95;color:var(--muted-2);
+  text-wrap:pretty;
+}
+
+@media (max-width:1120px){
+  .team{padding:100px 0;}
+}
+@media (max-width:960px){
+  .team{padding:82px 0;}
+  .team-grid{grid-template-columns:1fr;gap:38px;}
+  .team-shot{aspect-ratio:16/9;}
+}
+@media (max-width:600px){
+  .team{padding:72px 0;}
+  .team-row{grid-template-columns:26px 1fr;gap:14px;}
+  .team-row > div{grid-column:2;}
+  .team-num{grid-column:2;justify-self:start;margin:6px 0 0;}
+  .team-row h4{font-size:16px;}
+  .team-cap{flex-direction:column;gap:5px;}
+  .team-shot{aspect-ratio:16/10;}
+}
+
 /* 动效克制：新增板块同样遵守 */
 @media (prefers-reduced-motion: reduce){
   .car-track,.pj-media img,.ms-panel,.car-dot{transition-duration:.01ms;}
@@ -1057,13 +1145,15 @@ html[lang="en"] .pj-body .en{display:none;}
   <div class="nav-inner">
     <a class="brand" href="#home" aria-label="名扬屋顶 · 返回首页">
       <img src="./picture/logo/hd_logo.png" width="310" height="101"
-           alt="名扬屋顶 MAINYOUNG Roofing &amp; Painting">
+           alt="名扬屋顶 MAINYOUNG Roofing &amp; Painting"
+>
     </a>
 
     <nav class="menu-links" id="menuLinks" aria-label="主导航">
       <a href="#home" data-target="home" class="is-active">Home</a>
       <a href="#about" data-target="about">About</a>
       <a href="#services" data-target="services">Services</a>
+      <a href="#team" data-target="team">Team</a>
       <a href="#contact" data-target="contact">Contact</a>
       <span class="link-line" id="linkLine" aria-hidden="true"></span>
     </nav>
@@ -1105,13 +1195,15 @@ html[lang="en"] .pj-body .en{display:none;}
 <!-- ============================ 展开菜单 ============================ -->
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="导航菜单" aria-hidden="true">
   <div class="drawer-top">
-    <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶">
+    <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶"
+>
     <button class="drawer-close" id="drawerClose" type="button">Close</button>
   </div>
   <ul class="drawer-links">
     <li><a href="#home" data-target="home"><span class="en">Home</span><span class="cn">首页</span></a></li>
     <li><a href="#about" data-target="about"><span class="en">About</span><span class="cn">关于</span></a></li>
     <li><a href="#services" data-target="services"><span class="en">Services</span><span class="cn">服务</span></a></li>
+    <li><a href="#team" data-target="team"><span class="en">Team</span><span class="cn">团队</span></a></li>
     <li><a href="#contact" data-target="contact"><span class="en">Contact</span><span class="cn">联系</span></a></li>
   </ul>
   <div class="drawer-foot">
@@ -1462,6 +1554,61 @@ html[lang="en"] .pj-body .en{display:none;}
 
 
 
+<!-- ============================ 团队 ============================ -->
+<section class="team" id="team">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="eyebrow"><span data-i18n="tm.eb">团队</span> / Our Crew</p>
+        <h2><span data-i18n="tm.h2a">同一支队伍，</span><br><span data-i18n="tm.h2b">从勘测做到</span><em data-i18n="tm.h2c">验收</em><span data-i18n="tm.h2d">。</span></h2>
+      </div>
+      <p class="side" data-i18n="tm.lead">屋顶不是一个人干出来的：勘测、施工、涂装、收尾各有一摊事，交接在哪儿、谁签字，都在下面写清。</p>
+    </div>
+
+    <div class="team-grid">
+      <div>
+        <div class="team-shot">
+          <img src="./picture/4.team/team.jpg" width="1600" height="1000"
+               alt="名扬屋顶团队在完工现场合影" loading="lazy"
+               onerror="this.style.display='none';var p=document.getElementById('teamPh');if(p){p.style.display='flex';}">
+          <div class="team-ph" id="teamPh">
+            <b>Team Photo</b>
+            <span data-i18n="tm.ph">团队合影 · 待上传</span>
+          </div>
+        </div>
+        <p class="team-cap"><span data-i18n="tm.cap">完工现场 · 屋顶与涂装</span><span>Mainyoung · Crew</span></p>
+      </div>
+
+      <div>
+        <div class="team-list">
+          <div class="team-row">
+            <span class="team-no">01</span>
+            <div><h4 data-i18n="tm.r1n">现场负责</h4><p data-i18n="tm.r1d">勘测、排期、报价与房主对接，从第一次上门到验收签字，一个人盯到底。</p></div>
+            <span class="team-num" data-i18n="tm.r1c">1 人</span>
+          </div>
+          <div class="team-row">
+            <span class="team-no">02</span>
+            <div><h4 data-i18n="tm.r2n">屋面施工</h4><p data-i18n="tm.r2d">拆旧、垫层与通风、板材安装、收边与泛水。屋面上最费工的几个节点，都在这组人手里。</p></div>
+            <span class="team-num" data-i18n="tm.r2c">4 人</span>
+          </div>
+          <div class="team-row">
+            <span class="team-no">03</span>
+            <div><h4 data-i18n="tm.r3n">涂装与修缮</h4><p data-i18n="tm.r3d">外墙与木构件涂装、渗漏排查、节点补强；颜色先做样板，自然光下过一遍再定。</p></div>
+            <span class="team-num" data-i18n="tm.r3c">2 人</span>
+          </div>
+          <div class="team-row">
+            <span class="team-no">04</span>
+            <div><h4 data-i18n="tm.r4n">清运与收尾</h4><p data-i18n="tm.r4d">旧料清运、场地保洁、完工拍照归档。房主验收时看到的干净现场，是这一步做的。</p></div>
+            <span class="team-num" data-i18n="tm.r4c">2 人</span>
+          </div>
+        </div>
+        <p class="team-note" data-i18n="tm.note">淡旺季人数会浮动：忙季临时加人，由现场负责人带班，验收标准不变。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
 <!-- ============================ 询价表单 ============================ -->
 <section class="quote" id="contact">
   <div class="wrap">
@@ -1469,7 +1616,7 @@ html[lang="en"] .pj-body .en{display:none;}
       <div class="quote-aside">
         <p class="eyebrow"><span data-i18n="eb.4">04 · 行动</span> / Contact &amp; Enquiry</p>
         <h2><span data-i18n="q.h2a">把面积和问题</span><br><em data-i18n="q.h2b">写给我们</em><span data-i18n="q.h2c">。</span></h2>
-        <p class="lede" data-i18n="q.lead">填完点提交，邮件直接到 main-young@hotmail.com，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。</p>
+        <p class="lede" data-i18n="q.lead">填完点提交，邮件直接进我们的工作邮箱，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。</p>
 
         <div class="direct-big">
           <div class="db-l">
@@ -1532,7 +1679,7 @@ html[lang="en"] .pj-body .en{display:none;}
         </div>
 
         <div class="form-foot">
-          <p class="form-note" data-i18n="f.note">提交后邮件直达 main-young@hotmail.com，工作时间内当天回；需要上门勘测的，写上大致地址。</p>
+          <p class="form-note" data-i18n="f.note">提交后邮件直达我们的工作邮箱，工作时间内当天回；需要上门勘测的，写上大致地址。</p>
           <div class="form-act">
             <span class="form-status" id="formStatus" aria-live="polite"></span>
             <button class="submit" id="submitBtn" type="submit">
@@ -1553,13 +1700,15 @@ html[lang="en"] .pj-body .en{display:none;}
   <div class="wrap">
     <div class="foot-inner">
       <div class="foot-left">
-        <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶">
+        <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶"
+>
         <p>Roofing &amp; Painting · Since Now</p>
       </div>
       <nav class="foot-nav" aria-label="页脚导航">
         <a href="#home">Home</a>
         <a href="#about">About</a>
         <a href="#services">Services</a>
+        <a href="#team">Team</a>
         <a href="#contact">Contact</a>
       </nav>
       <div class="foot-right">
@@ -1866,7 +2015,17 @@ html[lang="en"] .pj-body .en{display:none;}
     "work.lead": {
       zh: "按工序归档：拆除、结构检查、垫层与通风、面层安装、收边验收。图上是完工后在同一机位拍的现场。",
       en: "Filed by stage: strip-out, structure check, underlay and ventilation, panel installation, edge sign-off. Photographed on site, same position, after handover."
-    },    "w.s1h": { zh: "屋顶更换 · 整栋完工", en: "Roof Replacement · Completed" },    "w.s1p": { zh: "旧瓦连同垫层整片拆除，检查木基层与通风后重做防水垫层，再铺新瓦；完工后脊线、檐口与天沟逐段复核。", en: "Full tear-off down to the deck, fresh underlayment, then new shingles; ridge, eaves and gutters checked section by section at handover." },    "w.s2h": { zh: "完工屋面 · 清运", en: "Finished Roof & Haul-away" },    "w.s2p": { zh: "完工后的深灰瓦屋面，旧瓦装进清运箱一并拉走；屋面与落地区当天清干净，不把碎料留给房主。", en: "The finished shingle roof with the old shingles already loaded out - roof and drop zone cleaned the same day, nothing left behind for the homeowner." },    "w.s3h": { zh: "整栋换新 · 配色", en: "Full Re-roof & Colour" },    "w.s3p": { zh: "棕墙配深灰瓦：瓦色、脊线与檐口颜色先出样板，再整栋确定，避免同一面墙出现两个色。", en: "Brown siding with charcoal shingles: shingle colour, ridge and eave trim are sampled first, then fixed for the whole house so no elevation shows two shades." },    "w.s4h": { zh: "外墙与檐口", en: "Siding & Eaves" },    "w.s4p": { zh: "外墙板与檐口收边同一批次处理，色差与接缝在自然光下复核；落水管与檐沟按同一坡度走。", en: "Siding and eave trims handled in one batch, with colour and joints checked in daylight; downspouts and gutters run on one consistent slope." },    "w.s5h": { zh: "老虎窗 · 瓦面细节", en: "Dormers & Details" },    "w.s5p": { zh: "老虎窗、山墙与瓦面的交界最考手工：先做泛水再铺瓦，收边压条与密封逐条检查。", en: "Where dormers, gables and shingles meet is where the craft shows: flashing first, then shingles, with every edge strip and seal checked." },
+    },
+    "w.s1h": { zh: "屋顶更换 · 整栋完工", en: "Roof Replacement · Completed" },
+    "w.s1p": { zh: "旧瓦连同垫层整片拆除，检查木基层与通风后重做防水垫层，再铺新瓦；完工后脊线、檐口与天沟逐段复核。", en: "Full tear-off down to the deck, fresh underlayment, then new shingles; ridge, eaves and gutters checked section by section at handover." },
+    "w.s2h": { zh: "完工屋面 · 清运", en: "Finished Roof & Haul-away" },
+    "w.s2p": { zh: "完工后的深灰瓦屋面，旧瓦装进清运箱一并拉走；屋面与落地区当天清干净，不把碎料留给房主。", en: "The finished shingle roof with the old shingles already loaded out - roof and drop zone cleaned the same day, nothing left behind for the homeowner." },
+    "w.s3h": { zh: "整栋换新 · 配色", en: "Full Re-roof & Colour" },
+    "w.s3p": { zh: "棕墙配深灰瓦：瓦色、脊线与檐口颜色先出样板，再整栋确定，避免同一面墙出现两个色。", en: "Brown siding with charcoal shingles: shingle colour, ridge and eave trim are sampled first, then fixed for the whole house so no elevation shows two shades." },
+    "w.s4h": { zh: "外墙与檐口", en: "Siding & Eaves" },
+    "w.s4p": { zh: "外墙板与檐口收边同一批次处理，色差与接缝在自然光下复核；落水管与檐沟按同一坡度走。", en: "Siding and eave trims handled in one batch, with colour and joints checked in daylight; downspouts and gutters run on one consistent slope." },
+    "w.s5h": { zh: "老虎窗 · 瓦面细节", en: "Dormers & Details" },
+    "w.s5p": { zh: "老虎窗、山墙与瓦面的交界最考手工：先做泛水再铺瓦，收边压条与密封逐条检查。", en: "Where dormers, gables and shingles meet is where the craft shows: flashing first, then shingles, with every edge strip and seal checked." },
 
     "pj.h2a": { zh: "能接的", en: "The six " },
     "pj.h2b": { zh: "六类活", en: "jobs we take" },
@@ -1927,17 +2086,47 @@ html[lang="en"] .pj-body .en{display:none;}
     "cmp.h2a": { zh: "同一处房子，", en: "Same house," },
     "cmp.h2b": { zh: "两个", en: "two " },
     "cmp.h2c": { zh: "样子", en: "states" },
-    "cmp.h2d": { zh: "。", en: "." },    "cmp.lead": { zh: "拖动中间的金线：左边是改造前，右边是完工后。", en: "Drag the gold line: before on the left, after on the right." },    "c1.h": { zh: "坡屋面翻新", en: "Pitched Roof" },    "c1.p": { zh: "同一栋房子、同一个机位：左边旧瓦已经拆到垫层，右边是完工后的深灰瓦屋面。", en: "Same house, same camera angle: old tiles torn to the underlayment on the left, the finished dark shingle roof on the right." },    "c2.h": { zh: "檐沟清理", en: "Gutter Cleaning" },    "c2.p": { zh: "左边是落叶堵满的檐沟，右边是清掏后的通畅落水；落叶季前后各做一次，能省掉大半外墙水痕。", en: "Leaves packed in the gutter on the left, clear flow after the clean-out on the right. Once before leaf season and once after saves most of the staining on the walls." },
+    "cmp.h2d": { zh: "。", en: "." },
+    "cmp.lead": { zh: "拖动中间的金线：左边是改造前，右边是完工后。", en: "Drag the gold line: before on the left, after on the right." },
+    "c1.h": { zh: "坡屋面翻新", en: "Pitched Roof" },
+    "c1.p": { zh: "同一栋房子、同一个机位：左边旧瓦已经拆到垫层，右边是完工后的深灰瓦屋面。", en: "Same house, same camera angle: old tiles torn to the underlayment on the left, the finished dark shingle roof on the right." },
+    "c2.h": { zh: "檐沟清理", en: "Gutter Cleaning" },
+    "c2.p": { zh: "左边是落叶堵满的檐沟，右边是清掏后的通畅落水；落叶季前后各做一次，能省掉大半外墙水痕。", en: "Leaves packed in the gutter on the left, clear flow after the clean-out on the right. Once before leaf season and once after saves most of the staining on the walls." },
     "cmp.before": { zh: "改造前", en: "Before" },
     "cmp.after": { zh: "改造后", en: "After" },
     "cmp.hint": { zh: "按住拖动，或用左右方向键", en: "Drag, or use the arrow keys" },
+
+    "tm.eb": { zh: "团队", en: "Team" },
+    "tm.h2a": { zh: "同一支队伍，", en: "One crew," },
+    "tm.h2b": { zh: "从勘测做到", en: "from survey to " },
+    "tm.h2c": { zh: "验收", en: "sign-off" },
+    "tm.h2d": { zh: "。", en: "." },
+    "tm.lead": {
+      zh: "屋顶不是一个人干出来的：勘测、施工、涂装、收尾各有一摊事，交接在哪儿、谁签字，都在下面写清。",
+      en: "A roof is not one person's work: survey, build, paint and clean-up are separate jobs, and who hands what to whom is set out below."
+    },
+    "tm.cap": { zh: "完工现场 · 屋顶与涂装", en: "On site · roofing & painting" },
+    "tm.ph": { zh: "团队合影 · 待上传", en: "Team photo — coming soon" },
+    "tm.r1n": { zh: "现场负责", en: "Site Lead" },
+    "tm.r1d": { zh: "勘测、排期、报价与房主对接，从第一次上门到验收签字，一个人盯到底。", en: "Survey, scheduling, quoting and the homeowner relationship — one person from first visit to sign-off." },
+    "tm.r1c": { zh: "1 人", en: "1 person" },
+    "tm.r2n": { zh: "屋面施工", en: "Roof Crew" },
+    "tm.r2d": { zh: "拆旧、垫层与通风、板材安装、收边与泛水。屋面上最费工的几个节点，都在这组人手里。", en: "Strip-out, underlay and ventilation, panel installation, trims and flashings — the slowest details on any roof sit with this crew." },
+    "tm.r2c": { zh: "4 人", en: "4 people" },
+    "tm.r3n": { zh: "涂装与修缮", en: "Paint & Repairs" },
+    "tm.r3d": { zh: "外墙与木构件涂装、渗漏排查、节点补强；颜色先做样板，自然光下过一遍再定。", en: "Exterior and timber painting, leak tracing, node repair; colour is settled on a sample panel in daylight first." },
+    "tm.r3c": { zh: "2 人", en: "2 people" },
+    "tm.r4n": { zh: "清运与收尾", en: "Clean-up" },
+    "tm.r4d": { zh: "旧料清运、场地保洁、完工拍照归档。房主验收时看到的干净现场，是这一步做的。", en: "Debris removal, site cleaning, completion photos filed. The tidy site you see at handover is this step." },
+    "tm.r4c": { zh: "2 人", en: "2 people" },
+    "tm.note": { zh: "淡旺季人数会浮动：忙季临时加人，由现场负责人带班，验收标准不变。", en: "Crew size flexes with the season: extra hands in the busy months are led by the site lead and held to the same sign-off standard." },
 
     "q.h2a": { zh: "把面积和问题", en: "Send us the area" },
     "q.h2b": { zh: "写给我们", en: "and the problem" },
     "q.h2c": { zh: "。", en: "." },
     "q.lead": {
-      zh: "填完点提交，邮件直接到 main-young@hotmail.com，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。",
-      en: "Submit and the mail goes straight to main-young@hotmail.com — usually answered the same working day. For a site survey, add the rough address and roof type so we can plan a route."
+      zh: "填完点提交，邮件直接进我们的工作邮箱，工作时间内一般当天回。需要上门勘测的，写清大致地址与屋型，我们好排路线。",
+      en: "Submit and the mail goes straight to our inbox — usually answered the same working day. For a site survey, add the rough address and roof type so we can plan a route."
     },
 
     "f.name": { zh: "姓名", en: "Name" },
@@ -1955,8 +2144,8 @@ html[lang="en"] .pj-body .en{display:none;}
     "f.errEmail": { zh: "邮箱格式不对", en: "That email looks off" },
     "f.errSvc": { zh: "至少选择一项服务", en: "Select at least one service" },
     "f.note": {
-      zh: "提交后邮件直达 main-young@hotmail.com，工作时间内当天回；需要上门勘测的，写上大致地址。",
-      en: "Your enquiry goes straight to main-young@hotmail.com, usually answered the same working day. Add the rough address if you want a site visit."
+      zh: "提交后邮件直达我们的工作邮箱，工作时间内当天回；需要上门勘测的，写上大致地址。",
+      en: "Your enquiry goes straight to our inbox, usually answered the same working day. Add the rough address if you want a site visit."
     },
     "f.submit": { zh: "提交询价", en: "Send Enquiry" },
     "f.sending": { zh: "发送中…", en: "Sending…" },
@@ -2095,16 +2284,20 @@ html[lang="en"] .pj-body .en{display:none;}
   }
 
   function payloadOf(services) {
-    return {
+    var mail = (mailEl.value || "").trim();
+    var d = {
       "姓名 Name": (nameEl.value || "").trim(),
       "电话 Phone": (phoneEl.value || "").trim(),
-      "邮箱 Email": (mailEl.value || "").trim(),
+      "邮箱 Email": mail,
       "服务 Services": services.join(" / "),
       "留言 Message": (msgEl.value || "").trim(),
       _subject: "名扬屋顶官网询价 · " + (nameEl.value || "").trim(),
       _template: "table",
       _captcha: "false"
     };
+    /* 客户填了邮箱时，直接在收到的那封邮件里点"回复"就能回到客户手上 */
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { d._replyto = mail; }
+    return d;
   }
 
   function mailtoHref(services) {
