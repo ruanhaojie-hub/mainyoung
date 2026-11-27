@@ -85,9 +85,9 @@ function getTransporter() {
       port: SMTP_PORT,
       secure: SMTP_PORT === 465,
       auth: { user: SMTP_USER, pass: SMTP_PASS },
-      connectionTimeout: 5000,
-      greetingTimeout: 5000,
-      socketTimeout: 10000
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 25000
     });
   }
   return transporter;
@@ -413,13 +413,14 @@ app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
     }
 
     inflight++;
+    const t0 = Date.now();
     try {
       const d = {
         name, phone, email, services, message,
         at: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + ' (CST)'
       };
       const info = await getTransporter().sendMail(composeMail(d));
-      console.log('[mail] sent ->', MAIL_TO, '| ip', hashIp(ip), '|', info.messageId || 'ok');
+      console.log('[mail] sent in ' + (Date.now() - t0) + 'ms ->', MAIL_TO, '| ip', hashIp(ip), '|', info.messageId || 'ok');
       if (DRY && info.message) console.log(String(info.message).slice(0, 800));
       res.status(200).json({ ok: true });
     } finally {
@@ -431,6 +432,13 @@ app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
     res.status(503).json({ ok: false });
   }
 });
+
+/* /api 下出错一律回 JSON，别把堆栈丢给页面 */
+app.use('/api', (err, req, res, next) => {
+  console.warn('[api] bad request:', (err && err.type) || (err && err.message) || 'unknown');
+  res.status(400).json({ ok: false, code: 'badreq' });
+});
+app.use('/api', (req, res) => res.status(404).json({ ok: false, code: 'notfound' }));
 
 /* ---------- 静态站点（并给 index.html 注入桥接脚本） ---------- */
 const BLOCK = /^(node_modules|\.env|\.git|package\.json|package-lock\.json|server\.js|\.env\.example)/i;

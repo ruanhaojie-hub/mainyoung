@@ -2207,6 +2207,9 @@ html[lang="en"] .pj-body .en{display:none;}
     },
     "f.submit": { zh: "提交询价", en: "Send Enquiry" },
     "f.sending": { zh: "发送中…", en: "Sending…" },
+    "f.waking": { zh: "服务器刚醒，正在发信（约 10–30 秒）…", en: "Server waking up, sending now (about 10–30s)…" },
+    "f.waiting": { zh: "已提交，正在等发信回执，别关页面…", en: "Submitted — waiting for the send receipt, please keep this page open…" },
+    "f.slow": { zh: "还在等服务器确认，稍安勿躁（点提交后可以直接打电话）…", en: "Still waiting for the server to confirm — feel free to call instead…" },
     "f.ok": { zh: "已发送，我们会尽快联系你。", en: "Sent. We will be in touch shortly." },
     "f.fail": { zh: "这次没能自动送达，你填的内容已原样留在下面。", en: "This time it didn't go through automatically — your text is kept below, nothing lost." },
     "f.manualLead": {
@@ -2540,41 +2543,67 @@ html[lang="en"] .pj-body .en{display:none;}
       hideManual();
 
       var done = false;
-      function finishSuccess() {
+      var ctrl = ("AbortController" in window) ? new AbortController() : null;
+      var hintTimers = [];
+
+      function clearHints() {
+        hintTimers.forEach(function (t) { window.clearTimeout(t); });
+        hintTimers = [];
+      }
+      function paintOk() {
         if (done) { return; }
         done = true;
+        clearHints();
+        if (ctrl) { try { ctrl.abort(); } catch (e) {} }
         submitBtn.disabled = false;
-        setStatus("f.ok", "is-ok");
         hideManual();
+        setStatus("f.ok", "is-ok");
         form.reset();
         updateMsLabel();
         Array.prototype.forEach.call(form.querySelectorAll(".field"), function (f) { f.classList.remove("is-bad"); });
       }
-      function finishManual() {
+      function paintFail() {
         if (done) { return; }
         done = true;
+        clearHints();
         submitBtn.disabled = false;
         setStatus("f.fail", "is-bad");
         showManual(services);
       }
+      /* 晚到的成功回执（此前已弹过兜底面板）：直接纠正界面 */
+      function lateOk() {
+        done = true;
+        clearHints();
+        submitBtn.disabled = false;
+        hideManual();
+        setStatus("f.ok", "is-ok");
+        Array.prototype.forEach.call(form.querySelectorAll(".field"), function (f) { f.classList.remove("is-bad"); });
+      }
 
-      /* 投递优先级：Formspree（配了 ID）→ Web3Forms（配了 key）→ FormSubmit；都失败转手动兜底 */
+      /* 投递优先级：Formspree（配了 ID）→ Web3Forms（配了 key）→ 本站 /api/quote；都失败转手动兜底 */
       var hasFsp = FORMSPREE_ID && FORMSPREE_ID.length > 4;
       var hasW3F = WEB3FORMS_KEY && WEB3FORMS_KEY.length > 8;
       var url = hasFsp ? ("https://formspree.io/f/" + FORMSPREE_ID)
                 : (hasW3F ? W3F_ENDPOINT : ENDPOINT);
       var body = hasFsp ? fspBody(services) : (hasW3F ? w3fBody(services) : payloadOf(services));
-      var wait = (hasFsp || hasW3F) ? 15000 : 20000;
 
-      var ctrl = ("AbortController" in window) ? new AbortController() : null;
-      var settled = false;
-      function settleOnce() { settled = true; }
-      var to = window.setTimeout(function () {
-        if (settled) { return; }
-        settleOnce();
-        if (ctrl) { try { ctrl.abort(); } catch (e) {} }
-        finishManual();
-      }, wait);
+      /* 自家接口要扛冷启动 + 走 SMTP 发信，实测常常 20~40 秒，不能按 20 秒判死 */
+      var isOwn = !(hasFsp || hasW3F);
+      var softWait = isOwn ? 90000 : 20000;    /* 到点只提示“还在确认”，不判失败 */
+      var hardWait = isOwn ? 180000 : 30000;   /* 到点才弹兜底面板 */
+
+      if (isOwn) {
+        [[9000, "f.waking"], [22000, "f.waiting"], [50000, "f.slow"]].forEach(function (h) {
+          hintTimers.push(window.setTimeout(function () {
+            if (done) { return; }
+            setStatus(h[1], "");
+          }, h[0]));
+        });
+      }
+      window.setTimeout(function () {
+        if (!done) { setStatus(isOwn ? "f.slow" : "f.waiting", ""); }
+      }, softWait);
+      window.setTimeout(function () { if (!done) { paintFail(); } }, hardWait);
 
       try {
         window.fetch(url, {
@@ -2590,24 +2619,16 @@ html[lang="en"] .pj-body .en{display:none;}
             return d;
           });
         }).then(function (d) {
-          if (settled) { return; }
-          settleOnce();
-          window.clearTimeout(to);
-          /* Formspree 回 {"ok":true}，Web3Forms 回 {"success":"true"}，FormSubmit 回 success:true */
+          /* Formspree 回 {"ok":true}，Web3Forms 回 {"success":"true"}，本站回 {"ok":true} */
           var okFlag = d && (d.success === true || d.success === "true" || d.ok === true || d.ok === "true");
-          if (okFlag) { finishSuccess(); }
-          else { finishManual(); }
+          if (okFlag) { if (done) { lateOk(); } else { paintOk(); } }
+          else if (!done) { paintFail(); }
         }).catch(function () {
-          if (settled) { return; }
-          settleOnce();
-          window.clearTimeout(to);
-          finishManual();
+          /* 被 aborted 说明只是界面超时，请求本身多半已经发出去：保持“确认中”，等硬超时 */
+          if (ctrl && ctrl.signal && ctrl.signal.aborted) { return; }
+          if (!done) { paintFail(); }
         });
-      } catch (err) {
-        settleOnce();
-        window.clearTimeout(to);
-        finishManual();
-      }
+      } catch (err) { paintFail(); }
     });
 
     [nameEl, phoneEl, mailEl].forEach(function (el) {
