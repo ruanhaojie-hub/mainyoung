@@ -105,11 +105,11 @@ const esc = s => String(s == null ? '' : s)
 /* 一条纸感字段行 */
 function row(label, value) {
   return '<tr>'
-    + '<td width="92" style="padding:13px 0 13px 0;border-bottom:1px dashed #E4DAC5;'
+    + '<td width="92" style="padding:13px 0 13px 0;border-bottom:1px dashed #332B1E;'
     + 'font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.6px;'
-    + 'color:#8A7A5F;text-transform:uppercase;vertical-align:top;">' + label + '</td>'
-    + '<td style="padding:13px 0 13px 0;border-bottom:1px dashed #E4DAC5;'
-    + 'font-family:Georgia,\'Songti SC\',serif;font-size:15px;color:#231A10;'
+    + 'color:#C9A24A;text-transform:uppercase;vertical-align:top;">' + label + '</td>'
+    + '<td style="padding:13px 0 13px 0;border-bottom:1px dashed #332B1E;'
+    + 'font-family:Georgia,\'Songti SC\',serif;font-size:15px;color:#F4EFE3;'
     + 'line-height:1.7;vertical-align:top;">' + value + '</td>'
     + '</tr>';
 }
@@ -120,15 +120,16 @@ function composeMail(d) {
 
   const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">'
     + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<meta name="color-scheme" content="dark only"><meta name="supported-color-schemes" content="dark only">'
     + '<title>新询价单</title></head>'
-    + '<body style="margin:0;padding:0;background:#EDE7DA;">'
+    + '<body style="margin:0;padding:0;background:#070708;">'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
-    + 'bgcolor="#EDE7DA" style="background:#EDE7DA;padding:30px 12px;"><tr><td align="center">'
+    + 'bgcolor="#070708" style="background:#070708;padding:30px 12px;"><tr><td align="center">'
 
     /* 纸张主体 */
     + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" '
-    + 'bgcolor="#FBF7EE" style="width:600px;max-width:600px;background:#FBF7EE;'
-    + 'border:1px solid #DED3BC;">'
+    + 'bgcolor="#101014" style="width:600px;max-width:600px;background:#101014;'
+    + 'border:1px solid #332B1E;">'
     + '<tr><td bgcolor="#C9A24A" style="height:4px;line-height:4px;font-size:0;">&nbsp;</td></tr>'
 
     /* 抬头：logo + 品牌英文 */
@@ -138,17 +139,17 @@ function composeMail(d) {
     + '<img src="' + LOGO_URL + '" width="168" alt="名扬屋顶 MAINYOUNG" '
     + 'style="display:block;border:0;outline:none;max-width:168px;height:auto;"></td>'
     + '<td align="right" style="vertical-align:middle;font-family:Arial,Helvetica,sans-serif;'
-    + 'font-size:9px;letter-spacing:2.4px;color:#A08A5E;text-transform:uppercase;line-height:2;">'
+    + 'font-size:9px;letter-spacing:2.4px;color:#C9A24A;text-transform:uppercase;line-height:2;">'
     + 'ROOFING &amp; PAINTING<br>VANCOUVER · CANADA</td>'
     + '</tr></table></td></tr>'
 
     /* 标题 */
     + '<tr><td style="padding:22px 34px 0 34px;">'
-    + '<div style="font-family:Georgia,\'Songti SC\',serif;font-size:27px;color:#231A10;'
+    + '<div style="font-family:Georgia,\'Songti SC\',serif;font-size:27px;color:#F4EFE3;'
     + 'letter-spacing:1px;line-height:1.25;">新询价单</div>'
     + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:3.4px;'
-    + 'color:#B09B6C;text-transform:uppercase;padding-top:9px;">QUOTE REQUEST · 官网表单提交</div>'
-    + '<div style="height:1px;line-height:1px;font-size:0;background:#DED3BC;margin:18px 0 0 0;">&nbsp;</div>'
+    + 'color:#C9A24A;text-transform:uppercase;padding-top:9px;">QUOTE REQUEST · 官网表单提交</div>'
+    + '<div style="height:1px;line-height:1px;font-size:0;background:#332B1E;margin:18px 0 0 0;">&nbsp;</div>'
     + '</td></tr>'
 
     /* 字段区 */
@@ -156,51 +157,51 @@ function composeMail(d) {
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
     + row('姓名 NAME', esc(d.name))
     + row('电话 PHONE', '<a href="tel:' + d.phone.replace(/[^+0-9]/g, '') + '" '
-    + 'style="color:#231A10;text-decoration:none;">' + esc(d.phone) + '</a>')
+    + 'style="color:#F4EFE3;text-decoration:none;">' + esc(d.phone) + '</a>')
     + row('邮箱 EMAIL', d.email ? '<a href="mailto:' + esc(d.email) + '" '
-    + 'style="color:#231A10;text-decoration:none;">' + esc(d.email) + '</a>' : '（客户未留邮箱）')
+    + 'style="color:#F4EFE3;text-decoration:none;">' + esc(d.email) + '</a>' : '（客户未留邮箱）')
     + '</table></td></tr>'
 
     /* 服务（高亮） */
     + '<tr><td style="padding:20px 34px 0 34px;">'
     + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.8px;'
-    + 'color:#8A7A5F;text-transform:uppercase;">服务 SERVICES</div>'
+    + 'color:#C9A24A;text-transform:uppercase;">服务 SERVICES</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
-    + 'bgcolor="#F4E9CF" style="background:#F4E9CF;border-left:3px solid #C9A24A;margin-top:9px;">'
+    + 'bgcolor="#17140E" style="background:#17140E;border-left:3px solid #C9A24A;margin-top:9px;">'
     + '<tr><td style="padding:13px 15px;font-family:Georgia,\'Songti SC\',serif;'
-    + 'font-size:17px;color:#231A10;line-height:1.6;">' + svc + '</td></tr></table>'
+    + 'font-size:17px;color:#F4EFE3;line-height:1.6;">' + svc + '</td></tr></table>'
     + '</td></tr>'
 
     /* 留言 */
     + '<tr><td style="padding:20px 34px 0 34px;">'
     + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.8px;'
-    + 'color:#8A7A5F;text-transform:uppercase;">留言 MESSAGE</div>'
+    + 'color:#C9A24A;text-transform:uppercase;">留言 MESSAGE</div>'
     + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
-    + 'bgcolor="#FFFDF8" style="background:#FFFDF8;border:1px solid #E4DAC5;margin-top:9px;">'
+    + 'bgcolor="#0C0C0E" style="background:#0C0C0E;border:1px solid #332B1E;margin-top:9px;">'
     + '<tr><td style="padding:15px 17px;font-family:Georgia,\'Songti SC\',serif;'
-    + 'font-size:15px;line-height:1.95;color:#3A2E1F;">' + msg + '</td></tr></table>'
+    + 'font-size:15px;line-height:1.95;color:#E8E1D2;">' + msg + '</td></tr></table>'
     + '</td></tr>'
 
     /* 时间与来源 */
     + '<tr><td style="padding:18px 34px 0 34px;font-family:Arial,Helvetica,sans-serif;'
-    + 'font-size:11px;color:#9A8A6C;line-height:1.8;">提交时间 ' + esc(d.at)
+    + 'font-size:11px;color:#8C8578;line-height:1.8;">提交时间 ' + esc(d.at)
     + ' &nbsp;·&nbsp; 来源：官网询价表单</td></tr>'
 
     /* 页脚 */
     + '<tr><td style="padding:20px 34px 30px 34px;">'
-    + '<div style="height:1px;line-height:1px;font-size:0;background:#DED3BC;">&nbsp;</div>'
+    + '<div style="height:1px;line-height:1px;font-size:0;background:#332B1E;">&nbsp;</div>'
     + '<div style="padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;'
-    + 'color:#6B5C43;line-height:2;">直接回复本邮件即可联系客户。'
+    + 'color:#9A9082;line-height:2;">直接回复本邮件即可联系客户。'
     + '<br>电话 <a href="tel:+1' + SITE_PHONE.replace(/[^0-9]/g, '') + '" '
-    + 'style="color:#8A6A2A;text-decoration:none;">' + SITE_PHONE + '</a>'
-    + ' &nbsp;·&nbsp; <a href="' + SITE_URL + '" style="color:#8A6A2A;text-decoration:none;">'
+    + 'style="color:#D9BC6B;text-decoration:none;">' + SITE_PHONE + '</a>'
+    + ' &nbsp;·&nbsp; <a href="' + SITE_URL + '" style="color:#D9BC6B;text-decoration:none;">'
     + 'mainyoung.canner.app</a></div>'
     + '<div style="padding-top:14px;font-family:Georgia,serif;font-size:9px;letter-spacing:2.6px;'
-    + 'color:#B7A98B;text-transform:uppercase;">名扬屋顶 · MAINYOUNG ROOFING</div>'
+    + 'color:#6E695E;text-transform:uppercase;">名扬屋顶 · MAINYOUNG ROOFING</div>'
     + '</td></tr></table>'
 
     /* 纸外小字 */
-    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#A79A80;'
+    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#6E695E;'
     + 'padding-top:14px;letter-spacing:.6px;">本邮件由名扬屋顶官网自动发送 · 客户信息仅用于本次询价跟进</div>'
     + '</td></tr></table></body></html>';
 
