@@ -1,0 +1,17 @@
+{
+  "name": "mainyoung-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "名扬屋顶官网 + 询价邮件接口",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "nodemailer": "^6.9.13"
+  }
+}
