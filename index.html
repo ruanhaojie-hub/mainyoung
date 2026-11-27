@@ -1174,9 +1174,108 @@ html[lang="en"] .pj-body .en{display:none;}
 @media (max-width:600px){
   .car-dots{margin:0 auto;}
 }
+
+/* ======================== 开场：Logo 动画 ========================
+   1.55s 后自动淡出；点一下 / 按任意键 / 滚一下 可立即跳过。
+   系统开了“减少动态效果”时直接不播。
+   ================================================================= */
+html.intro-on,html.intro-on body{overflow:hidden}
+.intro{
+  position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(62% 52% at 50% 44%,rgba(201,162,74,.17),rgba(201,162,74,0) 72%),
+    #060607;
+  animation:introVeil .5s ease 1.42s forwards;
+}
+.intro-in{
+  display:flex;flex-direction:column;align-items:center;gap:22px;
+  animation:introLift .55s cubic-bezier(.2,.7,.2,1) 1.42s forwards;
+}
+.intro-mark{position:relative;width:132px;height:132px}
+.intro-mark img{
+  width:100%;height:100%;object-fit:contain;display:block;
+  animation:introLogo 1s cubic-bezier(.16,.84,.24,1) both;
+}
+/* 一道金光掠过 logo 轮廓 */
+.intro-shine{
+  position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(115deg,rgba(255,255,255,0) 38%,rgba(255,243,205,.92) 50%,rgba(255,255,255,0) 62%);
+  background-size:220% 220%;background-position:120% 0;
+  -webkit-mask-image:url("picture/logo/logo.png");mask-image:url("picture/logo/logo.png");
+  -webkit-mask-size:100% 100%;mask-size:100% 100%;mask-repeat:no-repeat;
+  animation:introShine 1.05s ease .58s both;
+}
+.intro-word{text-align:center}
+.intro-word em{
+  display:block;font-style:normal;font-family:ui-monospace,Menlo,monospace;
+  font-size:15px;letter-spacing:.34em;color:#E0C078;
+  animation:introWord 1.1s cubic-bezier(.16,.84,.24,1) .2s both;
+}
+.intro-word span{
+  display:block;margin-top:9px;font-size:11.5px;letter-spacing:.2em;color:#8A8578;
+  animation:introWord 1.1s cubic-bezier(.16,.84,.24,1) .34s both;
+}
+.intro-bar{width:120px;height:1px;background:rgba(201,162,74,.22);overflow:hidden}
+.intro-bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,rgba(201,162,74,0),#C9A24A,rgba(201,162,74,0));
+  animation:introBar .95s cubic-bezier(.5,0,.2,1) .32s forwards}
+@keyframes introLogo{
+  0%{opacity:0;transform:scale(.84) translateY(6px);filter:blur(16px)}
+  55%{opacity:1;filter:blur(0)}
+  100%{opacity:1;transform:scale(1) translateY(0);filter:blur(0)}
+}
+@keyframes introShine{0%{background-position:130% 0}100%{background-position:-40% 0}}
+@keyframes introWord{
+  0%{opacity:0;transform:translateY(10px);letter-spacing:.52em}
+  100%{opacity:1;transform:translateY(0);letter-spacing:.34em}
+}
+@keyframes introBar{0%{width:0;opacity:.4}100%{width:120px;opacity:1}}
+@keyframes introLift{to{opacity:0;transform:scale(1.06)}}
+@keyframes introVeil{to{opacity:0;visibility:hidden}}
+@media (prefers-reduced-motion:reduce){
+  .intro{display:none!important}
+}
 </style>
 </head>
 <body>
+
+<!-- 开场 Logo 动画（无 JS 也会自己消失；点一下直接跳过） -->
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-in">
+    <div class="intro-mark">
+      <img src="picture/logo/logo.png" alt="MAINYOUNG 名扬屋顶">
+      <div class="intro-shine"></div>
+    </div>
+    <div class="intro-word">
+      <em>MAINYOUNG</em>
+      <span>ROOFING &amp; PAINTING · VANCOUVER</span>
+    </div>
+    <div class="intro-bar"><i></i></div>
+  </div>
+</div>
+<script>
+(function () {
+  var el = document.getElementById("intro");
+  if (!el) { return; }
+  var doc = document.documentElement;
+  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    el.parentNode.removeChild(el);
+    return;
+  }
+  doc.classList.add("intro-on");
+  var gone = false;
+  function done() {
+    if (gone) { return; }
+    gone = true;
+    doc.classList.remove("intro-on");
+    el.classList.add("intro-out");
+    window.setTimeout(function () { if (el.parentNode) { el.parentNode.removeChild(el); } }, 520);
+  }
+  window.setTimeout(done, 1550);
+  ["click", "touchstart", "keydown", "wheel"].forEach(function (k) {
+    window.addEventListener(k, done, { once: true, passive: true });
+  });
+})();
+</script>
 
 <!-- ======================== 字体图标 ========================
      图标来自 icon/ 文件夹（iconfont.cn 项目 3210208「名扬」），

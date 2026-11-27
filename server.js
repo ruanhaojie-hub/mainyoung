@@ -249,12 +249,36 @@ app.use((req, res, next) => {
 /* ==================== 登录 / 会话 ==================== */
 const crypto = require('crypto');
 
-const AUTH_USER = String(process.env.ADMIN_USER || '').trim();
-const AUTH_PASS = String(process.env.ADMIN_PASS || '');
-const AUTH_ROLE = String(process.env.ADMIN_ROLE || 'admin').trim() || 'admin';
-const AUTH_ON = !!(AUTH_USER && AUTH_PASS);
+/* 账号表：管理员 / 老板 / 员工，全部来自环境变量。
+   ADMIN_USER + ADMIN_PASS          → 管理员（只有一个）
+   OWNER_USER + OWNER_PASS          → 老板
+   OWNER_USERS="张三:密码,李四:密码"   → 多个老板
+   STAFF_USER + STAFF_PASS          → 员工
+   STAFF_USERS="小王:密码,小李:密码"   → 多个员工                                     */
+const ACCOUNTS = [];
+(function () {
+  const pick = (u, p, r) => {
+    u = String(u || '').trim();
+    p = String(p || '');
+    if (!u || !p) return;
+    if (ACCOUNTS.some(a => a.u.toLowerCase() === u.toLowerCase())) return;   // 同名不重复
+    ACCOUNTS.push({ u, p, r });
+  };
+  const many = (raw, r) => String(raw || '')
+    .split(/[,，;；\n]/)
+    .forEach(it => {
+      const i = it.indexOf(':');
+      if (i > 0) pick(it.slice(0, i), it.slice(i + 1), r);
+    });
+  pick(process.env.ADMIN_USER, process.env.ADMIN_PASS, 'admin');
+  pick(process.env.OWNER_USER, process.env.OWNER_PASS, 'owner');
+  many(process.env.OWNER_USERS, 'owner');
+  pick(process.env.STAFF_USER, process.env.STAFF_PASS, 'staff');
+  many(process.env.STAFF_USERS, 'staff');
+})();
+const AUTH_ON = ACCOUNTS.length > 0;
 const AUTH_SECRET = process.env.AUTH_SECRET ||
-  crypto.createHash('sha256').update('my|' + AUTH_USER + '|' + AUTH_PASS + '|v1').digest('hex');
+  crypto.createHash('sha256').update('my|' + ACCOUNTS.map(a => a.u + ':' + a.p).join('|') + '|v2').digest('hex');
 const COOKIE_NAME = 'my_sess';
 const SESS_MS = 7 * 864e5;
 const ROLE_LABEL = { admin: '管理员', owner: '老板', staff: '员工' };
@@ -327,17 +351,24 @@ app.post('/api/login', express.json({ limit: '4kb' }), (req, res) => {
   const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '?';
   if (!AUTH_ON) return res.status(503).json({ ok: false, code: 'noauth' });
   if (loginBlocked(ip)) return res.status(429).json({ ok: false, code: 'rate' });
-  const u = String((req.body && req.body.u) || '').slice(0, 64);
+  const u = String((req.body && req.body.u) || '').trim().slice(0, 64);
   const p = String((req.body && req.body.p) || '').slice(0, 128);
-  if (!u || !p || !sameText(u, AUTH_USER) || !sameText(p, AUTH_PASS)) {
+  /* 逐个比：账号、密码都要 timing-safe 地比完，别提前 return 暴露哪个错 */
+  let hit = null;
+  if (u && p) {
+    for (const a of ACCOUNTS) {
+      if (sameText(u.toLowerCase(), a.u.toLowerCase()) & sameText(p, a.p)) { hit = a; }
+    }
+  }
+  if (!hit) {
     loginFail(ip);
     console.warn('[login] fail', u ? u.slice(0, 3) + '***' : '-', '-', ip);
     return res.status(401).json({ ok: false });
   }
   loginFails.delete(ip);
-  setSession(res, AUTH_USER, AUTH_ROLE);
-  console.log('[login] ok', AUTH_USER, '(' + (ROLE_LABEL[AUTH_ROLE] || AUTH_ROLE) + ')', ip);
-  res.json({ ok: true, user: AUTH_USER, role: AUTH_ROLE });
+  setSession(res, hit.u, hit.r);
+  console.log('[login] ok', hit.u, '(' + (ROLE_LABEL[hit.r] || hit.r) + ')', ip);
+  res.json({ ok: true, user: hit.u, role: hit.r });
 });
 
 app.post('/api/logout', (req, res) => {
@@ -433,13 +464,6 @@ app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
   }
 });
 
-/* /api 下出错一律回 JSON，别把堆栈丢给页面 */
-app.use('/api', (err, req, res, next) => {
-  console.warn('[api] bad request:', (err && err.type) || (err && err.message) || 'unknown');
-  res.status(400).json({ ok: false, code: 'badreq' });
-});
-app.use('/api', (req, res) => res.status(404).json({ ok: false, code: 'notfound' }));
-
 /* ---------- 静态站点（并给 index.html 注入桥接脚本） ---------- */
 const BLOCK = /^(node_modules|\.env|\.git|package\.json|package-lock\.json|server\.js|\.env\.example)/i;
 
@@ -471,9 +495,17 @@ app.use(express.static(ROOT, {
   }
 }));
 
+/* /api 下出错一律回 JSON，别把堆栈丢给页面 */
+app.use('/api', (err, req, res, next) => {
+  console.warn('[api] bad request:', (err && err.type) || (err && err.message) || 'unknown');
+  res.status(400).json({ ok: false, code: 'badreq' });
+});
+app.use('/api', (req, res) => res.status(404).json({ ok: false, code: 'notfound' }));
+
 app.listen(PORT, () => {
   console.log('[boot] listening on ' + PORT +
     ' | dry=' + DRY + ' | smtp=' + SMTP_HOST + ':' + SMTP_PORT +
     ' | to=' + MAIL_TO + ' | from=' + (SMTP_USER || '(未配置)') +
-    ' | auth=' + (AUTH_ON ? 'on(' + AUTH_USER + '/' + (ROLE_LABEL[AUTH_ROLE] || AUTH_ROLE) + ')' : 'off'));
+    ' | auth=' + (AUTH_ON
+      ? 'on(' + ACCOUNTS.map(a => a.u + '=' + a.r).join(', ') + ')' : 'off'));
 });
