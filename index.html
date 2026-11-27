@@ -311,6 +311,9 @@ img{border:0;}
 .hero-bg{
   position:absolute;inset:0;
   background:var(--hero-img) center 42% / cover no-repeat;
+  /* 先给 WebP（约省 60%），不支持的老浏览器仍用上面的 jpg */
+  background-image:image-set(url("./picture/1.head/base.webp") type("image/webp"),
+                             url("./picture/1.head/base.jpg") type("image/jpeg"));
   transform:scale(1.04);
   animation:drift 28s ease-in-out infinite alternate;
   will-change:transform;
@@ -1216,8 +1219,8 @@ html.intro-on,html.intro-on body{overflow:hidden}
   animation:introWord 1.1s cubic-bezier(.16,.84,.24,1) .34s both;
 }
 .intro-bar{width:120px;height:1px;background:rgba(201,162,74,.22);overflow:hidden}
-.intro-bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,rgba(201,162,74,0),#C9A24A,rgba(201,162,74,0));
-  animation:introBar .95s cubic-bezier(.5,0,.2,1) .32s forwards}
+.intro-bar i{display:block;width:8%;height:100%;background:linear-gradient(90deg,rgba(201,162,74,0),#C9A24A,rgba(201,162,74,0));
+  transition:width .45s cubic-bezier(.22,1,.36,1)}
 @keyframes introLogo{
   0%{opacity:0;transform:scale(.84) translateY(6px);filter:blur(16px)}
   55%{opacity:1;filter:blur(0)}
@@ -1228,7 +1231,6 @@ html.intro-on,html.intro-on body{overflow:hidden}
   0%{opacity:0;transform:translateY(10px);letter-spacing:.52em}
   100%{opacity:1;transform:translateY(0);letter-spacing:.34em}
 }
-@keyframes introBar{0%{width:0;opacity:.4}100%{width:120px;opacity:1}}
 @keyframes introLift{to{opacity:0;transform:scale(1.06)}}
 @keyframes introVeil{to{opacity:0;visibility:hidden}}
 @media (prefers-reduced-motion:reduce){
@@ -1242,7 +1244,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
 <div class="intro" id="intro" aria-hidden="true">
   <div class="intro-in">
     <div class="intro-mark">
-      <img src="picture/logo/logo.png" alt="MAINYOUNG 名扬屋顶">
+      <img src="picture/logo/logo.png" alt="MAINYOUNG 名扬屋顶" fetchpriority="high" decoding="async">
       <div class="intro-shine"></div>
     </div>
     <div class="intro-word">
@@ -1257,25 +1259,76 @@ html.intro-on,html.intro-on body{overflow:hidden}
   var el = document.getElementById("intro");
   if (!el) { return; }
   var doc = document.documentElement;
+  var bar = el.querySelector(".intro-bar i");
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     el.parentNode.removeChild(el);
     return;
   }
   doc.classList.add("intro-on");
+
+  var MIN_MS = 1100;      /* 再快也留一点时间让 logo 演完 */
+  var MAX_MS = 5200;      /* 网络再差也不能无限等 */
+  var t0 = Date.now();
   var gone = false;
-  function done() {
+
+  /* 首屏真正要看的：hero 大图 + 顶部 logo（hero 地址从 CSS 变量里取） */
+  var hero = "";
+  try {
+    var hv = getComputedStyle(doc).getPropertyValue("--hero-img") || "";
+    var m = hv.match(/url\(["']?([^"')]+)["']?\)/);
+    if (m) { hero = m[1]; }
+  } catch (e) {}
+  /* 浏览器支持 WebP 的话，实际渲染的是 base.webp，探针也用 webp，免得白下一份 jpg */
+  var webpOK = false;
+  try { webpOK = !!(window.CSS && CSS.supports && CSS.supports("background-image", "image-set(url(\"a\") type(\"image/webp\"))")); } catch (e) {}
+  if (hero && webpOK && /\.jpg$/i.test(hero)) { hero = hero.replace(/\.jpg$/i, ".webp"); }
+  var list = [];
+  if (hero) { list.push(hero); }
+  list.push("picture/logo/logo.png");
+  var total = list.length, doneCount = 0;
+
+  function paint() {
+    if (!bar) { return; }
+    var pct = total ? Math.round((doneCount / total) * 100) : 100;
+    bar.style.width = Math.max(pct, 8) + "%";
+  }
+  paint();
+
+  function finish() {
     if (gone) { return; }
     gone = true;
     doc.classList.remove("intro-on");
+    if (bar) { bar.style.width = "100%"; }
     el.classList.add("intro-out");
     window.setTimeout(function () { if (el.parentNode) { el.parentNode.removeChild(el); } }, 520);
   }
-  window.setTimeout(done, 1550);
+  function maybeFinish() {
+    if (doneCount < total) { return; }
+    var left = MIN_MS - (Date.now() - t0);
+    if (left > 0) { window.setTimeout(finish, left); }
+    else { finish(); }
+  }
+  function one() {
+    doneCount++;
+    paint();
+    maybeFinish();
+  }
+
+  list.forEach(function (src) {
+    var img = new Image();
+    img.onload = img.onerror = one;
+    img.src = src;
+    if (img.complete && img.naturalWidth) { /* 命中缓存 */ }
+  });
+
+  /* 兜底：资源都慢也别超过 MAX_MS；任何操作可跳过 */
+  window.setTimeout(finish, MAX_MS);
   ["click", "touchstart", "keydown", "wheel"].forEach(function (k) {
-    window.addEventListener(k, done, { once: true, passive: true });
+    window.addEventListener(k, finish, { once: true, passive: true });
   });
 })();
 </script>
+
 
 <!-- ======================== 字体图标 ========================
      图标来自 icon/ 文件夹（iconfont.cn 项目 3210208「名扬」），
@@ -1288,8 +1341,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
   <div class="nav-inner">
     <a class="brand" href="#home" aria-label="名扬屋顶 · 返回首页">
       <img src="./picture/logo/hd_logo.png" width="310" height="101"
-           alt="名扬屋顶 MAINYOUNG Roofing &amp; Painting"
->
+           alt="名扬屋顶 MAINYOUNG Roofing &amp; Painting" fetchpriority="high" decoding="async">
     </a>
 
     <nav class="menu-links" id="menuLinks" aria-label="主导航">
@@ -1339,7 +1391,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
 <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="导航菜单" aria-hidden="true">
   <div class="drawer-top">
     <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶"
->
+ loading="lazy" decoding="async">
     <button class="drawer-close" id="drawerClose" type="button">Close</button>
   </div>
   <ul class="drawer-links">
@@ -1588,7 +1640,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
       <div class="car-view" id="carView" aria-roledescription="carousel" aria-label="工程案例">
         <div class="car-track" id="carTrack">
           <article class="car-slide">
-            <img src="./picture/3.slider/1.jpg" width="1280" height="960" alt="完工后的深灰瓦屋面航拍">
+            <img src="./picture/3.slider/1.jpg" width="1280" height="960" alt="完工后的深灰瓦屋面航拍" loading="lazy" decoding="async">
             <div class="car-cap">
               <span class="no">01 / Roof Replacement</span>
               <h3 data-i18n="w.s1h">屋顶更换 · 整栋完工</h3>
@@ -1657,7 +1709,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
             <article class="cmp">
               <div class="cmp-head"><h4 data-i18n="c1.h">坡屋面翻新</h4><span>Pitched Roof</span></div>
               <div class="cmp-frame" id="cmp1" tabindex="0" role="slider" aria-label="改造前后对比：坡屋面翻新" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-                <img class="is-before" src="./picture/before-after/case1/1.jpg" width="1280" height="960" alt="改造前：旧瓦拆到垫层、多处渗水">
+                <img class="is-before" src="./picture/before-after/case1/1.jpg" width="1280" height="960" alt="改造前：旧瓦拆到垫层、多处渗水" loading="lazy" decoding="async">
                 <img class="cmp-after" src="./picture/before-after/case1/2.jpg" width="1280" height="960" alt="改造后：新瓦完工、脊线与檐口重做" loading="lazy">
                 <span class="cmp-tag l" data-i18n="cmp.before">改造前</span>
                 <span class="cmp-tag r" data-i18n="cmp.after">改造后</span>
@@ -1673,7 +1725,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
             <article class="cmp">
               <div class="cmp-head"><h4 data-i18n="c2.h">檐沟清理</h4><span>Gutter</span></div>
               <div class="cmp-frame" id="cmp2" tabindex="0" role="slider" aria-label="改造前后对比：整栋换新" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
-                <img class="is-before" src="./picture/before-after/case2/1.jpg" width="1920" height="2880" alt="改造前：檐沟堆满落叶">
+                <img class="is-before" src="./picture/before-after/case2/1.jpg" width="1920" height="2880" alt="改造前：檐沟堆满落叶" loading="lazy" decoding="async">
                 <img class="cmp-after" src="./picture/before-after/case2/2.png" width="350" height="350" alt="改造后：檐沟清掏后的通畅落水" loading="lazy">
                 <span class="cmp-tag l" data-i18n="cmp.before">改造前</span>
                 <span class="cmp-tag r" data-i18n="cmp.after">改造后</span>
@@ -1858,7 +1910,7 @@ html.intro-on,html.intro-on body{overflow:hidden}
     <div class="foot-inner">
       <div class="foot-left">
         <img src="./picture/logo/hd_logo.png" width="310" height="101" alt="名扬屋顶"
->
+ loading="lazy" decoding="async">
         <p>Roofing &amp; Painting · Since Now</p>
       </div>
       <nav class="foot-nav" aria-label="页脚导航">
