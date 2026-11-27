@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>登录 · 名扬屋顶后台</title>
+<style>
+:root{--black:#070708;--card:#101014;--line:#23232A;--gold:#C9A24A;--gold-hi:#E0C078;--paper:#F4EFE3;--muted:#8A8578}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{
+  background:radial-gradient(1200px 700px at 50% -10%,rgba(201,162,74,.10),transparent 60%),var(--black);
+  color:var(--paper);font:15px/1.7 -apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  display:flex;align-items:center;justify-content:center;padding:22px;
+}
+.box{width:100%;max-width:380px}
+.kick{font:600 10.5px/1 ui-monospace,Menlo,monospace;letter-spacing:.24em;color:var(--gold);text-transform:uppercase}
+h1{margin:12px 0 4px;font-size:30px;letter-spacing:-.5px}
+h1 em{font-style:normal;color:var(--gold)}
+p.sub{margin:0 0 26px;color:var(--muted);font-size:12.5px;line-height:1.7}
+label{display:block;font-size:11.5px;letter-spacing:.1em;color:var(--muted);margin:0 0 7px;font-family:ui-monospace,Menlo,monospace}
+input{
+  width:100%;height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--line);
+  background:var(--card);color:var(--paper);font-size:16px;outline:none;
+}
+input:focus{border-color:var(--gold)}
+.f{margin-bottom:16px}
+button{
+  width:100%;height:48px;border-radius:10px;border:1px solid var(--gold);
+  background:var(--gold);color:#0A0A0B;font-size:15px;font-weight:700;letter-spacing:.02em;cursor:pointer;
+}
+button:disabled{opacity:.55;cursor:default}
+.msg{margin-top:16px;font-size:12.5px;min-height:20px;color:#E89A8E}
+.msg.ok{color:var(--gold-hi)}
+.foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--line);color:var(--muted);font-size:11.5px;display:flex;justify-content:space-between;gap:10px}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--gold-hi)}
+@media(max-width:420px){h1{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="kick">Mainyoung · Admin</div>
+  <h1>名扬屋顶 <em>后台</em></h1>
+  <p class="sub">这里是内部工作台，只有同事能进。手机上把这个页面加到主屏幕，下次点开直接进。</p>
+  <form id="form" autocomplete="on">
+    <div class="f">
+      <label>账号</label>
+      <input id="u" name="username" type="text" autocomplete="username" autocapitalize="off" spellcheck="false" placeholder="管理员账号">
+    </div>
+    <div class="f">
+      <label>密码</label>
+      <input id="p" name="password" type="password" autocomplete="current-password" placeholder="密码">
+    </div>
+    <button id="go" type="submit">进入后台</button>
+  </form>
+  <div class="msg" id="msg"></div>
+  <div class="foot">
+    <span>© MAINYOUNG Roofing &amp; Painting</span>
+    <a href="/">回官网</a>
+  </div>
+</div>
+<script>
+(function () {
+  var $ = function (s) { return document.querySelector(s); };
+  var msg = $("#msg"), btn = $("#go"), form = $("#form");
+
+  function say(t, good) {
+    msg.className = "msg" + (good ? " ok" : "");
+    msg.textContent = t;
+  }
+
+  /* 本地双击打开：没有服务端，登录一定失败，先说清楚 */
+  if (location.protocol === "file:") {
+    say("你打开的是本地文件，登录要连服务器。用线上地址，或先在本机运行 node server.js 再访问 http://127.0.0.1:3000/login.html");
+    btn.disabled = true;
+    return;
+  }
+
+  /* 没配账号密码时把门开着，免得把自己锁在外面 */
+  fetch("/api/me", { credentials: "same-origin" })
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (j && j.ok === true && j.auth === false) {
+        say("还没配置管理员账号，正在进入…", true);
+        setTimeout(function () { location.replace("/admin.html"); }, 700);
+      }
+    })
+    .catch(function () {});
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var u = $("#u").value.trim(), p = $("#p").value;
+    if (!u || !p) { say("账号和密码都要填。"); return; }
+    btn.disabled = true;
+    say("正在验证…");
+    fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "same-origin",
+      body: JSON.stringify({ u: u, p: p })
+    })
+      .then(function (r) { return r.text().then(function (t) { return { s: r.status, t: t }; }); })
+      .then(function (r) {
+        var j = null;
+        try { j = JSON.parse(r.t); } catch (err) {}
+        if (r.s === 200 && j && j.ok) { say("验证通过，正在进入…", true); location.replace("/admin.html"); return; }
+        btn.disabled = false;
+        if (r.s === 401) { say("账号或密码不对。"); return; }
+        if (r.s === 429) { say("试太多次了，歇一分钟再来。"); return; }
+        if (r.s === 503) { say("后台还没配账号，去 Canner 设 ADMIN_USER / ADMIN_PASS。"); return; }
+        if (r.s === 404) { say("服务端还是旧版（没有 /api/login），先把 server.js 推上去。"); return; }
+        say("服务器返回 " + r.s + "，稍后再试。");
+      })
+      .catch(function () {
+        btn.disabled = false;
+        say("连不上服务器：多半是冷启动刚醒（约 10 秒），等几秒再点一次。");
+      });
+  });
+})();
+</script>
+</body>
+</html>

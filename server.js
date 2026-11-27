@@ -246,6 +246,131 @@ app.use((req, res, next) => {
   next();
 });
 
+/* ==================== 登录 / 会话 ==================== */
+const crypto = require('crypto');
+
+const AUTH_USER = String(process.env.ADMIN_USER || '').trim();
+const AUTH_PASS = String(process.env.ADMIN_PASS || '');
+const AUTH_ROLE = String(process.env.ADMIN_ROLE || 'admin').trim() || 'admin';
+const AUTH_ON = !!(AUTH_USER && AUTH_PASS);
+const AUTH_SECRET = process.env.AUTH_SECRET ||
+  crypto.createHash('sha256').update('my|' + AUTH_USER + '|' + AUTH_PASS + '|v1').digest('hex');
+const COOKIE_NAME = 'my_sess';
+const SESS_MS = 7 * 864e5;
+const ROLE_LABEL = { admin: '管理员', owner: '老板', staff: '员工' };
+
+function b64u(v) {
+  return Buffer.from(String(v), 'utf8').toString('base64')
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function unb64u(v) {
+  return Buffer.from(String(v).replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8');
+}
+function mac(data) {
+  return b64u(crypto.createHmac('sha256', AUTH_SECRET).update(data).digest('base64'));
+}
+function issueToken(user, role) {
+  const body = b64u(JSON.stringify({ u: user, r: role, e: Date.now() + SESS_MS }));
+  return body + '.' + mac(body);
+}
+function readSession(req) {
+  const raw = String(req.headers.cookie || '');
+  const m = raw.match(new RegExp('(?:^|; )' + COOKIE_NAME + '=([^;]+)'));
+  if (!m) return null;
+  const tok = decodeURIComponent(m[1]);
+  const dot = tok.lastIndexOf('.');
+  if (dot < 1) return null;
+  const body = tok.slice(0, dot), sig = tok.slice(dot + 1);
+  const good = mac(body);
+  if (sig.length !== good.length) return null;
+  try {
+    if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(good))) return null;
+  } catch (e) { return null; }
+  let o;
+  try { o = JSON.parse(unb64u(body)); } catch (e) { return null; }
+  if (!o || !o.e || o.e < Date.now()) return null;
+  return o;
+}
+function setSession(res, user, role) {
+  const secure = /^https:/i.test(String(process.env.SITE_ORIGIN || '')) || process.env.FORCE_SECURE_COOKIE === '1';
+  res.setHeader('Set-Cookie', COOKIE_NAME + '=' + encodeURIComponent(issueToken(user, role)) +
+    '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' + Math.floor(SESS_MS / 1000) + (secure ? '; Secure' : ''));
+}
+function clearSession(res) {
+  res.setHeader('Set-Cookie', COOKIE_NAME + '=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0');
+}
+function sameText(a, b) {
+  const A = Buffer.from(String(a)), B = Buffer.from(String(b));
+  const n = Math.max(A.length, B.length, 1);
+  const pa = Buffer.alloc(n), pb = Buffer.alloc(n);
+  A.copy(pa); B.copy(pb);
+  return A.length === B.length && crypto.timingSafeEqual(pa, pb);
+}
+
+/* 登录失败限流：同一 IP 10 分钟内最多 8 次 */
+const loginFails = new Map();
+function loginBlocked(ip) {
+  const now = Date.now();
+  const rec = loginFails.get(ip);
+  if (!rec) return false;
+  if (now - rec.t > 10 * 60e3) { loginFails.delete(ip); return false; }
+  return rec.n >= 8;
+}
+function loginFail(ip) {
+  const now = Date.now();
+  const rec = loginFails.get(ip);
+  if (!rec || now - rec.t > 10 * 60e3) loginFails.set(ip, { n: 1, t: now });
+  else { rec.n += 1; rec.t = now; }
+}
+
+app.post('/api/login', express.json({ limit: '4kb' }), (req, res) => {
+  const ip = (req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || '?';
+  if (!AUTH_ON) return res.status(503).json({ ok: false, code: 'noauth' });
+  if (loginBlocked(ip)) return res.status(429).json({ ok: false, code: 'rate' });
+  const u = String((req.body && req.body.u) || '').slice(0, 64);
+  const p = String((req.body && req.body.p) || '').slice(0, 128);
+  if (!u || !p || !sameText(u, AUTH_USER) || !sameText(p, AUTH_PASS)) {
+    loginFail(ip);
+    console.warn('[login] fail', u ? u.slice(0, 3) + '***' : '-', '-', ip);
+    return res.status(401).json({ ok: false });
+  }
+  loginFails.delete(ip);
+  setSession(res, AUTH_USER, AUTH_ROLE);
+  console.log('[login] ok', AUTH_USER, '(' + (ROLE_LABEL[AUTH_ROLE] || AUTH_ROLE) + ')', ip);
+  res.json({ ok: true, user: AUTH_USER, role: AUTH_ROLE });
+});
+
+app.post('/api/logout', (req, res) => {
+  clearSession(res);
+  res.json({ ok: true });
+});
+
+app.get('/api/me', (req, res) => {
+  if (!AUTH_ON) {
+    return res.json({ ok: true, auth: false, user: '本机', role: 'admin' });
+  }
+  const s = readSession(req);
+  if (!s) return res.status(401).json({ ok: false });
+  res.json({ ok: true, auth: true, user: s.u, role: s.r });
+});
+
+/* 后台页：没登录就发登录页（而不是 401，手机上体验更顺） */
+app.get(['/admin.html', '/admin'], (req, res, next) => {
+  if (!AUTH_ON) return next();
+  if (readSession(req)) return next();
+  res.setHeader('Cache-Control', 'no-cache');
+  fs.readFile(path.join(ROOT, 'login.html'), 'utf8', (err, html) => {
+    if (err) return res.status(500).type('text').send('login.html missing');
+    res.type('html').send(html);
+  });
+});
+
+app.get('/login.html', (req, res, next) => {
+  if (AUTH_ON && readSession(req)) return res.redirect(302, '/admin.html');
+  next();
+});
+/* ==================== 登录 / 会话 END ==================== */
+
 /* ---------- 接口 ---------- */
 app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
   const fakeOk = () => res.status(200).json({ ok: true });   // 给机器人看的
@@ -341,5 +466,6 @@ app.use(express.static(ROOT, {
 app.listen(PORT, () => {
   console.log('[boot] listening on ' + PORT +
     ' | dry=' + DRY + ' | smtp=' + SMTP_HOST + ':' + SMTP_PORT +
-    ' | to=' + MAIL_TO + ' | from=' + (SMTP_USER || '(未配置)'));
+    ' | to=' + MAIL_TO + ' | from=' + (SMTP_USER || '(未配置)') +
+    ' | auth=' + (AUTH_ON ? 'on(' + AUTH_USER + '/' + (ROLE_LABEL[AUTH_ROLE] || AUTH_ROLE) + ')' : 'off'));
 });
