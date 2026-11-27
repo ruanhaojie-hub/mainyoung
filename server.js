@@ -402,6 +402,65 @@ app.get('/login.html', (req, res, next) => {
 });
 /* ==================== 登录 / 会话 END ==================== */
 
+/* ---------- 官网询价存档：前端表单提交后存一份，后台来拉 ----------
+   存成 .data/inquiries.jsonl，一行一条。Canner 若把文件系统重置，
+   邮件仍是兜底（每单都会发到 MAIL_TO）。                                */
+const DATA_DIR = process.env.DATA_DIR || path.join(ROOT, ".data");
+const INQ_FILE = path.join(DATA_DIR, "inquiries.jsonl");
+let inqCache = null;
+let inqCacheMtime = 0;
+let inqSeq = 0;
+let inqDiskOK = true;
+
+function loadInquiries() {
+  const nowList = [];
+  try {
+    const st = fs.existsSync(INQ_FILE) ? fs.statSync(INQ_FILE) : null;
+    if (st && inqCache && st.mtimeMs === inqCacheMtime) return inqCache;
+    if (!st) { inqCache = inqCache || []; return inqCache; }
+    const txt = fs.readFileSync(INQ_FILE, "utf8");
+    txt.split("\n").forEach(line => {
+      const t = line.trim();
+      if (!t) return;
+      try {
+        const o = JSON.parse(t);
+        if (o && o.name) { nowList.push(o); }
+      } catch (e) {}
+    });
+    inqCache = nowList;
+    inqCacheMtime = st.mtimeMs;
+    inqSeq = nowList.reduce((m, x) => Math.max(m, Number(x.seq) || 0), 0);
+    return inqCache;
+  } catch (e) {
+    console.error("[inq] read failed:", e && e.message);
+    return inqCache || [];
+  }
+}
+
+function saveInquiry(rec) {
+  loadInquiries();
+  rec.seq = (inqSeq || 0) + 1;
+  inqSeq = rec.seq;
+  inqCache = (inqCache || []).concat([rec]);
+  if (!inqDiskOK) return rec;
+  try {
+    if (!fs.existsSync(DATA_DIR)) { fs.mkdirSync(DATA_DIR, { recursive: true }); }
+    fs.appendFileSync(INQ_FILE, JSON.stringify(rec) + "\n", "utf8");
+  } catch (e) {
+    inqDiskOK = false;
+    console.error("[inq] write failed (只留在内存，重启会丢):", e && e.message);
+  }
+  return rec;
+}
+
+/* 已登录才给看；员工不给（他们看不到客户资料） */
+function authGate(req, res) {
+  if (!AUTH_ON) { return { u: "本机", r: "admin" }; }
+  const sess = readSession(req);
+  if (!sess) { res.status(401).json({ ok: false }); return null; }
+  return sess;
+}
+
 /* ---------- 接口 ---------- */
 app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
   const fakeOk = () => res.status(200).json({ ok: true });   // 给机器人看的
@@ -445,13 +504,22 @@ app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
 
     inflight++;
     const t0 = Date.now();
+    /* 先拼好存档记录：发信成功/失败都要留，别把线索丢了 */
+    const rec = {
+      id: "q" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+      at: new Date().toISOString(),
+      name: name, phone: phone, email: email, services: services, message: message,
+      mailOk: false, ip: hashIp(ip)
+    };
     try {
       const d = {
         name, phone, email, services, message,
         at: new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', hour12: false }) + ' (CST)'
       };
       const info = await getTransporter().sendMail(composeMail(d));
+      rec.mailOk = true;
       console.log('[mail] sent in ' + (Date.now() - t0) + 'ms ->', MAIL_TO, '| ip', hashIp(ip), '|', info.messageId || 'ok');
+      saveInquiry(rec);
       if (DRY && info.message) console.log(String(info.message).slice(0, 800));
       res.status(200).json({ ok: true });
     } finally {
@@ -460,12 +528,25 @@ app.post('/api/quote', express.json({ limit: '8kb' }), async (req, res) => {
   } catch (err) {
     // 只记日志，不回吐细节
     console.error('[mail] failed:', (err && err.code) || (err && err.message) || 'unknown');
+    try { saveInquiry(Object.assign({}, rec, { mailOk: false })); } catch (e) {}
     res.status(503).json({ ok: false });
   }
 });
 
+/* 后台拉新询价：since 传上次拿到的 seq */
+app.get('/api/inquiries', (req, res) => {
+  const sess = authGate(req, res);
+  if (!sess) return;
+  if (sess.r === 'staff') return res.status(403).json({ ok: false, code: 'role' });
+  const since = Math.max(0, Number(req.query.since) || 0);
+  const all = loadInquiries();
+  const items = all.filter(x => (Number(x.seq) || 0) > since).slice(0, 100);
+  const last = all.length ? (Number(all[all.length - 1].seq) || since) : since;
+  res.json({ ok: true, items: items, last: last, total: all.length });
+});
+
 /* ---------- 静态站点（并给 index.html 注入桥接脚本） ---------- */
-const BLOCK = /^(node_modules|\.env|\.git|package\.json|package-lock\.json|server\.js|\.env\.example)/i;
+const BLOCK = /^(node_modules|\.data|\.env|\.git|package\.json|package-lock\.json|server\.js|\.env\.example)/i;
 
 app.get(['/', '/index.html'], (req, res, next) => {
   fs.readFile(path.join(ROOT, 'index.html'), 'utf8', (err, html) => {
@@ -506,6 +587,7 @@ app.listen(PORT, () => {
   console.log('[boot] listening on ' + PORT +
     ' | dry=' + DRY + ' | smtp=' + SMTP_HOST + ':' + SMTP_PORT +
     ' | to=' + MAIL_TO + ' | from=' + (SMTP_USER || '(未配置)') +
+    ' | store=' + DATA_DIR +
     ' | auth=' + (AUTH_ON
       ? 'on(' + ACCOUNTS.map(a => a.u + '=' + a.r).join(', ') + ')' : 'off'));
 });

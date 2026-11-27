@@ -576,6 +576,7 @@ select.sel{
       <div class="spacer"></div>
       <button class="btn" id="csvCust">导出客户 CSV</button>
       <button class="btn" id="csvInv">导出发票 CSV</button>
+      <button class="btn gold" id="syncInq">同步官网询价</button>
     </div>
 
     <div id="todoBand" class="todo-band"></div>
@@ -3289,6 +3290,88 @@ function persistEvtQuiet() {
     });
   }
 
+  /* ===================== 官网询价 → 后台台账 ===================== */
+  var INQ_CUR = "myinq.cursor";
+
+  function inqServiceNames(txt) {
+    var list = ["屋顶更换", "水槽清理", "油漆粉刷", "屋顶修理", "屋顶养护", "房屋养护"];
+    var hit = list.filter(function (n) { return String(txt || "").indexOf(n) > -1; });
+    return hit;
+  }
+
+  function importInquiry(q) {
+    var phone = String(q.phone || "").replace(/[^\d]/g, "");
+    var day = String(q.at || "").slice(0, 10) || today();
+    var note = q.message ? "官网留言：" + q.message : "官网表单询价";
+    if (q.mailOk === false) { note += "（当时邮件没发出去）"; }
+    var data = {
+      name: String(q.name || "官网询价").slice(0, 40),
+      phone: String(q.phone || ""),
+      email: String(q.email || ""),
+      addr: "",
+      source: "官网表单",
+      status: "新询价",
+      firstDate: day,
+      budget: "", house: "", area: "", urgency: "",
+      note: note,
+      services: inqServiceNames(q.services),
+      apptDate: "", apptStart: "", apptEnd: ""
+    };
+    data.nextVisit = addDays(autoDaysFor(data.services));
+    var dup = null;
+    if (phone) {
+      dup = S.customers.filter(function (c) {
+        return String(c.phone || "").replace(/[^\d]/g, "") === phone;
+      })[0] || null;
+    }
+    if (dup) {
+      data.logs = [{ at: today(), txt: "官网询价并入（表单 " + day + "）" }];
+      mergeCustomer(dup, data);
+      return dup.id;
+    }
+    data.id = uid();
+    data.createdAt = day;
+    data.logs = [{ at: today(), txt: "官网询价自动录入（表单 " + day + "）" }];
+    S.customers.unshift(data);
+    return data.id;
+  }
+
+  function pullInquiries(manual) {
+    if (ui.role === "staff") { return; }
+    if (typeof fetch !== "function") { if (manual) { toast("这个环境连不上服务器"); } return; }
+    var since = Number(localStorage.getItem(INQ_CUR) || 0) || 0;
+    if (manual) { toast("正在同步…"); }
+    fetch("/api/inquiries?since=" + since, { credentials: "same-origin" })
+      .then(function (r) {
+        if (r.status === 401) { if (manual) { toast("登录过期了，重新登录再同步"); } return null; }
+        if (r.status === 403) { return null; }
+        if (!r.ok) { throw new Error("http " + r.status); }
+        return r.json();
+      })
+      .then(function (j) {
+        if (!j || !j.ok) { return; }
+        var items = j.items || [];
+        if (!items.length) { if (manual) { toast("没有新的官网询价"); } return; }
+        var added = 0, merged = 0;
+        items.forEach(function (q) {
+          var before = S.customers.length;
+          importInquiry(q);
+          if (S.customers.length > before) { added++; } else { merged++; }
+        });
+        save();
+        try { localStorage.setItem(INQ_CUR, String(j.last || since)); } catch (e) {}
+        render();
+        var msg = added ? "新增 " + added + " 条官网询价" : "";
+        if (merged) { msg += (msg ? "，" : "") + merged + " 条并入老客户"; }
+        toast(msg || "已同步");
+      })
+      .catch(function () { if (manual) { toast("同步失败，检查网络或服务器"); } });
+  }
+
+  if ($("#syncInq")) {
+    $("#syncInq").addEventListener("click", function () { pullInquiries(true); });
+  }
+
   /* ===================== 登录态 / 角色 ===================== */
   var ROLE_LABEL = { admin: "管理员", owner: "老板", staff: "员工" };
 
@@ -3318,6 +3401,7 @@ function persistEvtQuiet() {
       ui.authOn = !!(j && j.auth);
       paintWho();
       applyRole();
+      pullInquiries();
     };
     if (typeof fetch !== "function") { settle(null); return; }
     fetch("/api/me", { credentials: "same-origin" })
