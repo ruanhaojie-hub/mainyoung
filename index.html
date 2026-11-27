@@ -999,6 +999,50 @@ html[lang="en"] .pj-body .en{display:none;}
 .submit:disabled{opacity:.55;cursor:progress;transform:none;box-shadow:none;}
 .submit svg{width:14px;height:14px;}
 
+/* ---- 手动兜底面板：自动投递失败时才出现 ---- */
+.manual{
+  padding:20px 22px;
+  border:1px solid var(--gold-line);background:rgba(217,188,107,.045);
+}
+.manual[hidden]{display:none;}
+.manual-lead{
+  margin:0 0 13px;font-size:12.5px;line-height:1.95;color:var(--muted);
+  text-wrap:pretty;
+}
+.manual-lead b{color:var(--gold-hi);font-weight:500;}
+.manual-box{
+  display:block;width:100%;box-sizing:border-box;
+  min-height:148px;resize:vertical;
+  padding:12px 14px;
+  border:1px solid var(--line);background:#08080A;
+  color:var(--paper);font-family:var(--mono);font-size:11.5px;line-height:1.9;
+  letter-spacing:.01em;outline:none;
+}
+.manual-box:focus{border-color:var(--gold-line);}
+.manual-btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:13px;}
+.manual-btn{
+  display:inline-flex;align-items:center;gap:7px;height:40px;padding:0 16px;
+  border:1px solid var(--gold-line);background:transparent;color:var(--gold);
+  font-family:var(--sans);font-size:12px;letter-spacing:.06em;
+  text-decoration:none;cursor:pointer;
+  transition:background-color .3s,border-color .3s,color .3s;
+}
+.manual-btn:hover{background:rgba(217,188,107,.11);border-color:var(--gold);color:var(--gold-hi);}
+.manual-btn.is-key{background:rgba(217,188,107,.14);}
+.manual-alts{
+  display:flex;flex-wrap:wrap;gap:9px 22px;margin:14px 0 0;
+}
+.manual-alts a{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);
+  text-decoration:none;padding-bottom:2px;border-bottom:1px solid var(--line);
+  transition:color .3s,border-color .3s;
+}
+.manual-alts a:hover,.manual-alts a:focus-visible{color:var(--gold-hi);border-bottom-color:var(--gold-line);}
+.manual-tip{
+  margin:11px 0 0;min-height:14px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--gold-dim);
+}
+
 /* ---- 新增板块响应式 ---- */
 @media (max-width:1280px){
   .work,.projects,.compare,.quote{padding:104px 0;}
@@ -1688,6 +1732,20 @@ html[lang="en"] .pj-body .en{display:none;}
             </button>
           </div>
         </div>
+
+        <!-- 自动发送没走通时出现：内容已排好，复制即可（不再自动调起系统邮件客户端） -->
+        <div class="manual" id="manualSend" hidden>
+          <p class="manual-lead" data-i18n="f.manualLead">自动发送没走通。下面这段已按你填的内容排好 —— 点「复制这段内容」，粘到邮件里发到 <b>main-young@hotmail.com</b> 就行；赶时间也可以直接打电话。</p>
+          <textarea class="manual-box" id="manualBox" readonly aria-label="询价内容"></textarea>
+          <div class="manual-btns">
+            <button class="manual-btn is-key" id="manualCopy" type="button" data-i18n="f.copy">复制这段内容</button>
+            <button class="manual-btn" id="manualMailCopy" type="button" data-i18n="f.copyMail">复制邮箱地址</button>
+          </div>
+          <p class="manual-alts">
+            <a href="tel:+17782391111" data-i18n="f.callNow">直接打电话 778-239-1111</a>
+          </p>
+          <div class="manual-tip" id="manualTip"></div>
+        </div>
       </form>
     </div>
   </div>
@@ -2150,7 +2208,20 @@ html[lang="en"] .pj-body .en{display:none;}
     "f.submit": { zh: "提交询价", en: "Send Enquiry" },
     "f.sending": { zh: "发送中…", en: "Sending…" },
     "f.ok": { zh: "已发送，我们会尽快联系你。", en: "Sent. We will be in touch shortly." },
-    "f.fail": { zh: "网络没通，已为你打开邮件客户端，点发送即可。", en: "No connection — we opened your mail app instead. Press send there." },
+    "f.fail": { zh: "这次没能自动送达，你填的内容已原样留在下面。", en: "This time it didn't go through automatically — your text is kept below, nothing lost." },
+    "f.manualLead": {
+      zh: "你填的内容一个字没丢，就在下面。复制这段发到 main-young@hotmail.com 即可；想更快，直接打电话 778-239-1111。",
+      en: "Nothing you typed is lost — it's all below. Copy it and email main-young@hotmail.com, or just call 778-239-1111 for a faster answer."
+    },
+    "f.copy": { zh: "复制这段内容", en: "Copy this" },
+    "f.copied": { zh: "已复制，去粘贴发邮件吧。", en: "Copied — paste it into your email." },
+    "f.copyFail": { zh: "复制失败：请在框里全选后按 Ctrl+C。", en: "Copy failed — select the text and press Ctrl+C." },
+    "f.openMail": { zh: "用邮件客户端发送（推荐）", en: "Open in mail app (recommended)" },
+    "f.callNow": { zh: "直接打电话 778-239-1111", en: "Call 778-239-1111" },
+    "f.copyMail": { zh: "复制邮箱地址", en: "Copy email address" },
+    "f.gmail": { zh: "用 Gmail 网页发送", en: "Send via Gmail web" },
+    "f.outlook": { zh: "用 Outlook 网页发送", en: "Send via Outlook web" },
+    "f.mailCopied": { zh: "邮箱地址已复制：", en: "Address copied: " },
 
     "ct.btn1": { zh: "直接打电话", en: "Call us now" },
     "ct.btn2": { zh: "发一封邮件", en: "Send an email" },
@@ -2270,8 +2341,26 @@ html[lang="en"] .pj-body .en{display:none;}
   var fPhone = document.getElementById("fPhone");
   var fEmail = document.getElementById("fEmail");
 
-  var ENDPOINT = "https://formsubmit.co/ajax/main-young@hotmail.com";
+  /* ===== 询价投递配置（只改这几行） =====
+     ① 自动投递（首选，已实测本机能通）：去 https://formspree.io 用 main-young@hotmail.com
+        注册免费账号 → 新建一个 form → 收件邮箱填 main-young@hotmail.com → 点邮件里的确认，
+        页面上会给你一个 https://formspree.io/f/xxxxxxxx 的地址，把 f/ 后面那串填进 FORMSPREE_ID。
+        免费额度 50 封/月，超出再考虑付费或改用下面的 Web3Forms。
+     ①-b 备选：去 https://web3forms.com 输入 main-young@hotmail.com，
+        到那个邮箱点一下验证信里的按钮，就会给你一串 Access Key（形如 6f1a2b3c-....），
+        把 key 粘到下面的引号里，询价就直接进邮箱。免费 250 封/月，国内网络可达。
+     ② 留空时退回 FormSubmit（formsubmit.co）：它在部分网络（含国内部分宽带）握手直接卡死，
+        表现为"页面转半天然后提示发送失败"。
+     ③ 以上都没配或都走不通时，页面弹出"手动发送"面板：内容已排好，
+        一键「用邮件客户端发送 / Gmail 网页 / Outlook 网页 / 复制 / 打电话」，绝不丢客。
+        注意：绝不再自动调起系统邮件客户端 —— Windows 10/11 自带的"邮件"应用已停止服务，
+        草稿会永远卡在发件箱里显示"仍在处理中"。
+     ===================================================== */
+  var FORMSPREE_ID = "";
+  var WEB3FORMS_KEY = "";
   var TO_MAIL = "main-young@hotmail.com";
+  var ENDPOINT = "https://formsubmit.co/ajax/main-young@hotmail.com";
+  var W3F_ENDPOINT = "https://api.web3forms.com/submit";
 
   function setStatus(key, tone) {
     if (!statusEl) { return; }
@@ -2315,6 +2404,112 @@ html[lang="en"] .pj-body .en{display:none;}
       "&body=" + encodeURIComponent(body);
   }
 
+  /* 手动兜底：把表单内容排成一段可直接粘贴的文本 */
+  var manualEl = document.getElementById("manualSend");
+  var manualBox = document.getElementById("manualBox");
+  var manualCopy = document.getElementById("manualCopy");
+  var manualMailCopy = document.getElementById("manualMailCopy");
+  var manualTip = document.getElementById("manualTip");
+
+  function bodyText(services) {
+    return [
+      "姓名 / Name：" + (nameEl.value || "").trim(),
+      "电话 / Phone：" + (phoneEl.value || "").trim(),
+      "邮箱 / Email：" + (mailEl.value || "").trim(),
+      "服务 / Services：" + services.join(" / "),
+      "",
+      "留言 / Message：",
+      (msgEl.value || "").trim() || "（未填写 / not filled）"
+    ].join("\n");
+  }
+  function manualText(services) {
+    return [
+      "收件人：" + TO_MAIL,
+      "主题：名扬屋顶官网询价 · " + (nameEl.value || "").trim(),
+      "",
+      "姓名 / Name：" + (nameEl.value || "").trim(),
+      "电话 / Phone：" + (phoneEl.value || "").trim(),
+      "邮箱 / Email：" + (mailEl.value || "").trim(),
+      "服务 / Services：" + services.join(" / "),
+      "",
+      "留言 / Message：",
+      (msgEl.value || "").trim() || "（未填写）"
+    ].join("\n");
+  }
+  function showManual(services) {
+    if (!manualEl || !manualBox) { return; }
+    manualBox.value = manualText(services);
+    if (manualTip) { manualTip.textContent = ""; }
+    manualEl.hidden = false;
+    try { manualEl.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {}
+  }
+  function hideManual() {
+    if (manualEl) { manualEl.hidden = true; }
+  }
+  function copyText(txt, okKey, failKey) {
+    function fallbackCopy() {
+      manualBox.removeAttribute("readonly");
+      manualBox.focus();
+      manualBox.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      manualBox.setAttribute("readonly", "readonly");
+      if (manualTip) { manualTip.textContent = t(ok ? okKey : failKey); }
+    }
+    if (window.navigator.clipboard && window.navigator.clipboard.writeText) {
+      window.navigator.clipboard.writeText(txt).then(function () {
+        if (manualTip) { manualTip.textContent = t(okKey); }
+      }).catch(fallbackCopy);
+    } else { fallbackCopy(); }
+  }
+  if (manualCopy) {
+    manualCopy.addEventListener("click", function () {
+      copyText(manualBox ? manualBox.value : "", "f.copied", "f.copyFail");
+    });
+  }
+  if (manualMailCopy) {
+    manualMailCopy.addEventListener("click", function () {
+      copyText(TO_MAIL, "f.mailCopied", "f.copyFail");
+      if (manualTip && manualTip.textContent.indexOf(TO_MAIL) < 0) {
+        manualTip.textContent = t("f.mailCopied") + TO_MAIL;
+      }
+    });
+  }
+
+  /* 自动投递（Formspree）报文 */
+  function fspBody(services) {
+    var mail = (mailEl.value || "").trim();
+    var d = {
+      "姓名 Name": (nameEl.value || "").trim(),
+      "电话 Phone": (phoneEl.value || "").trim(),
+      "邮箱 Email": mail,
+      "服务 Services": services.join(" / "),
+      "留言 Message": (msgEl.value || "").trim(),
+      "提交时间 Time": new Date().toLocaleString("zh-CN", { hour12: false }),
+      _subject: "名扬屋顶官网询价 · " + (nameEl.value || "").trim()
+    };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { d._replyto = mail; }
+    return d;
+  }
+
+  /* 自动投递（Web3Forms）报文 */
+  function w3fBody(services) {
+    var mail = (mailEl.value || "").trim();
+    var d = {
+      access_key: WEB3FORMS_KEY,
+      subject: "名扬屋顶官网询价 · " + (nameEl.value || "").trim(),
+      from_name: "名扬屋顶 MAINYOUNG 官网",
+      "姓名 Name": (nameEl.value || "").trim(),
+      "电话 Phone": (phoneEl.value || "").trim(),
+      "邮箱 Email": mail,
+      "服务 Services": services.join(" / "),
+      "留言 Message": (msgEl.value || "").trim(),
+      "提交时间 Time": new Date().toLocaleString("zh-CN", { hour12: false })
+    };
+    if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) { d.replyto = mail; }
+    return d;
+  }
+
   if (form) {
     form.addEventListener("submit", function (e) {
       e.preventDefault();
@@ -2342,6 +2537,7 @@ html[lang="en"] .pj-body .en{display:none;}
 
       setStatus("f.sending", "");
       submitBtn.disabled = true;
+      hideManual();
 
       var done = false;
       function finishSuccess() {
@@ -2353,35 +2549,63 @@ html[lang="en"] .pj-body .en{display:none;}
         updateMsLabel();
         Array.prototype.forEach.call(form.querySelectorAll(".field"), function (f) { f.classList.remove("is-bad"); });
       }
-      function finishFallback() {
+      function finishManual() {
         if (done) { return; }
         done = true;
         submitBtn.disabled = false;
         setStatus("f.fail", "is-bad");
-        window.location.href = mailtoHref(services);
+        showManual(services);
       }
 
+      /* 投递优先级：Formspree（配了 ID）→ Web3Forms（配了 key）→ FormSubmit；都失败转手动兜底 */
+      var hasFsp = FORMSPREE_ID && FORMSPREE_ID.length > 4;
+      var hasW3F = WEB3FORMS_KEY && WEB3FORMS_KEY.length > 8;
+      var url = hasFsp ? ("https://formspree.io/f/" + FORMSPREE_ID)
+                : (hasW3F ? W3F_ENDPOINT : ENDPOINT);
+      var body = hasFsp ? fspBody(services) : (hasW3F ? w3fBody(services) : payloadOf(services));
+      var wait = (hasFsp || hasW3F) ? 15000 : 6000;
+
+      var ctrl = ("AbortController" in window) ? new AbortController() : null;
+      var settled = false;
+      function settleOnce() { settled = true; }
+      var to = window.setTimeout(function () {
+        if (settled) { return; }
+        settleOnce();
+        if (ctrl) { try { ctrl.abort(); } catch (e) {} }
+        finishManual();
+      }, wait);
+
       try {
-        var ctrl = ("AbortController" in window) ? new AbortController() : null;
-        var to = window.setTimeout(function () { if (ctrl) { ctrl.abort(); } finishFallback(); }, 12000);
-        window.fetch(ENDPOINT, {
+        window.fetch(url, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Accept": "application/json" },
-          body: JSON.stringify(payloadOf(services)),
+          body: JSON.stringify(body),
           signal: ctrl ? ctrl.signal : undefined
         }).then(function (r) {
-          if (!r.ok) { throw new Error("http " + r.status); }
-          return r.json();
+          return r.text().then(function (txt) {
+            var d = null;
+            try { d = JSON.parse(txt); } catch (e) {}
+            if (!r.ok && !d) { throw new Error("http " + r.status); }
+            return d;
+          });
         }).then(function (d) {
+          if (settled) { return; }
+          settleOnce();
           window.clearTimeout(to);
-          if (d && (d.success === "true" || d.success === true)) { finishSuccess(); }
-          else { finishFallback(); }
+          /* Formspree 回 {"ok":true}，Web3Forms 回 {"success":"true"}，FormSubmit 回 success:true */
+          var okFlag = d && (d.success === true || d.success === "true" || d.ok === true || d.ok === "true");
+          if (okFlag) { finishSuccess(); }
+          else { finishManual(); }
         }).catch(function () {
+          if (settled) { return; }
+          settleOnce();
           window.clearTimeout(to);
-          finishFallback();
+          finishManual();
         });
       } catch (err) {
-        finishFallback();
+        settleOnce();
+        window.clearTimeout(to);
+        finishManual();
       }
     });
 
