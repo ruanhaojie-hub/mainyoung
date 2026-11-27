@@ -1237,6 +1237,28 @@ html.intro-on,html.intro-on body{overflow:hidden}
   .intro{display:none!important}
 }
 </style>
+<style id="qrPopStyle">
+/* ===== 社交图标二维码浮层 ===== */
+.qr-pop{position:fixed;z-index:9998;left:0;top:0;opacity:0;pointer-events:none;
+  transform:translateY(8px) scale(.985);transition:opacity .18s ease,transform .18s cubic-bezier(.22,1,.36,1);}
+.qr-pop.on{opacity:1;pointer-events:auto;transform:none;}
+.qr-pop .qr-card{position:relative;width:214px;background:#FFFDF6;border:1px solid rgba(196,160,88,.55);
+  border-radius:13px;padding:12px 12px 10px;box-shadow:0 20px 46px rgba(0,0,0,.5);text-align:center;}
+.qr-pop .qr-card img{display:block;width:188px;height:188px;margin:0 auto;border-radius:8px;background:#FFFDF6;}
+.qr-pop .qr-t{font-size:12px;letter-spacing:.02em;color:#141416;margin:9px 0 0;font-weight:600;}
+.qr-pop .qr-h{font-size:11px;color:#7A6A45;margin:3px 0 0;}
+.qr-pop .qr-a{display:inline-block;margin-top:7px;font-size:11.5px;color:#8A6A1F;border-bottom:1px solid rgba(138,106,31,.5);}
+.qr-pop .qr-x{position:absolute;top:6px;right:8px;width:22px;height:22px;line-height:20px;text-align:center;
+  border-radius:50%;color:#8A6A1F;font-size:15px;cursor:pointer;background:rgba(0,0,0,.04);}
+.qr-pop .qr-x:hover{background:rgba(0,0,0,.1);}
+.qr-pop .qr-ar{position:absolute;left:50%;bottom:-7px;width:12px;height:12px;margin-left:-6px;background:#FFFDF6;
+  border-right:1px solid rgba(196,160,88,.55);border-bottom:1px solid rgba(196,160,88,.55);transform:rotate(45deg);}
+.qr-pop.below .qr-ar{bottom:auto;top:-7px;transform:rotate(225deg);}
+@media (max-width:520px){
+  .qr-pop .qr-card{width:min(214px,calc(100vw - 28px));}
+  .qr-pop .qr-card img{width:190px;height:190px;max-width:100%;}
+}
+</style>
 </head>
 <body>
 
@@ -1368,13 +1390,13 @@ html.intro-on,html.intro-on body{overflow:hidden}
       </div>
 
       <div class="socials" aria-label="社交媒体">
-        <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" title="抖音 Douyin" aria-label="抖音">
+        <a class="social" href="https://v.douyin.com/KBXN5npbLrw/" data-qr="picture/logo/douyin_pic.png" data-qr-title="抖音 Douyin · 扫码关注" target="_blank" rel="noopener" title="抖音 Douyin" aria-label="抖音">
           <i class="iconfont icon-douyin" aria-hidden="true"></i>
         </a>
-        <a class="social" href="#wechat" title="微信 WeChat" aria-label="微信">
+        <a class="social" href="#wechat" data-qr="picture/logo/weixin_pic.png" data-qr-title="微信 WeChat · 扫码加我" title="微信 WeChat" aria-label="微信">
           <i class="iconfont icon-weixin" aria-hidden="true"></i>
         </a>
-        <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" title="小红书 Xiaohongshu" aria-label="小红书">
+        <a class="social" href="https://xhslink.cn/o/1eU3lPxifsQ" data-qr="picture/logo/xiaohongshu_pic.png" data-qr-title="小红书 · 扫码看笔记" target="_blank" rel="noopener" title="小红书 Xiaohongshu" aria-label="小红书">
           <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
         </a>
         <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" title="Facebook" aria-label="Facebook">
@@ -1417,13 +1439,13 @@ html.intro-on,html.intro-on body{overflow:hidden}
       <a href="mailto:main-young@hotmail.com">main-young@hotmail.com</a>
     </div>
     <div class="drawer-socials">
-      <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
+      <a class="social" href="https://v.douyin.com/KBXN5npbLrw/" data-qr="picture/logo/douyin_pic.png" data-qr-title="抖音 Douyin · 扫码关注" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
         <i class="iconfont icon-douyin" aria-hidden="true"></i>
       </a>
-      <a class="social" href="#wechat" aria-label="微信" title="微信">
+      <a class="social" href="#wechat" data-qr="picture/logo/weixin_pic.png" data-qr-title="微信 WeChat · 扫码加我" aria-label="微信" title="微信">
         <i class="iconfont icon-weixin" aria-hidden="true"></i>
       </a>
-      <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
+      <a class="social" href="https://xhslink.cn/o/1eU3lPxifsQ" data-qr="picture/logo/xiaohongshu_pic.png" data-qr-title="小红书 · 扫码看笔记" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
         <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
       </a>
       <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
@@ -1929,13 +1951,13 @@ html.intro-on,html.intro-on body{overflow:hidden}
         <a href="#contact">Contact</a>
       </nav>
       <div class="foot-right">
-        <a class="social" href="https://www.douyin.com/" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
+        <a class="social" href="https://v.douyin.com/KBXN5npbLrw/" data-qr="picture/logo/douyin_pic.png" data-qr-title="抖音 Douyin · 扫码关注" target="_blank" rel="noopener" aria-label="抖音" title="抖音">
           <i class="iconfont icon-douyin" aria-hidden="true"></i>
         </a>
-        <a class="social" href="#wechat" aria-label="微信" title="微信">
+        <a class="social" href="#wechat" data-qr="picture/logo/weixin_pic.png" data-qr-title="微信 WeChat · 扫码加我" aria-label="微信" title="微信">
           <i class="iconfont icon-weixin" aria-hidden="true"></i>
         </a>
-        <a class="social" href="https://www.xiaohongshu.com/" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
+        <a class="social" href="https://xhslink.cn/o/1eU3lPxifsQ" data-qr="picture/logo/xiaohongshu_pic.png" data-qr-title="小红书 · 扫码看笔记" target="_blank" rel="noopener" aria-label="小红书" title="小红书">
           <i class="iconfont icon-xiaohongshu" aria-hidden="true"></i>
         </a>
         <a class="social" href="https://www.facebook.com/" target="_blank" rel="noopener" aria-label="Facebook" title="Facebook">
@@ -2858,6 +2880,88 @@ html.intro-on,html.intro-on body{overflow:hidden}
   var saved = "zh";
   try { saved = window.localStorage.getItem(LANG_KEY) || "zh"; } catch (err) {}
   paint(saved === "en" ? "en" : "zh");
+})();
+</script>
+<script id="qrPopScript">
+(function () {
+  var links = [].slice.call(document.querySelectorAll('a.social[data-qr]'));
+  if (!links.length) return;
+  var HOVER = !!(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
+  var pop = document.createElement('div');
+  pop.className = 'qr-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-label', '二维码');
+  pop.innerHTML = '<div class="qr-card"><span class="qr-x" role="button" tabindex="0" aria-label="关闭">×</span>' +
+    '<img alt="" decoding="async">' +
+    '<p class="qr-t"></p><p class="qr-h">用手机扫一扫</p>' +
+    '<a class="qr-a" target="_blank" rel="noopener">在手机上打开</a>' +
+    '<span class="qr-ar"></span></div>';
+  document.body.appendChild(pop);
+  var img = pop.querySelector('img'), ttl = pop.querySelector('.qr-t'),
+      al = pop.querySelector('.qr-a'), cur = null, timer = null, sticky = false;
+
+  function place(a) {
+    var r = a.getBoundingClientRect();
+    var cw = pop.offsetWidth || 214, ch = pop.offsetHeight || 280;
+    var left = r.left + r.width / 2 - cw / 2;
+    left = Math.max(10, Math.min(left, document.documentElement.clientWidth - cw - 10));
+    var below = r.top < ch + 18;
+    var top = below ? r.bottom + 10 : r.top - ch - 10;
+    pop.style.left = Math.round(left) + 'px';
+    pop.style.top = Math.round(top) + 'px';
+    pop.classList.toggle('below', below);
+  }
+
+  function show(a, persist) {
+    clearTimeout(timer);
+    if (cur !== a) {
+      img.src = a.getAttribute('data-qr');
+      img.alt = a.getAttribute('data-qr-title') || '';
+      ttl.textContent = a.getAttribute('data-qr-title') || '';
+    }
+    var href = a.getAttribute('href') || '';
+    if (/^https?:/i.test(href)) { al.href = href; al.style.display = ''; } else { al.style.display = 'none'; }
+    cur = a; sticky = !!persist;
+    pop.classList.add('on');
+    place(a);
+    a.setAttribute('aria-expanded', 'true');
+  }
+
+  function hide(delay) {
+    clearTimeout(timer);
+    timer = setTimeout(function () {
+      pop.classList.remove('on');
+      if (cur) cur.setAttribute('aria-expanded', 'false');
+      sticky = false;
+    }, delay || 0);
+  }
+
+  links.forEach(function (a) {
+    a.setAttribute('aria-haspopup', 'dialog');
+    a.setAttribute('aria-expanded', 'false');
+    a.addEventListener('mouseenter', function () { show(a); });
+    a.addEventListener('mouseleave', function () { if (!sticky) hide(160); });
+    a.addEventListener('focus', function () { show(a); });
+    a.addEventListener('blur', function () { if (!sticky) hide(0); });
+    a.addEventListener('click', function (e) {
+      var href = a.getAttribute('href') || '';
+      if (href === '#wechat' || !HOVER) {
+        e.preventDefault();
+        if (sticky && cur === a && pop.classList.contains('on')) { hide(0); sticky = false; }
+        else { show(a, true); }
+      }
+    });
+  });
+
+  pop.addEventListener('mouseenter', function () { clearTimeout(timer); });
+  pop.addEventListener('mouseleave', function () { if (!sticky) hide(160); });
+  pop.querySelector('.qr-x').addEventListener('click', function () { hide(0); sticky = false; });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { hide(0); sticky = false; } });
+  document.addEventListener('touchstart', function (e) {
+    if (!pop.contains(e.target) && !e.target.closest('a.social[data-qr]')) { hide(0); sticky = false; }
+  }, { passive: true });
+  window.addEventListener('scroll', function () { if (pop.classList.contains('on') && cur) place(cur); }, { passive: true });
+  window.addEventListener('resize', function () { if (pop.classList.contains('on') && cur) place(cur); });
 })();
 </script>
 </body>

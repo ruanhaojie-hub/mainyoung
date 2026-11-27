@@ -215,7 +215,7 @@ select.sel{
 .item .meta{color:var(--muted);font-size:12px;margin-top:4px}
 
 /* 表单 / 弹层 */
-.mask{position:fixed;inset:0;z-index:60;background:rgba(4,4,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:5vh 16px}
+.mask{position:fixed;inset:0;z-index:76;background:rgba(4,4,5,.72);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:5vh 16px}
 .sheet{
   width:100%;max-width:620px;background:var(--black-2);border:1px solid var(--line);
   border-radius:14px;padding:22px 22px 18px;
@@ -369,7 +369,7 @@ select.sel{
 }
 
 /* ================= 详细化补充 ================= */
-.row-inline{display:flex;gap:8px;align-items:center}
+.row-inline{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .row-inline input{flex:1 1 auto;min-width:0}
 .row-inline .btn{flex:0 0 auto;padding:0 10px;height:34px}
 .spec{display:grid;grid-template-columns:1fr 1fr;gap:0 16px;margin:0 0 20px}
@@ -377,6 +377,12 @@ select.sel{
 .spec .it .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
 .spec .it .v{font-size:12.5px;line-height:1.6;margin-top:3px;overflow-wrap:anywhere}
 @media (max-width:600px){ .spec{grid-template-columns:1fr} }
+
+/* 原生日期/时间控件在深色底下的图标与可读性 */
+input[type=date],input[type=time],input[type=datetime-local]{color-scheme:dark}
+input[type=date]::-webkit-calendar-picker-indicator,input[type=time]::-webkit-calendar-picker-indicator{opacity:.8;cursor:pointer;filter:invert(.12)}
+input[type=date]::-webkit-calendar-picker-indicator:hover,input[type=time]::-webkit-calendar-picker-indicator:hover{opacity:1}
+
 
 /* 小屏预览缩放（仅屏幕，打印不受影响） */
 @media screen and (max-width:900px){ .paper{zoom:.62} }
@@ -405,6 +411,11 @@ select.sel{
             background:#0F0F13;color:var(--paper);font:400 13px/1.4 var(--sans);outline:none}
 .qrow input:focus{border-color:var(--gold-dim);background:#131318}
 .qrow input::placeholder{color:rgba(244,239,227,.28)}
+.qrow select{width:100%;padding:9px 28px 9px 10px;border-radius:6px;border:1px solid var(--line);
+            background:#0F0F13;color:var(--paper);font:400 13px/1.4 var(--sans);outline:none;
+            color-scheme:dark;cursor:pointer;text-overflow:ellipsis}
+.qrow select:focus{border-color:var(--gold-dim);background:#131318}
+
 .qsum{margin:14px 0 4px;font:500 12px/1 var(--mono);letter-spacing:.08em;color:var(--muted);text-transform:uppercase}
 .qsum b{font:600 20px/1 var(--mono);color:var(--gold-hi);margin-left:8px;letter-spacing:.02em}
 .trash-item{display:flex;justify-content:space-between;align-items:center;gap:14px;
@@ -483,6 +494,16 @@ select.sel{
 .sched .row-inline input[type=number]{flex:0 0 82px;max-width:82px}
 .sched .row-inline input[type=date]{flex:1 1 128px;min-width:0}
 .sched .row-inline input[type=time]{flex:0 0 96px;max-width:96px}
+/* 手机：日期整行、两个时间各占一半、按钮整行（避免挤出屏幕） */
+@media (max-width:640px){
+  .sched .row-inline input[type=date]{flex:1 1 100%;max-width:none}
+  .sched .row-inline input[type=time]{flex:1 1 0;min-width:0;max-width:none}
+  .sched .row-inline input[type=number]{flex:0 0 72px;max-width:72px}
+  .sched .row-inline .btn{flex:1 1 100%;justify-content:center;height:36px}
+  .logform textarea,.logform input#logTxt{grid-column:1 / -1}
+  .logform .btn{grid-column:1 / -1;justify-content:center}
+  .logform input,.logform select{min-width:0}
+}
 .sched .f{margin-bottom:10px}
 .sched .f:last-child{margin-bottom:0}
 .sched .f label{font-size:11px;letter-spacing:.02em}
@@ -2432,13 +2453,47 @@ $("#dInv").addEventListener("click", function () {
   }
 
   /* ---- 报价弹层 ---- */
+  var Q_BASE_ITEMS = ["屋顶更换 Roof Replacement", "屋顶修理 Roof Repair", "屋顶养护 Roof Maintenance",
+    "水槽清理 Gutter Cleaning", "油漆粉刷 Painting", "房屋养护 House Maintenance"];
+  function qItemNames() {
+    var seen = {}, out = [];
+    function add(n) {
+      n = String(n || "").trim();
+      if (!n || seen[n.toLowerCase()]) { return; }
+      seen[n.toLowerCase()] = 1; out.push(n);
+    }
+    Q_BASE_ITEMS.forEach(add);
+    (S.invoices || []).forEach(function (v) { (v.items || []).forEach(function (it) { add(it.desc); }); });
+    (S.customers || []).forEach(function (c) { if (c.quote && c.quote.items) { c.quote.items.forEach(function (it) { add(it.desc); }); } });
+    return out.slice(0, 30);
+  }
+  function qLastPrice(name) {
+    var key = String(name || "").trim().toLowerCase(), found = 0;
+    function scan(items) {
+      (items || []).forEach(function (it) {
+        if (String(it.desc || "").trim().toLowerCase() === key && Number(it.price) > 0) { found = Number(it.price); }
+      });
+    }
+    (S.invoices || []).forEach(function (v) { scan(v.items); });
+    (S.customers || []).forEach(function (c) { if (c.quote) { scan(c.quote.items); } });
+    return found;
+  }
   function qRowHTML(it, i) {
     return '<div class="qrow">' +
-      '<input data-qi="' + i + '" data-qk="desc" value="' + esc(it.desc || "") + '" placeholder="项目，如 Roof Replacement">' +
+      qDescField(it, i) +
       '<input data-qi="' + i + '" data-qk="qty" class="tel" value="' + (it.qty || 1) + '" placeholder="数量">' +
       '<input data-qi="' + i + '" data-qk="price" class="tel" value="' + (it.price || 0) + '" placeholder="单价">' +
       '<button class="btn sm danger" data-qdel="' + i + '">×</button>' +
       '</div>';
+  }
+  function qDescField(it, i) {
+    var cur = String(it.desc || "").trim();
+    var names = qItemNames();
+    if (cur && names.indexOf(cur) < 0) { names.unshift(cur); }
+    var opts = '<option value="">— 选择项目 —</option>' + names.map(function (n) {
+      return '<option value="' + esc(n) + '"' + (n === cur ? " selected" : "") + '>' + esc(n) + '</option>';
+    }).join("") + '<option value="__custom">＋ 其他项目（自己填）</option>';
+    return '<select data-qi="' + i + '" data-qk="desc">' + opts + '</select>';
   }
   function renderQRows(items) {
     $("#qRows").innerHTML = (items || []).map(qRowHTML).join("") || '<p class="hint">还没有明细，点下面「加一行」。</p>';
@@ -2572,6 +2627,26 @@ $("#dInv").addEventListener("click", function () {
 
     qm.addEventListener("input", function (e) {
       if (e.target.dataset.qk) { qRecalc(); }
+    });
+    qm.addEventListener("change", function (e) {
+      var sel = e.target;
+      if (!sel || sel.tagName !== "SELECT" || sel.dataset.qk !== "desc") { return; }
+      var row = sel.closest(".qrow");
+      if (sel.value === "__custom") {
+        var inp = document.createElement("input");
+        inp.setAttribute("data-qi", sel.getAttribute("data-qi") || "0");
+        inp.setAttribute("data-qk", "desc");
+        inp.placeholder = "项目名，如 Roof Replacement";
+        sel.parentNode.replaceChild(inp, sel);
+        inp.focus();
+        return;
+      }
+      var pe = row && row.querySelector('[data-qk="price"]');
+      if (pe && !(parseFloat(pe.value) > 0)) {
+        var lp = qLastPrice(sel.value);
+        if (lp > 0) { pe.value = lp; }
+      }
+      qRecalc();
     });
     qm.addEventListener("click", function (e) {
       var del = e.target.closest("[data-qdel]");
