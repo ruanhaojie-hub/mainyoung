@@ -1266,8 +1266,8 @@ html.intro-on,html.intro-on body{overflow:hidden}
   }
   doc.classList.add("intro-on");
 
-  var MIN_MS = 1100;      /* 再快也留一点时间让 logo 演完 */
-  var MAX_MS = 5200;      /* 网络再差也不能无限等 */
+  var MIN_MS = 2100;      /* 让 logo 演完、也让首屏喘口气 */
+  var MAX_MS = 7000;      /* 网络再差也不能无限等 */
   var t0 = Date.now();
   var gone = false;
 
@@ -1313,6 +1313,14 @@ html.intro-on,html.intro-on body{overflow:hidden}
     paint();
     maybeFinish();
   }
+
+  /* 字体也算一份：中文标题用的字体没到位，退场后字型会跳 */
+  try {
+    if (document.fonts && document.fonts.ready) {
+      total++;
+      document.fonts.ready.then(one, one);
+    }
+  } catch (e) {}
 
   list.forEach(function (src) {
     var img = new Image();
