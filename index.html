@@ -2545,6 +2545,7 @@ html[lang="en"] .pj-body .en{display:none;}
         done = true;
         submitBtn.disabled = false;
         setStatus("f.ok", "is-ok");
+        hideManual();
         form.reset();
         updateMsLabel();
         Array.prototype.forEach.call(form.querySelectorAll(".field"), function (f) { f.classList.remove("is-bad"); });
@@ -2563,7 +2564,7 @@ html[lang="en"] .pj-body .en{display:none;}
       var url = hasFsp ? ("https://formspree.io/f/" + FORMSPREE_ID)
                 : (hasW3F ? W3F_ENDPOINT : ENDPOINT);
       var body = hasFsp ? fspBody(services) : (hasW3F ? w3fBody(services) : payloadOf(services));
-      var wait = (hasFsp || hasW3F) ? 15000 : 6000;
+      var wait = (hasFsp || hasW3F) ? 15000 : 20000;
 
       var ctrl = ("AbortController" in window) ? new AbortController() : null;
       var settled = false;
