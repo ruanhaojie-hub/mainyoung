@@ -93,25 +93,144 @@ function getTransporter() {
   return transporter;
 }
 
+/* 邮件里的品牌素材（用公网绝对地址，邮件客户端才能取到） */
+const LOGO_URL = process.env.LOGO_URL || 'https://mainyoung.canner.app/picture/logo/hd_logo.png';
+const SITE_URL = process.env.SITE_URL || 'https://mainyoung.canner.app';
+const SITE_PHONE = process.env.SITE_PHONE || '778-239-1111';
+
+const esc = s => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* 一条纸感字段行 */
+function row(label, value) {
+  return '<tr>'
+    + '<td width="92" style="padding:13px 0 13px 0;border-bottom:1px dashed #E4DAC5;'
+    + 'font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.6px;'
+    + 'color:#8A7A5F;text-transform:uppercase;vertical-align:top;">' + label + '</td>'
+    + '<td style="padding:13px 0 13px 0;border-bottom:1px dashed #E4DAC5;'
+    + 'font-family:Georgia,\'Songti SC\',serif;font-size:15px;color:#231A10;'
+    + 'line-height:1.7;vertical-align:top;">' + value + '</td>'
+    + '</tr>';
+}
+
 function composeMail(d) {
+  const msg = d.message ? esc(d.message).replace(/\n/g, '<br>') : '（客户未填写留言）';
+  const svc = esc(d.services);
+
+  const html = '<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">'
+    + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+    + '<title>新询价单</title></head>'
+    + '<body style="margin:0;padding:0;background:#EDE7DA;">'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+    + 'bgcolor="#EDE7DA" style="background:#EDE7DA;padding:30px 12px;"><tr><td align="center">'
+
+    /* 纸张主体 */
+    + '<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" '
+    + 'bgcolor="#FBF7EE" style="width:600px;max-width:600px;background:#FBF7EE;'
+    + 'border:1px solid #DED3BC;">'
+    + '<tr><td bgcolor="#C9A24A" style="height:4px;line-height:4px;font-size:0;">&nbsp;</td></tr>'
+
+    /* 抬头：logo + 品牌英文 */
+    + '<tr><td style="padding:28px 34px 0 34px;">'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>'
+    + '<td align="left" style="vertical-align:middle;">'
+    + '<img src="' + LOGO_URL + '" width="168" alt="名扬屋顶 MAINYOUNG" '
+    + 'style="display:block;border:0;outline:none;max-width:168px;height:auto;"></td>'
+    + '<td align="right" style="vertical-align:middle;font-family:Arial,Helvetica,sans-serif;'
+    + 'font-size:9px;letter-spacing:2.4px;color:#A08A5E;text-transform:uppercase;line-height:2;">'
+    + 'ROOFING &amp; PAINTING<br>VANCOUVER · CANADA</td>'
+    + '</tr></table></td></tr>'
+
+    /* 标题 */
+    + '<tr><td style="padding:22px 34px 0 34px;">'
+    + '<div style="font-family:Georgia,\'Songti SC\',serif;font-size:27px;color:#231A10;'
+    + 'letter-spacing:1px;line-height:1.25;">新询价单</div>'
+    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:9px;letter-spacing:3.4px;'
+    + 'color:#B09B6C;text-transform:uppercase;padding-top:9px;">QUOTE REQUEST · 官网表单提交</div>'
+    + '<div style="height:1px;line-height:1px;font-size:0;background:#DED3BC;margin:18px 0 0 0;">&nbsp;</div>'
+    + '</td></tr>'
+
+    /* 字段区 */
+    + '<tr><td style="padding:6px 34px 0 34px;">'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">'
+    + row('姓名 NAME', esc(d.name))
+    + row('电话 PHONE', '<a href="tel:' + d.phone.replace(/[^+0-9]/g, '') + '" '
+    + 'style="color:#231A10;text-decoration:none;">' + esc(d.phone) + '</a>')
+    + row('邮箱 EMAIL', d.email ? '<a href="mailto:' + esc(d.email) + '" '
+    + 'style="color:#231A10;text-decoration:none;">' + esc(d.email) + '</a>' : '（客户未留邮箱）')
+    + '</table></td></tr>'
+
+    /* 服务（高亮） */
+    + '<tr><td style="padding:20px 34px 0 34px;">'
+    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.8px;'
+    + 'color:#8A7A5F;text-transform:uppercase;">服务 SERVICES</div>'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+    + 'bgcolor="#F4E9CF" style="background:#F4E9CF;border-left:3px solid #C9A24A;margin-top:9px;">'
+    + '<tr><td style="padding:13px 15px;font-family:Georgia,\'Songti SC\',serif;'
+    + 'font-size:17px;color:#231A10;line-height:1.6;">' + svc + '</td></tr></table>'
+    + '</td></tr>'
+
+    /* 留言 */
+    + '<tr><td style="padding:20px 34px 0 34px;">'
+    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;letter-spacing:1.8px;'
+    + 'color:#8A7A5F;text-transform:uppercase;">留言 MESSAGE</div>'
+    + '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" '
+    + 'bgcolor="#FFFDF8" style="background:#FFFDF8;border:1px solid #E4DAC5;margin-top:9px;">'
+    + '<tr><td style="padding:15px 17px;font-family:Georgia,\'Songti SC\',serif;'
+    + 'font-size:15px;line-height:1.95;color:#3A2E1F;">' + msg + '</td></tr></table>'
+    + '</td></tr>'
+
+    /* 时间与来源 */
+    + '<tr><td style="padding:18px 34px 0 34px;font-family:Arial,Helvetica,sans-serif;'
+    + 'font-size:11px;color:#9A8A6C;line-height:1.8;">提交时间 ' + esc(d.at)
+    + ' &nbsp;·&nbsp; 来源：官网询价表单</td></tr>'
+
+    /* 页脚 */
+    + '<tr><td style="padding:20px 34px 30px 34px;">'
+    + '<div style="height:1px;line-height:1px;font-size:0;background:#DED3BC;">&nbsp;</div>'
+    + '<div style="padding-top:16px;font-family:Arial,Helvetica,sans-serif;font-size:12px;'
+    + 'color:#6B5C43;line-height:2;">直接回复本邮件即可联系客户。'
+    + '<br>电话 <a href="tel:+1' + SITE_PHONE.replace(/[^0-9]/g, '') + '" '
+    + 'style="color:#8A6A2A;text-decoration:none;">' + SITE_PHONE + '</a>'
+    + ' &nbsp;·&nbsp; <a href="' + SITE_URL + '" style="color:#8A6A2A;text-decoration:none;">'
+    + 'mainyoung.canner.app</a></div>'
+    + '<div style="padding-top:14px;font-family:Georgia,serif;font-size:9px;letter-spacing:2.6px;'
+    + 'color:#B7A98B;text-transform:uppercase;">名扬屋顶 · MAINYOUNG ROOFING</div>'
+    + '</td></tr></table>'
+
+    /* 纸外小字 */
+    + '<div style="font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#A79A80;'
+    + 'padding-top:14px;letter-spacing:.6px;">本邮件由名扬屋顶官网自动发送 · 客户信息仅用于本次询价跟进</div>'
+    + '</td></tr></table></body></html>';
+
   const lines = [
-    '官网新询价',
-    '------------------------------',
-    '姓名 / Name：' + d.name,
-    '电话 / Phone：' + d.phone,
-    '邮箱 / Email：' + (d.email || '（未填）'),
-    '服务 / Services：' + d.services,
-    '提交时间：' + d.at,
+    '新询价单 · 名扬屋顶 MAINYOUNG',
+    '==================================',
     '',
-    '留言 / Message：',
-    d.message || '（未填写）'
+    '姓名 / Name     ：' + d.name,
+    '电话 / Phone    ：' + d.phone,
+    '邮箱 / Email    ：' + (d.email || '（未填）'),
+    '服务 / Services ：' + d.services,
+    '提交时间        ：' + d.at,
+    '来源            ：官网询价表单',
+    '',
+    '留言 / Message',
+    '----------------------------------',
+    d.message || '（未填写）',
+    '',
+    '----------------------------------',
+    '直接回复本邮件即可联系客户。',
+    '电话 ' + SITE_PHONE + ' · ' + SITE_URL
   ].join('\n');
 
+  const svcShort = d.services.length > 26 ? d.services.slice(0, 26) + '…' : d.services;
   const mail = {
     from: '"' + MAIL_FROM_NAME + '" <' + (SMTP_USER || 'no-reply@localhost') + '>',
     to: MAIL_TO,
-    subject: '名扬屋顶官网询价 · ' + d.name,
-    text: lines
+    subject: '新询价 · ' + d.name + ' · ' + svcShort,
+    text: lines,
+    html
   };
   // 客户留了邮箱就让它成为回复地址；否则回我们自己
   mail.replyTo = isEmail(d.email) ? d.email : REPLY_TO;
